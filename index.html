@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solo Leveling - Text RPG</title>
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/system-ui.css">
-    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
 
-    <!-- Conteneur Principal du Jeu (Simule l'écran d'un terminal ou d'un smartphone) -->
     <div id="game-container">
-
-        <!-- En-tête / Barre d'État (Visible hors écran titre) -->
+        <!-- Barre d'État -->
         <header id="status-bar" class="hidden">
             <div class="stat-item" title="Points de Vie">❤️ <span id="stat-hp">100</span></div>
             <div class="stat-item" title="Mana">🔷 <span id="stat-mp">50</span></div>
@@ -22,9 +18,7 @@
             <div class="stat-item" title="Moral">🧠 <span id="stat-morale">100</span></div>
         </header>
 
-        <!-- ZONE DYNAMIQUE DES ÉCRANS -->
         <main id="screen-viewport">
-
             <!-- 1. Écran Titre -->
             <section id="screen-title" class="screen active">
                 <div class="title-wrapper">
@@ -32,74 +26,63 @@
                     <p class="subtitle">Text RPG - Edition Privée</p>
                 </div>
                 <div class="menu-actions">
-                    <button class="btn primary" onclick="GameEngine.startMode(1)">Mode Principal (Simulation)</button>
-                    <button class="btn secondary" onclick="GameEngine.startMode(2)">Mode Chasseur Établi</button>
-                    <button class="btn system" onclick="GameEngine.startMode(3)">Mode Système</button>
-                    <button class="btn outline" id="btn-load" onclick="GameEngine.loadGame()">Charger la partie</button>
+                    <button class="btn primary" onclick="GameEngine.startMode(1)">Nouvelle Partie (Simulation)</button>
+                    <button class="btn secondary" onclick="GameEngine.startMode(2)">Mode Chasseur Établi (BETA)</button>
+                    <button class="btn outline hidden" id="btn-load" onclick="GameEngine.loadGame()">Charger la partie</button>
                 </div>
             </section>
 
-            <!-- 2. Écran de Création / Phase Pré-éveil -->
+            <!-- 2. Écran de Création / Transition -->
             <section id="screen-creation" class="screen hidden">
                 <h2 id="creation-title">Phase de Transition</h2>
-                <div id="creation-text-box" class="text-box">
-                    <!-- Le texte narratif s'injectera ici -->
-                </div>
-                <div id="creation-choices" class="choices-container">
-                    <!-- Les boutons de choix s'injecteront ici -->
-                </div>
+                <div id="creation-text-box" class="text-box"></div>
+                <div id="creation-choices" class="choices-container"></div>
             </section>
 
-            <!-- 3. Écran de la Ville (Hub) -->
+            <!-- 3. Écran de la Ville -->
             <section id="screen-city" class="screen hidden">
                 <div class="city-header">
-                    <h3>Monde Réel - Saisons & Gestion</h3>
-                    <p>Jours restants avant le prochain Raid : <span id="days-left">30</span></p>
+                    <h3>Monde Réel</h3>
+                    <p>Rang Officiel : <strong id="player-rank" style="color: var(--primary-blue);"></strong></p>
+                    <p>Jours restants avant raid obligatoire : <span id="days-left">30</span></p>
                 </div>
                 <div class="city-dashboard">
-                    <button class="city-btn" onclick="CityManager.openShop()">Boutique / Shop</button>
-                    <button class="city-btn" onclick="CityManager.openTraining()">S'entraîner (Stats)</button>
-                    <button class="city-btn" onclick="CityManager.openSocial()">Réseaux / Networking</button>
-                    <button class="city-btn" onclick="CityManager.openLife()">Vie Privée / Repos</button>
+                    <button class="city-btn" onclick="CityManager.openShop()">Boutique</button>
+                    <button class="city-btn" onclick="CityManager.openTraining()">S'entraîner</button>
+                    <button class="city-btn" onclick="CityManager.openSocial()">Réseaux & Contacts</button>
+                    <button class="city-btn" onclick="CityManager.openLife()">Se Reposer</button>
                 </div>
                 <div class="city-footer">
                     <button class="btn primary full-width" onclick="CityManager.openRaidBoard()">Consulter les Portails</button>
                 </div>
             </section>
 
-            <!-- 4. Écran de Donjon / Combat -->
+            <!-- 4. Écran de Donjon -->
             <section id="screen-dungeon" class="screen hidden">
                 <div id="dungeon-header">
-                    <span id="dungeon-name">Portail de Rang E</span>
-                    <span id="dungeon-progress">Salle 1 / 5</span>
+                    <span id="dungeon-name">Portail</span>
+                    <span id="dungeon-progress">Exploration en cours</span>
                 </div>
-                <div id="dungeon-text-box" class="text-box">
-                    <!-- Texte de l'événement en cours dans le donjon -->
-                </div>
-                <div id="dungeon-choices" class="choices-container">
-                    <!-- Choix tactiques (Sûr, Risqué, etc.) -->
-                </div>
+                <div id="dungeon-text-box" class="text-box"></div>
+                <div id="dungeon-choices" class="choices-container"></div>
             </section>
-
         </main>
 
-        <!-- Zone de Notification / Popup Événement Aléatoire -->
+        <!-- Fenêtre Modale (Événements) -->
         <div id="modal-overlay" class="hidden">
             <div id="modal-content">
                 <h3 id="modal-title">Alerte</h3>
-                <p id="modal-text">Description de l'événement...</p>
+                <p id="modal-text">Description</p>
                 <div id="modal-actions"></div>
             </div>
         </div>
-
     </div>
 
-<!-- Scripts JS -->
+    <!-- Ordre d'importation crucial -->
     <script src="js/storage.js"></script>
+    <script src="data/events_civil.js"></script>
+    <script src="data/events_dungeon.js"></script>
     <script src="js/engine.js"></script>
-    <script src="js/city.js"></script> <!-- Ajout indispensable -->
-    <script src="js/app.js"></script>
-</body>
-</html>
+    <script src="js/city.js"></script>
 </body>
 </html>
