@@ -9,8 +9,8 @@
 <body>
 
     <div id="game-container">
-        <!-- Barre d'État -->
-        <header id="status-bar" class="hidden">
+        <!-- Barre d'État (Toujours visible) -->
+        <header id="status-bar">
             <div class="stat-item" title="Points de Vie">❤️ <span id="stat-hp">100</span></div>
             <div class="stat-item" title="Mana">🔷 <span id="stat-mp">50</span></div>
             <div class="stat-item" title="Argent">💰 <span id="stat-money">0</span>₩</div>
@@ -43,8 +43,8 @@
             <section id="screen-city" class="screen hidden">
                 <div class="city-header">
                     <h3>Monde Réel</h3>
-                    <p>Rang Officiel : <strong id="player-rank" style="color: var(--primary-blue);"></strong></p>
-                    <p>Jours restants avant raid obligatoire : <span id="days-left">30</span></p>
+                    <p>Rang : <strong id="player-rank" style="color: var(--primary-blue);"></strong></p>
+                    <p>Jours restants : <span id="days-left">30</span></p>
                 </div>
                 <div class="city-dashboard">
                     <button class="city-btn" onclick="CityManager.openShop()">Boutique</button>
@@ -53,6 +53,7 @@
                     <button class="city-btn" onclick="CityManager.openLife()">Se Reposer</button>
                 </div>
                 <div class="city-footer">
+                    <button class="btn secondary full-width" style="margin-bottom: 10px;" onclick="CityManager.openProfile()">Profil & Stats</button>
                     <button class="btn primary full-width" onclick="CityManager.openRaidBoard()">Consulter les Portails</button>
                 </div>
             </section>
@@ -68,17 +69,16 @@
             </section>
         </main>
 
-        <!-- Fenêtre Modale (Événements) -->
+        <!-- Fenêtre Modale -->
         <div id="modal-overlay" class="hidden">
             <div id="modal-content">
                 <h3 id="modal-title">Alerte</h3>
-                <p id="modal-text">Description</p>
+                <div id="modal-text" style="margin: 15px 0; line-height: 1.5; font-size: 0.95rem;">Description</div>
                 <div id="modal-actions"></div>
             </div>
         </div>
     </div>
 
-    <!-- Ordre d'importation crucial -->
     <script src="js/storage.js"></script>
     <script src="data/events_civil.js"></script>
     <script src="data/events_dungeon.js"></script>
