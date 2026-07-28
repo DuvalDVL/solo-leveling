@@ -154,4 +154,45 @@ const GameEngine = {
     }
 };
 
+// À ajouter dans GameEngine (js/engine.js) :
+
+    showSummary(isDead) {
+        this.switchScreen(
+            document.querySelector('.screen.active').id, 
+            'screen-summary' // Nouvel écran à créer dans index.html
+        );
+
+        const career = this.state.career;
+        const profile = this.state.profile;
+        const statusText = isDead ? "DÉCÉDÉ EN ACTION" : "JEUNE RETRAITÉ";
+        
+        let eventsHtml = career.events.map(e => `<li>${e}</li>`).join('');
+        if (eventsHtml === '') eventsHtml = "<li>Aucun exploit notable.</li>";
+
+        let traitsHtml = this.state.traits.map(t => TRAITS_DB[t] ? TRAITS_DB[t].name : t).join(', ');
+        if (traitsHtml === '') traitsHtml = "Aucun";
+
+        document.getElementById('summary-content').innerHTML = `
+            <h2>Bilan de Carrière : ${statusText}</h2>
+            <p><strong>Dernier Rang Atteint :</strong> ${profile.rank}</p>
+            <p><strong>Traits acquis :</strong> ${traitsHtml}</p>
+            <hr>
+            <h3>Statistiques :</h3>
+            <ul>
+                <li>Portails fermés : ${career.blueGates}</li>
+                <li>Monstres abattus : ${career.monstersKilled}</li>
+                <li>Boss éliminés : ${career.bossesKilled}</li>
+                <li>Fortunes amassées : ${career.moneyCollected} ₩</li>
+            </ul>
+            <hr>
+            <h3>Hauts Faits :</h3>
+            <ul>${eventsHtml}</ul>
+        `;
+
+        // Si le joueur est mort, on supprime la sauvegarde
+        if (isDead) {
+            localStorage.removeItem(StorageManager.SAVE_KEY);
+        }
+    }
+
 document.addEventListener('DOMContentLoaded', () => GameEngine.init());
