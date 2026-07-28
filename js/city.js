@@ -162,12 +162,9 @@ const CityManager = {
         this.showModal("Bureau des Raids", "Choisissez un portail adapté à votre niveau.", html);
     },
 
-    enterDungeon(rank) {
+   enterDungeon(rank) {
         this.closeModal();
-        GameEngine.switchScreen('screen-city', 'screen-dungeon');
-        document.getElementById('dungeon-name').innerText = `Portail Rang ${rank}`;
-        document.getElementById('dungeon-text-box').innerHTML = "<p>L'air se refroidit. Vous pénétrez dans l'anomalie dimensionnelle...</p>";
-        document.getElementById('dungeon-choices').innerHTML = `<button class="btn primary" onclick="CityManager.exitDungeon()">Explorer la première salle (Test)</button>`;
+        DungeonManager.startDungeon(rank);
     },
 
     exitDungeon() {
