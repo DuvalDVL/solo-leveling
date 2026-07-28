@@ -132,4 +132,86 @@ const DungeonManager = {
         }
         GameEngine.switchScreen('screen-dungeon', 'screen-city');
     }
+
+    // À rajouter dans DungeonManager (js/dungeon.js) :
+
+    resolveChoice(choiceStr, isBoss) {
+        // ... (ton code précédent pour calculer statValue et totalPower) ...
+        
+        // --- NOUVEAUTÉ : Incrémenter les stats si victoire ---
+        if (isSuccess) {
+            if (isBoss) {
+                GameEngine.state.career.bossesKilled++;
+                GameEngine.state.career.events.push(`A vaincu le boss : ${DUNGEON_EVENTS[this.currentRank].boss.name}`);
+            } else {
+                GameEngine.state.career.monstersKilled++;
+            }
+        }
+
+        // ... (reste de ton code) ...
+    },
+
+    handleDeath() {
+        const roll = Math.random();
+        let title = "";
+        let text = "";
+        let actions = "";
+
+        if (roll < 0.3) {
+            // 30% : Mort Définitive
+            title = "MORT AU COMBAT";
+            text = "Les monstres ont eu raison de vous. Votre corps rejoint les cadavres qui tapissent ce portail. Votre histoire s'arrête ici.";
+            actions = `<button class="btn system" onclick="GameEngine.showSummary(true)">Voir le bilan de carrière</button>`;
+        } 
+        else if (roll < 0.7) {
+            // 40% : Sauvé par des coéquipiers ou aide (Malus temporaire / moral)
+            GameEngine.state.stats.morale -= 30;
+            GameEngine.state.stats.hp = 10;
+            GameEngine.state.traits.push("lache"); // Exemple d'acquisition de trait
+            
+            title = "SAUVETAGE IN EXTREMIS";
+            text = "Un groupe de chasseurs vous a tiré de là. Vous survivez, mais votre fierté est brisée et votre corps meurtri.<br><span style='color:var(--alert-red);'>-30 Moral. Vous obtenez le trait 'Lâche'.</span>";
+            actions = `
+                <button class="btn primary" onclick="CityManager.exitDungeon(false)">Continuer (Retour en ville)</button>
+                <button class="btn outline" onclick="GameEngine.showSummary(false)">Prendre sa retraite</button>
+            `;
+        } 
+        else {
+            // 30% : Réveil à l'hôpital avec amputation / dettes
+            const debt = 50000;
+            GameEngine.state.stats.money -= debt;
+            GameEngine.state.stats.hp = 20;
+            
+            const oldStr = GameEngine.state.stats.strength;
+            GameEngine.state.stats.strength = Math.max(1, oldStr - 10);
+            GameEngine.state.traits.push("ampute_bras");
+
+            title = "RÉVEIL À L'HÔPITAL";
+            text = `Vous ouvrez les yeux dans une chambre d'hôpital. Une douleur fantôme vous lance... Ils ont dû vous amputer d'un bras pour vous sauver du poison.<br><br>
+            <strong>Frais médicaux :</strong> <span style='color:var(--alert-red);'>-${debt} ₩</span><br>
+            <strong>Force :</strong> ${oldStr} ➔ <span style='color:var(--alert-red);'>${GameEngine.state.stats.strength}</span><br>
+            <span style='color:var(--alert-red);'>Vous obtenez le trait 'Amputé (Bras)'.</span>`;
+            
+            actions = `
+                <button class="btn primary" onclick="CityManager.exitDungeon(false)">S'adapter et Continuer</button>
+                <button class="btn outline" onclick="GameEngine.showSummary(false)">Prendre sa retraite</button>
+            `;
+        }
+
+        document.getElementById('dungeon-text-box').innerHTML = `
+            <p style="font-weight: bold; font-size: 1.2rem;">${title}</p>
+            <p>${text}</p>
+        `;
+        document.getElementById('dungeon-choices').innerHTML = actions;
+    },
+
+    exitDungeon(isVictory) {
+        if (isVictory) {
+            GameEngine.state.career.blueGates++;
+            GameEngine.state.career.moneyCollected += DUNGEON_EVENTS[this.currentRank].boss.loot.money;
+            alert("Vous avez fermé le portail avec succès !");
+            CityManager.consumeDay();
+        }
+        GameEngine.switchScreen('screen-dungeon', 'screen-city');
+    }
 };
