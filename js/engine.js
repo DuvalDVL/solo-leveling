@@ -118,26 +118,107 @@ const GameEngine = {
     /**
      * Détermine la suite logique selon le mode après l'écran titre.
      */
+
     initModeFlow() {
         if (this.state.mode === 1) {
-            // Mode Principal : Commence par la phase de transition / pré-éveil (les choix d'origine)
-            document.getElementById('creation-title').innerText = "Phase 1 : Origines & Transition";
-            document.getElementById('creation-text-box').innerHTML = 
-                "<p>Avant d'obtenir vos pouvoirs et d'entrer dans le monde impitoyable des Chasseurs, vous devez mener votre vie quotidienne. Vos choix façonneront votre corps et votre esprit.</p>" +
-                "<p><strong>Première étape : Quelle était votre situation avant l'éveil ?</strong></p>";
-            
-            // Injection des premiers choix d'origine (Exemple simple en attendant le fichier d'événements dédiés)
-            const choicesBox = document.getElementById('creation-choices');
-            choicesBox.innerHTML = `
-                <button class="btn" onclick="GameEngine.handleCreationChoice('student')">Étudiant surmené (Bonus Intelligence, Malus Force)</button>
-                <button class="btn" onclick="GameEngine.handleCreationChoice('worker')">Employé de bureau (Résistance accrue, Malus Agilité)</button>
-                <button class="btn" onclick="GameEngine.handleCreationChoice('street')">Orphelin / Survie urbaine (Bonus Perception & Furtivité, Malus Argent)</button>
-            `;
+            // Mode Principal : Initialisation de la phase pré-éveil (compteur d'événements avant l'éveil)
+            this.state.preAwakeningStep = 1;
+            this.triggerNextPreAwakeningEvent();
         } else {
-            // Pour les modes 2 et 3, on saute directement en ville pour l'action
+            // Pour les modes 2 et 3, on saute directement en ville
             this.switchScreen('screen-creation', 'screen-city');
         }
     },
+
+    triggerNextPreAwakeningEvent() {
+        const creationTitle = document.getElementById('creation-title');
+        const textBox = document.getElementById('creation-text-box');
+        const choicesBox = document.getElementById('creation-choices');
+
+        // Si le joueur a passé 3 étapes de vie quotidienne, l'Éveil se déclenche
+        if (this.state.preAwakeningStep > 3) {
+            this.triggerAwakeningEvent();
+            return;
+        }
+
+        creationTitle.innerText = `Phase Pré-Éveil (Étape ${this.state.preAwakeningStep} / 3)`;
+        
+        // On pioche un événement aléatoire de civil_events si disponible, sinon choix d'origine par défaut
+        textBox.innerHTML = `
+            <p>Votre vie suit son cours. Chaque épreuve ou choix modifie subtilement votre condition physique et mentale avant que le destin ne bascule.</p>
+            <p><strong>Situation actuelle :</strong> Vous faites face à un choix décisif de votre quotidien.</p>
+        `;
+
+        // Si c'est la première étape, on choisit l'origine / occupation
+        if (this.state.preAwakeningStep === 1) {
+            choicesBox.innerHTML = `
+                <button class="btn" onclick="GameEngine.handlePreAwakeningChoice('student')">Étudiant surmené (Bonus Intelligence)</button>
+                <button class="btn" onclick="GameEngine.handlePreAwakeningChoice('worker')">Employé de bureau (Résistance au stress)</button>
+                <button class="btn" onclick="GameEngine.handlePreAwakeningChoice('street')">Enfance difficile / Survie (Bonus Perception)</button>
+            `;
+        } else {
+            // Étapes suivantes : on pioche dans les événements civils ou des situations aléatoires
+            choicesBox.innerHTML = `
+                <button class="btn primary" onclick="GameEngine.handlePreAwakeningChoice('event_positive')">Faire face avec courage et détermination (+ Moral)</button>
+                <button class="btn secondary" onclick="GameEngine.handlePreAwakeningChoice('event_hard')">Travailler dur quitte à y laisser la santé (+ Force / Fatigue +)</button>
+            `;
+        }
+    },
+
+    handlePreAwakeningChoice(type) {
+        if (type === 'student') {
+            this.state.stats.intelligence += 10;
+        } else if (type === 'worker') {
+            this.state.stats.vitality += 8;
+        } else if (type === 'street') {
+            this.state.stats.perception += 10;
+        } else if (type === 'event_positive') {
+            this.state.stats.morale += 10;
+        } else if (type === 'event_hard') {
+            this.state.stats.strength += 5;
+            this.state.stats.fatigue += 15;
+        }
+
+        this.state.preAwakeningStep++;
+        StorageManager.saveGame(this.state);
+        this.triggerNextPreAwakeningEvent();
+    },
+
+    triggerAwakeningEvent() {
+        const creationTitle = document.getElementById('creation-title');
+        const textBox = document.getElementById('creation-text-box');
+        const choicesBox = document.getElementById('creation-choices');
+
+        creationTitle.innerText = "L'ÉVÉNEMENT : L'ÉVEIL";
+        textBox.innerHTML = `
+            <p style="color: var(--alert-red);"><strong>ALERTE DE FIÈVRE FOUDROYANTE</strong></p>
+            <p>Sans prévenir, une douleur fulgurante traverse votre corps. Vous vous effondrez chez vous, brûlant d'une fièvre anormale pendant trois jours complets. Vos proches appellent les urgences in extremis.</p>
+            <p>À votre réveil à l'hôpital, le monde a changé. Une énergie invisible pulse en vous. Vous venez de vous <strong>Éveiller</strong>.</p>
+            <p>L'Association des Chasseurs a été prévenue. Vous êtes convoqué dans 7 jours pour passer un test d'évaluation officiel et déterminer votre Rang.</p>
+        `;
+
+        choicesBox.innerHTML = `
+            <button class="btn primary" onclick="GameEngine.finishAwakeningAndEnterCity()">Se rendre à l'évaluation de l'Association (7 jours plus tard)</button>
+        `;
+    },
+
+    finishAwakeningAndEnterCity() {
+        // Attribuer un Rang aléatoire pondéré (majorité de E ou D pour le mode normal)
+        const rand = Math.random();
+        if (rand < 0.6) this.state.profile.rank = 'E';
+        else if (rand < 0.9) this.state.profile.rank = 'D';
+        else this.state.profile.rank = 'C';
+
+        this.state.profile.classType = 'Chasseur Non-Classé (Évalué)';
+        this.state.daysLeft = 30; // Initialisation propre du compteur avant le premier vrai raid en ville
+
+        StorageManager.saveGame(this.state);
+
+        // Passage officiel à la Ville
+        this.switchScreen('screen-creation', 'screen-city');
+        this.updateStatusBar();
+        alert(`Évaluation terminée. Le verdict de l'Association tombe : vous êtes classé Chasseur de Rang ${this.state.profile.rank}. Bienvenue dans le monde des Chasseurs.`);
+    }
 
     /**
      * Gère temporairement les choix de création (sera externalisé plus tard).
