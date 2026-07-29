@@ -69,15 +69,16 @@
             </section>
         </main>
 
-        <!-- 5. Écran de Résumé (Fin de partie / Retraite) -->
+   <!-- 5. Écran de Résumé (Fin de partie / Retraite) -->
             <section id="screen-summary" class="screen hidden">
-                <div id="summary-content" class="text-box" style="text-align: left;">
+                <div id="summary-content" class="text-box" style="text-align: left; overflow-y: auto;">
                     <!-- Rempli par le JS -->
                 </div>
                 <div class="choices-container">
-                    <button class="btn system" onclick="location.reload()">Retour au Menu Principal</button>
+                    <button class="btn system" onclick="location.reload()">Retour à l'écran titre</button>
                 </div>
             </section>
+        </main>
 
         <!-- Fenêtre Modale -->
         <div id="modal-overlay" class="hidden">
@@ -89,7 +90,9 @@
         </div>
     </div>
 
+    <!-- ORDRE STRICT DES SCRIPTS -->
     <script src="js/storage.js"></script>
+    <script src="data/traits.js"></script>
     <script src="data/events_civil.js"></script>
     <script src="data/events_dungeon.js"></script>
     <script src="js/engine.js"></script>
