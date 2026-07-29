@@ -1,5 +1,5 @@
 const CityManager = {
-    // Tes autres fonctions (openShop, openTraining, etc.) doivent être ici...
+    // Les autres fonctions (openShop, openTraining, etc.) doivent être ici...
 
     showModal(title, text, actionsHtml) {
         document.getElementById('modal-title').innerText = title;
