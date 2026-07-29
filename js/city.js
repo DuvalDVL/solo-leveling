@@ -1,4 +1,18 @@
-openProfile() {
+const CityManager = {
+    // Tes autres fonctions (openShop, openTraining, etc.) doivent être ici...
+
+    showModal(title, text, actionsHtml) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-text').innerHTML = text;
+        document.getElementById('modal-actions').innerHTML = actionsHtml;
+        document.getElementById('modal-overlay').classList.remove('hidden');
+    },
+
+    closeModal() {
+        document.getElementById('modal-overlay').classList.add('hidden');
+    },
+
+    openProfile() {
         const p = GameEngine.state.profile;
         const s = GameEngine.state.stats;
         
@@ -20,4 +34,5 @@ openProfile() {
             <button class="btn system full-width" style="margin-top:10px;" onclick="CityManager.closeModal(); GameEngine.showSummary(false);">Prendre sa retraite</button>
         `;
         this.showModal("Dossier Chasseur", "", html);
-    },
+    }
+};
