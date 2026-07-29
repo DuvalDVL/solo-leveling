@@ -2,12 +2,12 @@ const DungeonManager = {
     currentRank: 'E',
     roomCount: 0,
     maxRooms: 5,
+    currentEncounter: null, // Mémorise la salle actuelle
 
     startDungeon(rank) {
         this.currentRank = rank;
         this.roomCount = 0;
         document.getElementById('dungeon-name').innerText = `Portail Rang ${rank}`;
-        
         GameEngine.switchScreen('screen-city', 'screen-dungeon');
         this.nextRoom();
     },
@@ -17,96 +17,85 @@ const DungeonManager = {
         document.getElementById('dungeon-progress').innerText = `Salle ${this.roomCount} / ${this.maxRooms}`;
         
         if (this.roomCount === this.maxRooms) {
-            this.generateBossRoom();
+            this.currentEncounter = DUNGEON_EVENTS[this.currentRank].boss;
+            document.getElementById('dungeon-progress').innerText = `SALLE DU BOSS`;
+            this.displayEncounter(true);
         } else {
-            this.generateRandomRoom();
+            const data = DUNGEON_EVENTS[this.currentRank];
+            this.currentEncounter = (Math.random() < 0.7) 
+                ? data.monsters[Math.floor(Math.random() * data.monsters.length)]
+                : data.traps[Math.floor(Math.random() * data.traps.length)];
+            this.displayEncounter(false);
         }
     },
 
-    generateRandomRoom() {
-        // 70% chance de monstre, 30% chance de piège/événement
-        const roll = Math.random();
-        const data = DUNGEON_EVENTS[this.currentRank];
-        
-        let encounter;
-        if (roll < 0.7) {
-            encounter = data.monsters[Math.floor(Math.random() * data.monsters.length)];
-        } else {
-            encounter = data.traps[Math.floor(Math.random() * data.traps.length)];
-        }
-
-        this.displayEncounter(encounter);
-    },
-
-    generateBossRoom() {
-        const boss = DUNGEON_EVENTS[this.currentRank].boss;
-        document.getElementById('dungeon-progress').innerText = `SALLE DU BOSS`;
-        this.displayEncounter(boss, true);
-    },
-
-    displayEncounter(encounter, isBoss = false) {
-        const title = encounter.name ? `<strong>${encounter.name}</strong>` : "<strong>Piège / Événement</strong>";
-        document.getElementById('dungeon-text-box').innerHTML = `<p>${title}</p><p>${encounter.text}</p>`;
+    displayEncounter(isBoss) {
+        const title = this.currentEncounter.name ? `<strong>${this.currentEncounter.name}</strong>` : "<strong>Événement</strong>";
+        document.getElementById('dungeon-text-box').innerHTML = `<p>${title}</p><p>${this.currentEncounter.text}</p>`;
         
         let html = '';
-        encounter.choices.forEach((choice, index) => {
-            // Convertir l'objet en string pour le passer dans le onclick
-            const choiceStr = encodeURIComponent(JSON.stringify(choice));
-            html += `<button class="btn primary" onclick="DungeonManager.resolveChoice('${choiceStr}', ${isBoss})">${choice.text}</button>`;
+        this.currentEncounter.choices.forEach((choice, index) => {
+            // VERIFICATION DES TRAITS : Si le choix a besoin d'un trait que le joueur n'a pas, on le masque
+            if (choice.requiredTrait && !GameEngine.state.traits.includes(choice.requiredTrait)) {
+                return; 
+            }
+            // Bouton simplifié (plus de JSON qui casse)
+            html += `<button class="btn primary" onclick="DungeonManager.resolveChoice(${index}, ${isBoss})">${choice.text}</button>`;
         });
         
         document.getElementById('dungeon-choices').innerHTML = html;
     },
 
-    resolveChoice(choiceStr, isBoss) {
-        const choice = JSON.parse(decodeURIComponent(choiceStr));
+    resolveChoice(choiceIndex, isBoss) {
+        const choice = this.currentEncounter.choices[choiceIndex];
         const playerStats = GameEngine.state.stats;
-        let isSuccess = false;
+        
+        let statValue = (choice.statCheck === 'hybrid') 
+            ? playerStats.strength + playerStats.agility 
+            : (playerStats[choice.statCheck] || 0);
 
-        // Calcul de la réussite basé sur la stat requise
-        let statValue = 0;
-        if (choice.statCheck === 'hybrid') {
-            statValue = playerStats.strength + playerStats.agility; // Ex: pour le boss
-        } else {
-            statValue = playerStats[choice.statCheck] || 0;
-        }
+        // Les traits influencent aussi passivement la puissance globale
+        if (GameEngine.state.traits.includes("ampute_bras") && (choice.statCheck === 'strength' || choice.statCheck === 'hybrid')) statValue -= 5;
+        if (GameEngine.state.traits.includes("courageux")) statValue += 2; // Bonus passif de courage
 
-        // Ajout d'une part d'aléatoire (le joueur peut réussir avec de la chance même si sa stat est un peu basse)
-        const roll = Math.floor(Math.random() * 10) + 1; // 1 à 10
-        const totalPower = statValue + roll;
-
-        isSuccess = totalPower >= choice.diff;
+        const roll = Math.floor(Math.random() * 10) + 1;
+        const isSuccess = (statValue + roll) >= choice.diff;
         const outcome = isSuccess ? choice.win : choice.lose;
 
-        // Appliquer les effets
         if (outcome.effect) {
-            for (let key in outcome.effect) {
-                GameEngine.state.stats[key] += outcome.effect[key];
-            }
+            for (let key in outcome.effect) GameEngine.state.stats[key] += outcome.effect[key];
         }
         
+        if (isSuccess) {
+            if (isBoss) {
+                GameEngine.state.career.bossesKilled++;
+                GameEngine.state.career.events.push(`A vaincu le boss : ${this.currentEncounter.name}`);
+                // Exemple d'obtention de trait
+                if (this.currentEncounter.name === "Chef Gobelin" && !GameEngine.state.traits.includes("tueur_gobelin")) {
+                    GameEngine.state.traits.push("tueur_gobelin");
+                    outcome.text += "<br><strong>[Nouveau Trait Débloqué : Fléau des Gobelins]</strong>";
+                }
+            } else {
+                GameEngine.state.career.monstersKilled++;
+            }
+        }
+
         GameEngine.updateStatusBar();
 
-        // Vérifier la mort du joueur
         if (GameEngine.state.stats.hp <= 0) {
             this.handleDeath();
             return;
         }
 
-        // Afficher l'écran de résultat de l'action
         let resultHtml = `<p>${outcome.text}</p>`;
         
         if (isBoss && isSuccess) {
-            const loot = DUNGEON_EVENTS[this.currentRank].boss.loot;
+            const loot = this.currentEncounter.loot;
             GameEngine.state.stats.money += loot.money;
-            resultHtml += `<hr style="margin: 15px 0; border-color: var(--border-color);"><p><strong>RÉCOMPENSES DE RAID :</strong><br>+${loot.money} ₩<br>Objet : ${loot.item}</p>`;
+            resultHtml += `<hr style="border-color: var(--border-color); margin: 15px 0;"><p><strong>BUTIN :</strong><br>+${loot.money} ₩<br>Objet : ${loot.item}</p>`;
             document.getElementById('dungeon-choices').innerHTML = `<button class="btn system" onclick="DungeonManager.exitDungeon(true)">Quitter le portail victorieux</button>`;
         } else if (isBoss && !isSuccess) {
-            // Si le joueur rate contre le boss, on lui propose de réessayer (le combat continue) ou de fuir
-            document.getElementById('dungeon-choices').innerHTML = `
-                <button class="btn primary" onclick="DungeonManager.generateBossRoom()">Continuer le combat</button>
-                <button class="btn outline" onclick="DungeonManager.exitDungeon(false)">Fuir le portail (Échec)</button>
-            `;
+            document.getElementById('dungeon-choices').innerHTML = `<button class="btn primary" onclick="DungeonManager.displayEncounter(true)">Continuer le combat</button> <button class="btn outline" onclick="DungeonManager.exitDungeon(false)">Fuir</button>`;
         } else {
             document.getElementById('dungeon-choices').innerHTML = `<button class="btn secondary" onclick="DungeonManager.nextRoom()">Continuer l'exploration</button>`;
         }
@@ -115,100 +104,43 @@ const DungeonManager = {
     },
 
     handleDeath() {
-        document.getElementById('dungeon-text-box').innerHTML = `
-            <p style="color: var(--alert-red); font-weight: bold; font-size: 1.2rem;">VOUS ÊTES MORT</p>
-            <p>Les monstres ont eu raison de vous. Votre aventure s'arrête ici.</p>
-        `;
-        document.getElementById('dungeon-choices').innerHTML = `<button class="btn system" onclick="location.reload()">Retour à l'écran titre</button>`;
-        localStorage.removeItem(StorageManager.SAVE_KEY); // Optionnel : efface la sauvegarde (Permadeath)
-    },
-
-    exitDungeon(isVictory) {
-        if (isVictory) {
-            alert("Vous avez fermé le portail avec succès !");
-            CityManager.consumeDay(); // L'exploration prend un jour
-        } else {
-            alert("Vous fuyez le portail la queue entre les jambes...");
-        }
-        GameEngine.switchScreen('screen-dungeon', 'screen-city');
-    }
-
-    // À rajouter dans DungeonManager (js/dungeon.js) :
-
-    resolveChoice(choiceStr, isBoss) {
-        // ... (ton code précédent pour calculer statValue et totalPower) ...
-        
-        // --- NOUVEAUTÉ : Incrémenter les stats si victoire ---
-        if (isSuccess) {
-            if (isBoss) {
-                GameEngine.state.career.bossesKilled++;
-                GameEngine.state.career.events.push(`A vaincu le boss : ${DUNGEON_EVENTS[this.currentRank].boss.name}`);
-            } else {
-                GameEngine.state.career.monstersKilled++;
-            }
-        }
-
-        // ... (reste de ton code) ...
-    },
-
-    handleDeath() {
         const roll = Math.random();
-        let title = "";
-        let text = "";
-        let actions = "";
+        let title = "", text = "", actions = "";
 
         if (roll < 0.3) {
-            // 30% : Mort Définitive
             title = "MORT AU COMBAT";
-            text = "Les monstres ont eu raison de vous. Votre corps rejoint les cadavres qui tapissent ce portail. Votre histoire s'arrête ici.";
+            text = "Votre corps rejoint les cadavres qui tapissent ce portail. Votre histoire s'arrête ici.";
             actions = `<button class="btn system" onclick="GameEngine.showSummary(true)">Voir le bilan de carrière</button>`;
         } 
         else if (roll < 0.7) {
-            // 40% : Sauvé par des coéquipiers ou aide (Malus temporaire / moral)
             GameEngine.state.stats.morale -= 30;
             GameEngine.state.stats.hp = 10;
-            GameEngine.state.traits.push("lache"); // Exemple d'acquisition de trait
+            if (!GameEngine.state.traits.includes("lache")) GameEngine.state.traits.push("lache");
             
             title = "SAUVETAGE IN EXTREMIS";
-            text = "Un groupe de chasseurs vous a tiré de là. Vous survivez, mais votre fierté est brisée et votre corps meurtri.<br><span style='color:var(--alert-red);'>-30 Moral. Vous obtenez le trait 'Lâche'.</span>";
-            actions = `
-                <button class="btn primary" onclick="CityManager.exitDungeon(false)">Continuer (Retour en ville)</button>
-                <button class="btn outline" onclick="GameEngine.showSummary(false)">Prendre sa retraite</button>
-            `;
+            text = "Un groupe de chasseurs vous a tiré de là. Vous survivez, mais votre fierté est brisée.<br><span style='color:var(--alert-red);'>-30 Moral. Trait 'Lâche' obtenu (si non possédé).</span>";
+            actions = `<button class="btn primary" onclick="CityManager.exitDungeon(false)">Continuer (Retour en ville)</button> <button class="btn outline" onclick="GameEngine.showSummary(false)">Prendre sa retraite</button>`;
         } 
         else {
-            // 30% : Réveil à l'hôpital avec amputation / dettes
             const debt = 50000;
             GameEngine.state.stats.money -= debt;
             GameEngine.state.stats.hp = 20;
-            
-            const oldStr = GameEngine.state.stats.strength;
-            GameEngine.state.stats.strength = Math.max(1, oldStr - 10);
-            GameEngine.state.traits.push("ampute_bras");
+            GameEngine.state.stats.strength = Math.max(1, GameEngine.state.stats.strength - 10);
+            if (!GameEngine.state.traits.includes("ampute_bras")) GameEngine.state.traits.push("ampute_bras");
 
             title = "RÉVEIL À L'HÔPITAL";
-            text = `Vous ouvrez les yeux dans une chambre d'hôpital. Une douleur fantôme vous lance... Ils ont dû vous amputer d'un bras pour vous sauver du poison.<br><br>
-            <strong>Frais médicaux :</strong> <span style='color:var(--alert-red);'>-${debt} ₩</span><br>
-            <strong>Force :</strong> ${oldStr} ➔ <span style='color:var(--alert-red);'>${GameEngine.state.stats.strength}</span><br>
-            <span style='color:var(--alert-red);'>Vous obtenez le trait 'Amputé (Bras)'.</span>`;
-            
-            actions = `
-                <button class="btn primary" onclick="CityManager.exitDungeon(false)">S'adapter et Continuer</button>
-                <button class="btn outline" onclick="GameEngine.showSummary(false)">Prendre sa retraite</button>
-            `;
+            text = `Ils ont dû vous amputer d'un bras pour vous sauver.<br><br><strong>Frais :</strong> <span style='color:var(--alert-red);'>-${debt} ₩</span><br><strong>Force diminuée.</strong><br><span style='color:var(--alert-red);'>Trait 'Amputé (Bras)' obtenu.</span>`;
+            actions = `<button class="btn primary" onclick="CityManager.exitDungeon(false)">S'adapter et Continuer</button> <button class="btn outline" onclick="GameEngine.showSummary(false)">Prendre sa retraite</button>`;
         }
 
-        document.getElementById('dungeon-text-box').innerHTML = `
-            <p style="font-weight: bold; font-size: 1.2rem;">${title}</p>
-            <p>${text}</p>
-        `;
+        document.getElementById('dungeon-text-box').innerHTML = `<p style="font-weight: bold; font-size: 1.2rem;">${title}</p><p>${text}</p>`;
         document.getElementById('dungeon-choices').innerHTML = actions;
     },
 
     exitDungeon(isVictory) {
         if (isVictory) {
             GameEngine.state.career.blueGates++;
-            GameEngine.state.career.moneyCollected += DUNGEON_EVENTS[this.currentRank].boss.loot.money;
+            GameEngine.state.career.moneyCollected += this.currentEncounter.loot.money;
             alert("Vous avez fermé le portail avec succès !");
             CityManager.consumeDay();
         }
