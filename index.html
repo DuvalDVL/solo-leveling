@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Système - Text RPG (V1.1)</title>
+    <title>Le Système - Text RPG (V1.2)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
         <section id="screen-home" class="screen active">
             <div class="title-container">
                 <h1 class="neon-title">[ S Y S T È M𝙴 ]</h1>
-                <p class="subtitle">Protocole d'Éveil V1.1</p>
+                <p class="subtitle">Protocole d'Éveil V1.2</p>
             </div>
             <div class="menu-buttons">
                 <button id="btn-new-game" class="hologram-btn primary">Nouvelle Partie</button>
@@ -26,29 +26,23 @@
             </div>
         </section>
 
-        <!-- ÉCRAN 2 : HISTORIQUE -->
-        <section id="screen-history" class="screen hidden">
+        <!-- ÉCRAN 1.5 : CRÉATION DE PERSONNAGE -->
+        <section id="screen-creation" class="screen hidden">
             <div class="hologram-panel">
-                <h2 class="panel-title">[ ARCHIVES DU JOUEUR ]</h2>
-                <div class="panel-content">
-                    <ul id="history-list" class="history-list">
-                        <li>Aucune archive enregistrée.</li>
-                    </ul>
+                <h2 class="panel-title">[ IDENTIFICATION ]</h2>
+                <div class="panel-content creation-form">
+                    <label class="sys-msg">Nom du Joueur :</label>
+                    <input type="text" id="input-nom" class="hologram-input" value="Sung" maxlength="15">
+                    
+                    <label class="sys-msg" style="margin-top:15px; display:block;">Statut Civil (Métier) :</label>
+                    <select id="select-metier" class="hologram-input">
+                        <option value="Ouvrier">Ouvrier (Force/Vitalité)</option>
+                        <option value="Employé de Bureau">Employé de Bureau (Intelligence/Or)</option>
+                        <option value="Livreur">Livreur (Agilité/Vitalité)</option>
+                        <option value="Étudiant">Étudiant (Intelligence/Agilité)</option>
+                    </select>
                 </div>
-                <button class="hologram-btn btn-back">Retour au Menu</button>
-            </div>
-        </section>
-
-        <!-- ÉCRAN 3 : AIDE -->
-        <section id="screen-help" class="screen hidden">
-            <div class="hologram-panel">
-                <h2 class="panel-title">[ GUIDE D'ÉVEIL ]</h2>
-                <div class="panel-content">
-                    <p>Bienvenue dans le Système. Vos choix civils initiaux déterminent votre évaluation de Chasseur.</p>
-                    <p>Dans le Hub Central, gérez vos quêtes, entraînez-vous, reposez-vous, achetez de l'équipement et conquérez les donjons avant l'échéance du loyer.</p>
-                    <p class="sys-msg warning">Avertissement : Le temps s'écoule à chaque action.</p>
-                </div>
-                <button class="hologram-btn btn-back">Retour au Menu</button>
+                <button id="btn-start-civil" class="hologram-btn primary" style="margin-top: 20px;">Confirmer et Lancer</button>
             </div>
         </section>
 
@@ -57,8 +51,9 @@
             <!-- HUD SUPÉRIEUR -->
             <div class="game-hud">
                 <div class="hud-item"><span>RANG:</span> <span id="hud-rang">E</span></div>
-                <div class="hud-item"><span>LVL:</span> <span id="hud-lvl">1</span></div>
+                <div class="hud-item"><span>CLASSE:</span> <span id="hud-classe" style="color:var(--neon-green);">Aucune</span></div>
                 <div class="hud-item"><span>PV:</span> <span id="hud-pv">100</span>/<span id="hud-pvmax">100</span></div>
+                <div class="hud-item"><span>PM:</span> <span id="hud-pm">50</span>/<span id="hud-pmmax">50</span></div>
                 <div class="hud-item"><span>OR:</span> <span id="hud-or">300</span> 🪙</div>
                 <div class="hud-item"><span>LOYER:</span> <span id="hud-loyer">7</span>j</div>
             </div>
@@ -75,14 +70,12 @@
 
     </div>
 
-    <!-- MODALE INVENTAIRE / GRILLE & ÉQUIPEMENT -->
+    <!-- MODALES EXISTANTES (Inventaire, Stats) -->
     <div id="modal-inventory" class="modal hidden">
         <div class="hologram-panel modal-panel">
             <h2 class="panel-title">[ INVENTAIRE & ÉQUIPEMENT ]</h2>
             <div class="inventory-layout">
-                <!-- Grille des sacs -->
                 <div class="inventory-grid" id="inventory-grid-container"></div>
-                <!-- Équipements portés -->
                 <div class="equipped-sidebar">
                     <h3 class="sys-msg" style="margin-top:0;">Équipé :</h3>
                     <div class="equip-slot" id="eq-tete">Tête : [Vide]</div>
@@ -97,7 +90,6 @@
         </div>
     </div>
 
-    <!-- MODALE STATS -->
     <div id="modal-stats" class="modal hidden">
         <div class="hologram-panel modal-panel">
             <h2 class="panel-title">[ STATISTIQUES DU JOUEUR ]</h2>
