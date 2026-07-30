@@ -45,7 +45,7 @@
                 <h2 class="panel-title">[ GUIDE D'ÉVEIL ]</h2>
                 <div class="panel-content">
                     <p>Bienvenue dans le Système. Vos choix civils détermineront vos prédispositions.</p>
-                    <p>Ensuite, survivez en gérant vos quêtes, payez votre loyer et vos frais médicaux, et terrassez les donjons.</p>
+                    <p>Survivez en gérant vos quêtes, payez votre loyer, équipez votre matériel et terrassez les donjons.</p>
                     <p class="sys-msg warning">Avertissement : Le temps s'écoule à chaque action.</p>
                 </div>
                 <button class="hologram-btn btn-back">Retour au Menu</button>
@@ -69,9 +69,7 @@
                 <div id="event-text" class="panel-content">
                     Connexion au réseau du Système...
                 </div>
-                <div id="event-choices" class="choices-container">
-                    <!-- Boutons injectés dynamiquement -->
-                </div>
+                <div id="event-choices" class="choices-container"></div>
             </div>
 
             <!-- MENU RACCOURCIS / HUBS DE LA PHASE 2 -->
@@ -90,11 +88,10 @@
     <div id="modal-inventory" class="modal hidden">
         <div class="hologram-panel modal-panel">
             <h2 class="panel-title">[ INVENTAIRE - GRILLE ]</h2>
-            <div class="inventory-grid" id="inventory-grid-container">
-                <!-- Grille d'icônes -->
-            </div>
+            <div class="inventory-grid" id="inventory-grid-container"></div>
             <div id="item-details" class="item-details">Sélectionnez un objet.</div>
-            <button class="hologram-btn" onclick="closeInventoryModal()">Fermer</button>
+            <div id="item-actions" class="item-actions-container"></div>
+            <button class="hologram-btn" onclick="closeInventoryModal()" style="margin-top:15px;">Fermer</button>
         </div>
     </div>
 
