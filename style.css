@@ -1,72 +1,308 @@
+/* ==========================================
+   STYLE DE BASE ET COULEURS SYSTÈME
+========================================== */
 :root {
-    --bg-dark: #0a0c10;
-    --bg-panel: rgba(15, 20, 29, 0.9);
-    --neon-blue: #00f0ff;
-    --neon-blue-dim: rgba(0, 240, 255, 0.3);
-    --neon-red: #ff0055;
-    --neon-green: #00ff88;
-    --text-main: #e2e8f0;
-    --font-sys: 'Orbitron', sans-serif;
-    --font-text: 'Inter', sans-serif;
+    --bg-color: #050a0f;
+    --panel-bg: #0d1520;
+    --border-color: #00f0ff;
+    --text-main: #c9d1d9;
+    
+    /* Couleurs de Rangs */
+    --rang-e: #8b949e;  /* Gris */
+    --rang-d: #3fb950;  /* Vert */
+    --rang-c: #58a6ff;  /* Bleu */
+    --rang-b: #bc8cff;  /* Violet */
+    --rang-a: #d29922;  /* Doré */
+    --rang-s: #f85149;  /* Rouge Néon */
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace; /* Typographie style terminal */
+}
 
 body {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-color);
     color: var(--text-main);
-    font-family: var(--font-text);
+    display: flex;
+    justify-content: center;
+    padding: 20px;
     height: 100vh;
+}
+
+/* ==========================================
+   BARRE DE STATUT (TOP BAR)
+========================================== */
+#top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #000;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 20px;
+    font-size: 14px;
+    z-index: 100;
+}
+
+.stat-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    color: #555;
+}
+
+.value {
+    font-weight: bold;
+}
+
+.class-text {
+    color: var(--rang-d);
+}
+
+.sys-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: var(--text-main);
+    padding: 5px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.sys-btn:hover {
+    border-color: var(--border-color);
+    color: var(--border-color);
+    box-shadow: 0 0 5px var(--border-color);
+}
+
+/* ==========================================
+   FENÊTRE PRINCIPALE & PANNEAU LATÉRAL
+========================================== */
+#game-window {
+    margin-top: 60px;
+    width: 600px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+    padding: 30px;
+    position: relative;
+}
+
+#side-panel {
+    margin-top: 60px;
+    margin-left: 20px;
+    width: 250px;
+    background: var(--panel-bg);
+    border: 1px solid #333;
+    padding: 20px;
+}
+
+.view-title, .panel-title {
+    color: var(--border-color);
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.system-prompt {
+    text-align: center;
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+/* Boutons d'Action */
+.action-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.action-btn {
+    background: #161b22;
+    color: var(--text-main);
+    border: 1px solid #30363d;
+    padding: 15px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    border-color: var(--border-color);
+    background: #1f242c;
+}
+
+.danger-btn { border-color: #660000; color: #ff6666; }
+.danger-btn:hover { border-color: var(--rang-s); background: #330000; }
+.system-color { border-color: var(--border-color); color: var(--border-color); }
+
+/* Vues */
+.view { display: none; }
+.view.active { display: block; }
+.hidden { display: none !important; }
+
+/* Log de Combat */
+.log-box {
+    background: #000;
+    border: 1px solid #333;
+    height: 150px;
+    overflow-y: auto;
+    padding: 10px;
+    margin: 20px 0;
+    font-size: 14px;
+}
+
+/* ==========================================
+   MODALES (Inventaire et Stats)
+========================================== */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-    background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
+    z-index: 200;
 }
 
-#game-container {
-    width: 100%; max-width: 850px; height: 92vh; position: relative; padding: 15px; display: flex; flex-direction: column;
+.modal-content {
+    background: var(--panel-bg);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    width: 700px;
+    padding: 30px;
 }
 
-.screen { position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.3s ease-in-out; }
-.screen.hidden { opacity: 0; pointer-events: none; z-index: -1; }
-.screen.active { opacity: 1; pointer-events: auto; z-index: 1; }
+.modal-title {
+    color: var(--border-color);
+    text-align: center;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+}
 
-.neon-title { font-family: var(--font-sys); font-size: 2.8rem; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue-dim), 0 0 20px var(--neon-blue); letter-spacing: 4px; text-align: center; margin-bottom: 5px; }
-.subtitle { font-family: var(--font-sys); color: var(--neon-blue-dim); text-align: center; margin-bottom: 40px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 2px; }
+/* ==========================================
+   INVENTAIRE (GRILLE ET SLOTS)
+========================================== */
+.inventory-layout {
+    display: flex;
+    gap: 20px;
+}
 
-.menu-buttons { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 320px; }
+.bag-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr); /* 3 lignes = 12 slots */
+    gap: 10px;
+    flex: 2;
+}
 
-.hologram-btn { background: rgba(0, 240, 255, 0.05); border: 1px solid var(--neon-blue-dim); color: var(--neon-blue); font-family: var(--font-sys); font-size: 0.95rem; padding: 12px 18px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
-.hologram-btn:hover { background: var(--neon-blue-dim); box-shadow: 0 0 12px var(--neon-blue-dim); text-shadow: 0 0 5px var(--neon-blue); }
-.hologram-btn.primary { border-color: var(--neon-blue); box-shadow: inset 0 0 8px var(--neon-blue-dim); }
-.hologram-btn.warning { border-color: var(--neon-red); color: var(--neon-red); }
-.hologram-btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: #555; color: #777; box-shadow: none; }
+.item-slot {
+    background: #161b22;
+    border: 1px solid #30363d;
+    height: 90px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 5px;
+    text-align: center;
+}
 
-.hologram-input { background: rgba(0, 0, 0, 0.5); border: 1px solid var(--neon-blue-dim); color: var(--neon-blue); padding: 10px; font-family: var(--font-sys); width: 100%; margin-top: 5px; outline: none; }
-.hologram-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue-dim); }
+.item-slot:hover {
+    border-color: var(--text-main);
+}
 
-.hologram-panel { background: var(--bg-panel); border-left: 3px solid var(--neon-blue); border-right: 1px solid var(--neon-blue-dim); padding: 25px; width: 100%; max-width: 750px; backdrop-filter: blur(8px); box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; }
-.panel-title { font-family: var(--font-sys); color: var(--neon-blue); margin-bottom: 15px; font-size: 1.3rem; border-bottom: 1px solid var(--neon-blue-dim); padding-bottom: 8px; }
-.panel-content { margin-bottom: 20px; line-height: 1.5; font-size: 0.95rem; max-height: 450px; overflow-y: auto; }
+.item-slot.empty {
+    border-style: dashed;
+    background: transparent;
+    cursor: default;
+}
 
-.game-hud { display: flex; justify-content: space-between; background: rgba(0, 240, 255, 0.05); border: 1px solid var(--neon-blue-dim); padding: 10px 15px; font-family: var(--font-sys); font-size: 0.85rem; margin-bottom: 15px; width: 100%; max-width: 750px; }
-.game-panel { width: 100%; max-width: 750px; flex-grow: 1; }
-.choices-container { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+.item-img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
 
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 100; }
-.modal.hidden { display: none; }
-.modal-panel { width: 600px; max-width: 95%; }
-.inventory-layout { display: flex; gap: 15px; margin-bottom: 15px; }
-.inventory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 60%; max-height: 250px; overflow-y: auto; }
-.inventory-slot { aspect-ratio: 1; background: rgba(0, 240, 255, 0.03); border: 1px solid var(--neon-blue-dim); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 0.65rem; text-align: center; padding: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.inventory-slot:hover { border-color: var(--neon-blue); background: var(--neon-blue-dim); }
-.equipped-sidebar { width: 40%; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; background: rgba(0, 240, 255, 0.02); border: 1px solid var(--neon-blue-dim); padding: 10px; }
-.equip-slot { background: rgba(0,0,0,0.4); padding: 6px; border: 1px dashed var(--neon-blue-dim); font-family: var(--font-sys); font-size: 0.7rem; }
-.item-details { font-size: 0.85rem; margin-bottom: 10px; color: var(--neon-blue); min-height: 30px; }
-.item-actions-container { display: flex; gap: 10px; }
+.img-placeholder {
+    /* En attendant vos images, affiche un carré gris foncé */
+    background: #333; 
+}
 
-.sys-msg { font-family: var(--font-sys); font-size: 0.85rem; margin-top: 10px; color: var(--neon-blue); }
-.sys-msg.warning { color: var(--neon-red); text-shadow: 0 0 4px rgba(255, 0, 85, 0.4); }
+.item-name {
+    font-size: 10px;
+    line-height: 1.1;
+}
+
+.item-stack {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* Panneau Équipement */
+.equipment-panel {
+    flex: 1;
+    border: 1px dashed #30363d;
+    padding: 15px;
+}
+
+.equip-title {
+    color: var(--border-color);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.equip-slot {
+    background: #161b22;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    border: 1px solid #30363d;
+}
+
+/* Zone de Description d'Objet */
+.item-details-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: #000;
+    border-left: 3px solid var(--border-color);
+}
+
+.item-detail-type { color: #888; font-size: 12px; font-style: italic; margin-bottom: 5px; }
+.item-detail-desc { font-size: 14px; }
+
+/* ==========================================
+   CLASSES UTILITAIRES (Couleurs, Marges)
+========================================== */
+.rang-e { color: var(--rang-e); }
+.rang-d { color: var(--rang-d); }
+.rang-c { color: var(--rang-c); }
+.rang-b { color: var(--rang-b); }
+.rang-a { color: var(--rang-a); }
+.rang-s { color: var(--rang-s); font-weight: bold; text-shadow: 0 0 5px var(--rang-s); }
+
+.border-e { border-bottom: 2px solid var(--rang-e); }
+.border-d { border-bottom: 2px solid var(--rang-d); }
+
+.text-blue { color: var(--border-color); }
+.text-red { color: var(--rang-s); }
+.w-100 { width: 100%; }
+.mt-20 { margin-top: 20px; }
+.sys-hr { border: 0; border-top: 1px solid #333; margin: 15px 0; }
