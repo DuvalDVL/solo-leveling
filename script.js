@@ -1,8 +1,10 @@
 let gameState = {
     player: null,
-    phase: 1,
+    phase: 1, // 1: Civil, 2: Hub/Donjon
     currentEventIndex: 0,
-    combat: null
+    combat: null,
+    dungeonStep: 0,
+    currentDungeon: null
 };
 
 // Ciblages DOM
@@ -26,7 +28,6 @@ const hudLoyer = document.getElementById('hud-loyer');
 const eventTitle = document.getElementById('event-title');
 const eventText = document.getElementById('event-text');
 const eventChoices = document.getElementById('event-choices');
-const hubNav = document.getElementById('hub-navigation');
 
 function switchScreen(from, to) {
     from.classList.remove('active');
@@ -79,23 +80,23 @@ btnNewGame.addEventListener('click', () => {
 
 function updateHUD() {
     if (!gameState.player) return;
-    hudRang.textContent = gameState.player.niveau >= 10 ? 'D' : 'E';
+    hudRang.textContent = gameState.player.rangLicence;
     hudLvl.textContent = gameState.player.niveau;
-    hudPv.textContent = gameState.player.statsActuelles.pvActuels;
+    hudPv.textContent = Math.floor(gameState.player.statsActuelles.pvActuels);
     hudPvMax.textContent = gameState.player.statsMax.pvMax;
     hudOr.textContent = gameState.player.or;
     hudLoyer.textContent = gameState.player.timers.loyerJours;
 }
 
-// --- PHASE 1 : ÉVÉNEMENTS CIVILS ---
+// --- PHASE 1 : ÉVÉNEMENTS CIVILS FIXES ---
 function loadCivilEvent() {
-    hubNav.classList.add('hidden');
     const events = GAME_DATA.evenementsCivils;
 
     if (gameState.currentEventIndex >= events.length) {
+        // Fin de la Phase civile -> Évaluation de Chasseur Rang E
         gameState.phase = 2;
-        eventTitle.textContent = "[ ÉVEIL DU SYSTÈME ]";
-        eventText.innerHTML = "Votre corps réagit. Une interface holographique bleue s'illumine soudainement devant vos yeux.<br><br><em>⚠️ [QUÊTE JOURNALIÈRE ATTRIBUÉE] : Survivez et gagnez votre place.</em>";
+        eventTitle.textContent = "[ ÉVALUATION DE CHASSEUR ]";
+        eventText.innerHTML = "Après votre parcours civil, l'Association des Chasseurs analyse vos réflexes et aptitudes.<br><br><em>📜 [RÉSULTAT] : Vous obtenez officiellement votre Licence de Chasseur de **Rang E**. Le Hub Central est désormais accessible.</em>";
         eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="enterHub()">Accéder au Hub Central</button>`;
         return;
     }
@@ -110,13 +111,22 @@ function loadCivilEvent() {
         btn.className = "hologram-btn";
         btn.textContent = choix.texte;
         btn.addEventListener('click', () => {
+            // Appliquer le gain
             gameState.player.statsMax[choix.gainStat] += choix.valeur;
-            eventText.innerHTML += `<br><br><span style="color:var(--neon-blue);">[SYSTÈMES] : +${choix.valeur} en ${choix.gainStat.toUpperCase()} enregistré.</span>`;
+            
+            // Afficher l'écran de résultat FIXE avec bouton CONTINUER
+            eventTitle.textContent = "[ RÉSULTAT DE L'ACTION ]";
+            eventText.innerHTML = `${choix.resultat}<br><br><span style="color:var(--neon-blue);">[SYSTÈMES] : +${choix.valeur} en ${choix.gainStat.toUpperCase()} enregistré.</span>`;
             eventChoices.innerHTML = "";
-            setTimeout(() => {
+
+            const contBtn = document.createElement('button');
+            contBtn.className = "hologram-btn primary";
+            contBtn.textContent = "Continuer";
+            contBtn.addEventListener('click', () => {
                 gameState.currentEventIndex++;
                 loadCivilEvent();
-            }, 1200);
+            });
+            eventChoices.appendChild(contBtn);
         });
         eventChoices.appendChild(btn);
     });
@@ -124,22 +134,41 @@ function loadCivilEvent() {
 
 // --- PHASE 2 : HUB CENTRAL ---
 function enterHub() {
-    hubNav.classList.remove('hidden');
     eventTitle.textContent = "[ HUB CENTRAL - QUARTIER GÉNÉRAL ]";
-    eventText.innerHTML = "Que souhaitez-vous faire aujourd'hui ?<br><br><em>Rappel : Le loyer tombe dans <span style='color:var(--neon-red);'>" + gameState.player.timers.loyerJours + " jours</span>.</em>";
+    eventText.innerHTML = `Que souhaitez-vous faire aujourd'hui ?<br><br><em>Rappel : Le loyer tombe dans <span style='color:var(--neon-red);'>${gameState.player.timers.loyerJours} jours</span>. | Fatigue : ${gameState.player.statsActuelles.fatigue}/100</em>`;
+    
     eventChoices.innerHTML = "";
+
+    const actions = [
+        { texte: "🚪 Explorer les Donjons", action: openDungeons },
+        { texte: "🛒 Boutiques", action: openShopList },
+        { texte: "🎒 Sac & Équipement", action: openInventoryModal },
+        { texte: "📊 Statistiques", action: openStatsModal },
+        { texte: "🏋️ Entraînement physique (+1 stat, 1 jour)", action: trainPhysically },
+        { texte: "🛏️ Se reposer (Restaure des PV, 1 jour)", action: restAtHome },
+        { texte: "⏳ Passer un Jour", action: advanceDay }
+    ];
+
+    actions.forEach(a => {
+        const btn = document.createElement('button');
+        btn.className = "hologram-btn";
+        btn.textContent = a.texte;
+        btn.addEventListener('click', a.action);
+        eventChoices.appendChild(btn);
+    });
 }
 
+// Avancer d'un jour
 function advanceDay() {
     gameState.player.timers.loyerJours--;
     if (gameState.player.timers.loyerJours <= 0) {
         if (gameState.player.or >= 150) {
             gameState.player.or -= 150;
             gameState.player.timers.loyerJours = 7;
-            alert("Le propriétaire a prélevé 150 Or pour le loyer.");
+            eventText.innerHTML += "<br><span style='color:var(--neon-green);'>Le propriétaire a prélevé 150 Or pour le loyer.</span>";
         } else {
             saveGameToHistory("Expulsé pour impayés (Faillite)");
-            alert("FAILLITE : Vous n'avez pas de quoi payer le loyer. Expulsion !");
+            alert("FAILLITE : Vous n'avez pas de quoi payer le loyer. Expulsion imminente !");
             location.reload();
             return;
         }
@@ -148,18 +177,81 @@ function advanceDay() {
     enterHub();
 }
 
-// --- DONJONS ET COMBATS ---
-function openDungeons() {
-    eventTitle.textContent = "[ SÉLECTION DES PORTAILS ]";
-    eventText.textContent = "Choisissez un donjon à explorer :";
-    eventChoices.innerHTML = "";
-    hubNav.classList.add('hidden');
+// Entraînement physique
+function trainPhysically() {
+    const statsList = ["force", "agilite", "vitalite", "reflexe"];
+    const randomStat = statsList[Math.floor(Math.random() * statsList.length)];
+    gameState.player.statsMax[randomStat] += 1;
+    gameState.player.statsActuelles.fatigue = Math.min(100, gameState.player.statsActuelles.fatigue + 15);
+    
+    eventTitle.textContent = "[ ENTRAÎNEMENT TERMINÉ ]";
+    eventText.innerHTML = `Vous avez sueur et sang à l'entraînement.<br><br><span style="color:var(--neon-blue);">[SYSTÈMES] : +1 en ${randomStat.toUpperCase()} !</span>`;
+    eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Terminer la journée</button>`;
+}
 
-    GAME_DATA.donjons.forEach(d => {
+// Repos
+function restAtHome() {
+    const heal = Math.floor(gameState.player.statsMax.pvMax * 0.4);
+    gameState.player.statsActuelles.pvActuels = Math.min(gameState.player.statsMax.pvMax, gameState.player.statsActuelles.pvActuels + heal);
+    gameState.player.statsActuelles.fatigue = Math.max(0, gameState.player.statsActuelles.fatigue - 30);
+
+    eventTitle.textContent = "[ REPOS PROFOND ]";
+    eventText.innerHTML = `Vous avez récupéré des forces chez vous.<br><br><span style="color:var(--neon-green);">PV restaurés : +${heal} | Fatigue réduite.</span>`;
+    eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Continuer</button>`;
+}
+
+function finishHubAction(daysPassed) {
+    for(let i=0; i<daysPassed; i++) {
+        gameState.player.timers.loyerJours--;
+        if (gameState.player.timers.loyerJours <= 0) {
+            if (gameState.player.or >= 150) {
+                gameState.player.or -= 150;
+                gameState.player.timers.loyerJours = 7;
+            } else {
+                saveGameToHistory("Expulsé pour impayés (Faillite)");
+                alert("FAILLITE : Expulsé pour impayés !");
+                location.reload();
+                return;
+            }
+        }
+    }
+    updateHUD();
+    enterHub();
+}
+
+// --- BOUTIQUES MULTIPLES ---
+function openShopList() {
+    eventTitle.textContent = "[ MARCHÉS & BOUTIQUES ]";
+    eventText.textContent = "Sélectionnez un comptoir commercial :";
+    eventChoices.innerHTML = "";
+
+    GAME_DATA.boutiques.forEach(shop => {
+        let isLocked = false;
+        let lockReason = "";
+
+        if (shop.requis.type === "rang") {
+            if (shop.requis.valeur === "D" && gameState.player.rangLicence !== "D" && gameState.player.rangLicence !== "C") {
+                isLocked = true;
+                lockReason = shop.requis.message;
+            }
+        } else if (shop.requis.type === "reputation") {
+            if (gameState.player.reputation < shop.requis.valeur) {
+                isLocked = true;
+                lockReason = shop.requis.message;
+            }
+        }
+
         const btn = document.createElement('button');
-        btn.className = "hologram-btn";
-        btn.textContent = `${d.nom} (Rang ${d.rang})`;
-        btn.addEventListener('click', () => startCombat(d.monstreId));
+        btn.className = `hologram-btn ${isLocked ? 'warning' : ''}`;
+        btn.textContent = `${shop.nom} ${isLocked ? `[🔒 ${lockReason}]` : ''}`;
+        
+        if (!isLocked) {
+            btn.addEventListener('click', () => openShopDetail(shop));
+        } else {
+            btn.addEventListener('click', () => {
+                eventText.innerHTML = `<span style="color:var(--neon-red);">Accès refusé : ${lockReason}</span>`;
+            });
+        }
         eventChoices.appendChild(btn);
     });
 
@@ -170,87 +262,26 @@ function openDungeons() {
     eventChoices.appendChild(backBtn);
 }
 
-function startCombat(monstreKey) {
-    const template = GAME_DATA.monstres[monstreKey];
-    gameState.combat = {
-        monstre: JSON.parse(JSON.stringify(template))
-    };
-    renderCombatTurn();
-}
-
-function renderCombatTurn() {
-    const m = gameState.combat.monstre;
-    eventTitle.textContent = `[ COMBAT : ${m.nom.toUpperCase()} ]`;
-    eventText.innerHTML = `Monstre - PV : ${m.stats.pv}/${m.stats.pvMax} | Force : ${m.stats.force}<br>Vos PV : ${gameState.player.statsActuelles.pvActuels}/${gameState.player.statsMax.pvMax}`;
+function openShopDetail(shop) {
+    eventTitle.textContent = `[ ${shop.nom.toUpperCase()} ]`;
+    eventText.innerHTML = "Articles disponibles à la vente :";
     eventChoices.innerHTML = "";
-    hubNav.classList.add('hidden');
 
-    const btnAttaquer = document.createElement('button');
-    btnAttaquer.className = "hologram-btn primary";
-    btnAttaquer.textContent = "🗡️ Attaquer";
-    btnAttaquer.addEventListener('click', () => executeCombatAction('attaquer'));
-    eventChoices.appendChild(btnAttaquer);
+    shop.articles.forEach(itemId => {
+        const obj = GAME_DATA.objets[itemId];
+        if (!obj) return;
 
-    const btnFuir = document.createElement('button');
-    btnFuir.className = "hologram-btn";
-    btnFuir.textContent = "🏃 Fuir le donjon";
-    btnFuir.addEventListener('click', enterHub);
-    eventChoices.appendChild(btnFuir);
-}
-
-function executeCombatAction(action) {
-    const m = gameState.combat.monstre;
-    if (action === 'attaquer') {
-        let degatsJoueur = gameState.player.statsMax.force * 2;
-        m.stats.pv -= degatsJoueur;
-
-        if (m.stats.pv <= 0) {
-            const orGagne = Math.floor(Math.random() * (m.recompenses.orMax - m.recompenses.orMin)) + m.recompenses.orMin;
-            gameState.player.or += orGagne;
-            saveGameToHistory(`Victoire contre ${m.nom}`);
-            eventTitle.textContent = "[ VICTOIRE ]";
-            eventText.innerHTML = `Vous avez vaincu le ${m.nom} !<br>Butin récupéré : +${orGagne} Or.`;
-            eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="enterHub()">Retour au Hub</button>`;
-            updateHUD();
-            return;
-        }
-
-        let degatsMonstre = Math.max(1, m.stats.force - Math.floor(gameState.player.statsMax.vitalite / 2));
-        gameState.player.statsActuelles.pvActuels -= degatsMonstre;
-
-        if (gameState.player.statsActuelles.pvActuels <= 0) {
-            gameState.player.statsActuelles.pvActuels = 0;
-            updateHUD();
-            saveGameToHistory(`Mort au combat contre ${m.nom}`);
-            eventTitle.textContent = "[ ÉCHEC CRITIQUE ]";
-            eventText.innerHTML = "Vous avez succombé dans le donjon... Le Système intervient d'urgence.";
-            eventChoices.innerHTML = `<button class="hologram-btn warning" onclick="location.reload()">Recommencer</button>`;
-            return;
-        }
-    }
-    updateHUD();
-    renderCombatTurn();
-}
-
-// --- BOUTIQUE ---
-function openShop() {
-    eventTitle.textContent = "[ BOUTIQUE DU SYSTÈMES ]";
-    eventText.textContent = "Achetez de quoi survivre :";
-    eventChoices.innerHTML = "";
-    hubNav.classList.add('hidden');
-
-    Object.values(GAME_DATA.objets).forEach(obj => {
         const btn = document.createElement('button');
         btn.className = "hologram-btn";
-        btn.textContent = `${obj.nom} - ${obj.prix} Or`;
+        btn.textContent = `${obj.nom} — ${obj.prix} Or`;
         btn.addEventListener('click', () => {
             if (gameState.player.or >= obj.prix) {
                 gameState.player.or -= obj.prix;
                 gameState.player.inventaire.push(obj.id);
-                alert(`Achat réussi : ${obj.nom}`);
                 updateHUD();
+                eventText.innerHTML = `<span style="color:var(--neon-green);">[ACHAT RÉUSSI] : Vous avez acquis ${obj.nom}.</span>`;
             } else {
-                alert("Fonds insuffisants.");
+                eventText.innerHTML = `<span style="color:var(--neon-red);">[ERREUR] : Fonds insuffisants.</span>`;
             }
         });
         eventChoices.appendChild(btn);
@@ -258,14 +289,124 @@ function openShop() {
 
     const backBtn = document.createElement('button');
     backBtn.className = "hologram-btn";
+    backBtn.textContent = "Retour aux Boutiques";
+    backBtn.addEventListener('click', openShopList);
+    eventChoices.appendChild(backBtn);
+}
+
+// --- DONJONS ET COMBATS EN ÉTAPES ---
+function openDungeons() {
+    eventTitle.textContent = "[ SÉLECTION DES PORTAILS ]";
+    eventText.textContent = "Choisissez un portail de donjon à explorer :";
+    eventChoices.innerHTML = "";
+
+    GAME_DATA.donjons.forEach(d => {
+        const btn = document.createElement('button');
+        btn.className = "hologram-btn";
+        btn.textContent = `${d.nom} (Rang ${d.rang})`;
+        btn.addEventListener('click', () => startDungeonExploration(d));
+        eventChoices.appendChild(btn);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = "hologram-btn";
     backBtn.textContent = "Retour au Hub";
     backBtn.addEventListener('click', enterHub);
     eventChoices.appendChild(backBtn);
 }
 
-// --- INVENTAIRE, CONSOMMABLES & ÉQUIPEMENT ---
+function startDungeonExploration(dungeon) {
+    gameState.currentDungeon = dungeon;
+    gameState.dungeonStep = 1;
+    renderDungeonStep();
+}
+
+function renderDungeonStep() {
+    const d = gameState.currentDungeon;
+    if (gameState.dungeonStep === 1) {
+        eventTitle.textContent = `[ ${d.nom.toUpperCase()} - EXPLORATION ]`;
+        eventText.innerHTML = "Vous franchissez le seuil du portail. Une atmosphère lourde et glaciale vous enveloppe. Les couloirs sombres résonnent de bruits inquiétants...";
+        eventChoices.innerHTML = "";
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = "hologram-btn primary";
+        nextBtn.textContent = "Avancer prudemment dans la zone";
+        nextBtn.addEventListener('click', () => {
+            gameState.dungeonStep = 2;
+            renderDungeonStep();
+        });
+        eventChoices.appendChild(nextBtn);
+
+    } else if (gameState.dungeonStep === 2) {
+        // Lancer le combat
+        const template = GAME_DATA.monstres[d.monstreId];
+        gameState.combat = {
+            monstre: JSON.parse(JSON.stringify(template))
+        };
+        renderCombatTurn();
+    }
+}
+
+function renderCombatTurn() {
+    const m = gameState.combat.monstre;
+    eventTitle.textContent = `[ COMBAT : ${m.nom.toUpperCase()} ]`;
+    eventText.innerHTML = `<em>${m.description}</em><br><br><strong>Monstre - PV :</strong> ${m.stats.pv}/${m.stats.pvMax} | <strong>Force :</strong> ${m.stats.force}<br><strong>Vos PV :</strong> ${Math.floor(gameState.player.statsActuelles.pvActuels)}/${gameState.player.statsMax.pvMax}`;
+    eventChoices.innerHTML = "";
+
+    const btnAttaquer = document.createElement('button');
+    btnAttaquer.className = "hologram-btn primary";
+    btnAttaquer.textContent = "🗡️ Attaquer au corps à corps";
+    btnAttaquer.addEventListener('click', () => executeCombatAction());
+    eventChoices.appendChild(btnAttaquer);
+
+    const btnFuir = document.createElement('button');
+    btnFuir.className = "hologram-btn warning";
+    btnFuir.textContent = "🏃 Fuir en catastrophe vers le Hub";
+    btnFuir.addEventListener('click', () => {
+        finishHubAction(1);
+    });
+    eventChoices.appendChild(btnFuir);
+}
+
+function executeCombatAction() {
+    const m = gameState.combat.monstre;
+    let degatsJoueur = gameState.player.statsMax.force * 2;
+    m.stats.pv -= degatsJoueur;
+
+    if (m.stats.pv <= 0) {
+        const orGagne = Math.floor(Math.random() * (m.recompenses.orMax - m.recompenses.orMin)) + m.recompenses.orMin;
+        gameState.player.or += orGagne;
+        gameState.player.reputation += 3;
+        saveGameToHistory(`Victoire contre ${m.nom}`);
+        
+        eventTitle.textContent = "[ VICTOIRE DANS LE DONJON ]";
+        eventText.innerHTML = `Vous terrassez le ${m.nom} dans un dernier assaut fulgurant !<br><br><span style="color:var(--neon-green);">Butin récupéré : +${orGagne} Or | +3 Réputation.</span>`;
+        eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Retourner au Hub (1 jour écoulé)</button>`;
+        updateHUD();
+        return;
+    }
+
+    let degatsMonstre = Math.max(1, m.stats.force - Math.floor(gameState.player.statsMax.vitalite / 2));
+    gameState.player.statsActuelles.pvActuels -= degatsMonstre;
+
+    if (gameState.player.statsActuelles.pvActuels <= 0) {
+        gameState.player.statsActuelles.pvActuels = 0;
+        updateHUD();
+        saveGameToHistory(`Mort au combat contre ${m.nom}`);
+        eventTitle.textContent = "[ ÉCHEC CRITIQUE ]";
+        eventText.innerHTML = "Vous avez succombé aux blessures infligées par le monstre... Le Système s'active d'urgence.";
+        eventChoices.innerHTML = `<button class="hologram-btn warning" onclick="location.reload()">Recommencer une partie</button>`;
+        return;
+    }
+
+    updateHUD();
+    renderCombatTurn();
+}
+
+// --- INVENTAIRE, ÉQUIPEMENT & VENTE ---
 function openInventoryModal() {
     renderInventoryGrid();
+    renderEquipmentDisplay();
     document.getElementById('modal-inventory').classList.remove('hidden');
 }
 
@@ -275,14 +416,14 @@ function renderInventoryGrid() {
     document.getElementById('item-details').textContent = "Sélectionnez un objet.";
     document.getElementById('item-actions').innerHTML = "";
 
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 12; i++) {
         const slot = document.createElement('div');
         slot.className = "inventory-slot";
         const itemId = gameState.player.inventaire[i];
         
         if (itemId && GAME_DATA.objets[itemId]) {
             const obj = GAME_DATA.objets[itemId];
-            slot.textContent = obj.nom;
+            slot.textContent = obj.nom; // Tronqué automatiquement par CSS si trop long
             slot.addEventListener('click', () => selectInventoryItem(i, obj));
         } else {
             slot.textContent = "[Vide]";
@@ -291,8 +432,16 @@ function renderInventoryGrid() {
     }
 }
 
+function renderEquipmentDisplay() {
+    const eq = gameState.player.equipement;
+    document.getElementById('eq-tete').textContent = `Tête : ${eq.tete ? GAME_DATA.objets[eq.tete].nom : '[Vide]'}`;
+    document.getElementById('eq-torse').textContent = `Torse : ${eq.torse ? GAME_DATA.objets[eq.torse].nom : '[Vide]'}`;
+    document.getElementById('eq-mains').textContent = `Mains : ${eq.mains ? GAME_DATA.objets[eq.mains].nom : '[Vide]'}`;
+    document.getElementById('eq-accessoire').textContent = `Accessoire : ${eq.accessoire ? GAME_DATA.objets[eq.accessoire].nom : '[Vide]'}`;
+}
+
 function selectInventoryItem(index, obj) {
-    document.getElementById('item-details').textContent = `${obj.nom} (${obj.type}) - ${obj.prix} Or`;
+    document.getElementById('item-details').textContent = `[${obj.nom}] (${obj.type}) — Prix d'achat: ${obj.prix} Or`;
     const actionsContainer = document.getElementById('item-actions');
     actionsContainer.innerHTML = "";
 
@@ -313,6 +462,15 @@ function selectInventoryItem(index, obj) {
         });
         actionsContainer.appendChild(equipBtn);
     }
+
+    // Bouton Vendre
+    const sellBtn = document.createElement('button');
+    sellBtn.className = "hologram-btn warning";
+    sellBtn.textContent = `Vendre (+${Math.floor(obj.prix / 2)} Or)`;
+    sellBtn.addEventListener('click', () => {
+        sellItemFromInventory(index, obj);
+    });
+    actionsContainer.appendChild(sellBtn);
 }
 
 function useConsumable(index, obj) {
@@ -332,7 +490,6 @@ function equipItemFromInventory(index, obj) {
     const p = gameState.player;
     const slot = obj.slot;
 
-    // Si un objet est déjà équipé, on le remet dans l'inventaire
     if (p.equipement[slot]) {
         const oldItemId = p.equipement[slot];
         const oldObj = GAME_DATA.objets[oldItemId];
@@ -346,7 +503,6 @@ function equipItemFromInventory(index, obj) {
         p.inventaire.splice(index, 1);
     }
 
-    // Équiper le nouvel objet
     p.equipement[slot] = obj.id;
     if (obj.bonusStats) {
         for (let stat in obj.bonusStats) {
@@ -356,6 +512,17 @@ function equipItemFromInventory(index, obj) {
 
     updateHUD();
     renderInventoryGrid();
+    renderEquipmentDisplay();
+}
+
+function sellItemFromInventory(index, obj) {
+    const p = gameState.player;
+    const gain = Math.floor(obj.prix / 2);
+    p.or += gain;
+    p.inventaire.splice(index, 1);
+    updateHUD();
+    renderInventoryGrid();
+    document.getElementById('item-details').textContent = `Vendu ${obj.nom} pour ${gain} Or.`;
 }
 
 function closeInventoryModal() {
@@ -366,6 +533,9 @@ function openStatsModal() {
     const p = gameState.player;
     const content = document.getElementById('stats-content');
     content.innerHTML = `
+        <strong>Rang de Licence :</strong> ${p.rangLicence}<br>
+        <strong>Réputation :</strong> ${p.reputation}<br>
+        <strong>Niveau :</strong> ${p.niveau}<br><br>
         Force : ${p.statsMax.force}<br>
         Agilité : ${p.statsMax.agilite}<br>
         Vitalité : ${p.statsMax.vitalite}<br>
