@@ -1,27 +1,28 @@
 let gameState = {
     player: null,
-    phase: 1, // 1: Civil, 2: Hub/Donjon
+    civilEventsSequence: [],
     currentEventIndex: 0,
+    affinites: { Guerrier: 0, Assassin: 0, Mage: 0, Ranger: 0, Tank: 0 },
     combat: null,
     dungeonStep: 0,
-    currentDungeon: null
+    currentDungeon: null,
+    isDefending: false,
+    doubleEveilDeclenche: false
 };
 
-// Ciblages DOM
 const screenHome = document.getElementById('screen-home');
-const screenHistory = document.getElementById('screen-history');
-const screenHelp = document.getElementById('screen-help');
+const screenCreation = document.getElementById('screen-creation');
 const screenGame = document.getElementById('screen-game');
 
 const btnNewGame = document.getElementById('btn-new-game');
-const btnHistory = document.getElementById('btn-history');
-const btnHelp = document.getElementById('btn-help');
-const btnsBack = document.querySelectorAll('.btn-back');
+const btnStartCivil = document.getElementById('btn-start-civil');
 
 const hudRang = document.getElementById('hud-rang');
-const hudLvl = document.getElementById('hud-lvl');
+const hudClasse = document.getElementById('hud-classe');
 const hudPv = document.getElementById('hud-pv');
 const hudPvMax = document.getElementById('hud-pvmax');
+const hudPm = document.getElementById('hud-pm');
+const hudPmMax = document.getElementById('hud-pmmax');
 const hudOr = document.getElementById('hud-or');
 const hudLoyer = document.getElementById('hud-loyer');
 
@@ -38,42 +39,40 @@ function switchScreen(from, to) {
     }, 300);
 }
 
-// Gestion de l'historique dans LocalStorage
-function saveGameToHistory(statusText) {
-    let history = JSON.parse(localStorage.getItem('system_history')) || [];
-    history.unshift({ date: new Date().toLocaleDateString(), statut: statusText, niveau: gameState.player.niveau });
-    if (history.length > 10) history.pop();
-    localStorage.setItem('system_history', JSON.stringify(history));
-}
-
-function loadHistoryList() {
-    const list = document.getElementById('history-list');
-    let history = JSON.parse(localStorage.getItem('system_history')) || [];
-    if (history.length === 0) {
-        list.innerHTML = "<li>Aucune archive enregistrée.</li>";
-        return;
-    }
-    list.innerHTML = "";
-    history.forEach(h => {
-        const li = document.createElement('li');
-        li.innerHTML = `<strong>[${h.date}]</strong> - Niveau ${h.niveau} - ${h.statut}`;
-        list.appendChild(li);
-    });
-}
-
-btnHistory.addEventListener('click', () => {
-    loadHistoryList();
-    switchScreen(screenHome, screenHistory);
-});
-btnHelp.addEventListener('click', () => switchScreen(screenHome, screenHelp));
-btnsBack.forEach(btn => btn.addEventListener('click', (e) => switchScreen(e.target.closest('.screen'), screenHome)));
-
-// Nouvelle Partie
+// Lancement de partie -> Écran de création
 btnNewGame.addEventListener('click', () => {
+    switchScreen(screenHome, screenCreation);
+});
+
+btnStartCivil.addEventListener('click', () => {
+    const nom = document.getElementById('input-nom').value || "Sung";
+    const metier = document.getElementById('select-metier').value;
+    
+    // Initialisation
     gameState.player = JSON.parse(JSON.stringify(GAME_DATA.joueurTemplate));
-    gameState.phase = 1;
+    gameState.player.nom = nom;
+    gameState.player.metierCivil = metier;
+
+    // Bonus de métier
+    const bonus = GAME_DATA.metiers[metier];
+    gameState.player.statsMax.force += bonus.force;
+    gameState.player.statsMax.vitalite += bonus.vitalite;
+    gameState.player.statsMax.agilite += bonus.agilite;
+    gameState.player.statsMax.intelligence += bonus.intelligence;
+    gameState.player.statsMax.perception += bonus.perception;
+    gameState.player.statsMax.reflexe += bonus.reflexe;
+    gameState.player.or = bonus.or;
+
+    // Mélanger les événements civils et en prendre 5
+    gameState.civilEventsSequence = [...GAME_DATA.evenementsCivils]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 5);
+    
     gameState.currentEventIndex = 0;
-    switchScreen(screenHome, screenGame);
+    gameState.affinites = { Guerrier: 0, Assassin: 0, Mage: 0, Ranger: 0, Tank: 0 };
+    gameState.doubleEveilDeclenche = false;
+
+    switchScreen(screenCreation, screenGame);
     updateHUD();
     loadCivilEvent();
 });
@@ -81,27 +80,23 @@ btnNewGame.addEventListener('click', () => {
 function updateHUD() {
     if (!gameState.player) return;
     hudRang.textContent = gameState.player.rangLicence;
-    hudLvl.textContent = gameState.player.niveau;
+    hudClasse.textContent = gameState.player.classe;
     hudPv.textContent = Math.floor(gameState.player.statsActuelles.pvActuels);
     hudPvMax.textContent = gameState.player.statsMax.pvMax;
+    hudPm.textContent = Math.floor(gameState.player.statsActuelles.pmActuels);
+    hudPmMax.textContent = gameState.player.statsMax.pmMax;
     hudOr.textContent = gameState.player.or;
     hudLoyer.textContent = gameState.player.timers.loyerJours;
 }
 
-// --- PHASE 1 : ÉVÉNEMENTS CIVILS FIXES ---
+// --- PHASE 1 : ÉVÉNEMENTS CIVILS ---
 function loadCivilEvent() {
-    const events = GAME_DATA.evenementsCivils;
-
-    if (gameState.currentEventIndex >= events.length) {
-        // Fin de la Phase civile -> Évaluation de Chasseur Rang E
-        gameState.phase = 2;
-        eventTitle.textContent = "[ ÉVALUATION DE CHASSEUR ]";
-        eventText.innerHTML = "Après votre parcours civil, l'Association des Chasseurs analyse vos réflexes et aptitudes.<br><br><em>📜 [RÉSULTAT] : Vous obtenez officiellement votre Licence de Chasseur de **Rang E**. Le Hub Central est désormais accessible.</em>";
-        eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="enterHub()">Accéder au Hub Central</button>`;
+    if (gameState.currentEventIndex >= gameState.civilEventsSequence.length) {
+        triggerAwakening();
         return;
     }
 
-    const evt = events[gameState.currentEventIndex];
+    const evt = gameState.civilEventsSequence[gameState.currentEventIndex];
     eventTitle.textContent = `[ ${evt.titre.toUpperCase()} ]`;
     eventText.textContent = evt.texte;
     eventChoices.innerHTML = "";
@@ -111,12 +106,13 @@ function loadCivilEvent() {
         btn.className = "hologram-btn";
         btn.textContent = choix.texte;
         btn.addEventListener('click', () => {
-            // Appliquer le gain
             gameState.player.statsMax[choix.gainStat] += choix.valeur;
+            if (gameState.affinites[choix.affinite] !== undefined) {
+                gameState.affinites[choix.affinite]++;
+            }
             
-            // Afficher l'écran de résultat FIXE avec bouton CONTINUER
-            eventTitle.textContent = "[ RÉSULTAT DE L'ACTION ]";
-            eventText.innerHTML = `${choix.resultat}<br><br><span style="color:var(--neon-blue);">[SYSTÈMES] : +${choix.valeur} en ${choix.gainStat.toUpperCase()} enregistré.</span>`;
+            eventTitle.textContent = "[ RÉSULTAT ]";
+            eventText.innerHTML = `${choix.resultat}<br><br><span style="color:var(--neon-blue);">+${choix.valeur} en ${choix.gainStat.toUpperCase()}</span>`;
             eventChoices.innerHTML = "";
 
             const contBtn = document.createElement('button');
@@ -132,21 +128,30 @@ function loadCivilEvent() {
     });
 }
 
-// --- PHASE 2 : HUB CENTRAL ---
+// Attribution de classe basée sur les choix
+function triggerAwakening() {
+    // Trouve la classe avec le plus de points d'affinité
+    const classeAttribuee = Object.keys(gameState.affinites).reduce((a, b) => gameState.affinites[a] > gameState.affinites[b] ? a : b);
+    gameState.player.classe = classeAttribuee;
+    updateHUD();
+
+    eventTitle.textContent = "[ ÉVEIL DU SYSTÈME ]";
+    eventText.innerHTML = `${GAME_DATA.textesEveil[classeAttribuee]}<br><br><em>📜 Vous obtenez votre Licence de Chasseur Rang E en tant que **${classeAttribuee}**.</em>`;
+    eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="enterHub()">Accéder au Hub Central</button>`;
+}
+
+// --- HUB CENTRAL & LOYER ---
 function enterHub() {
-    eventTitle.textContent = "[ HUB CENTRAL - QUARTIER GÉNÉRAL ]";
-    eventText.innerHTML = `Que souhaitez-vous faire aujourd'hui ?<br><br><em>Rappel : Le loyer tombe dans <span style='color:var(--neon-red);'>${gameState.player.timers.loyerJours} jours</span>. | Fatigue : ${gameState.player.statsActuelles.fatigue}/100</em>`;
+    eventTitle.textContent = "[ HUB CENTRAL ]";
+    eventText.innerHTML = `Que souhaitez-vous faire ?<br><br><em>Rappel : Le loyer de <span style="color:var(--neon-red);">${gameState.player.timers.montantLoyer} Or</span> tombe dans <span style='color:var(--neon-red);'>${gameState.player.timers.loyerJours} jours</span>. | Fatigue : ${gameState.player.statsActuelles.fatigue}/100</em>`;
     
     eventChoices.innerHTML = "";
-
     const actions = [
         { texte: "🚪 Explorer les Donjons", action: openDungeons },
         { texte: "🛒 Boutiques", action: openShopList },
-        { texte: "🎒 Sac & Équipement", action: openInventoryModal },
-        { texte: "📊 Statistiques", action: openStatsModal },
-        { texte: "🏋️ Entraînement physique (+1 stat, 1 jour)", action: trainPhysically },
-        { texte: "🛏️ Se reposer (Restaure des PV, 1 jour)", action: restAtHome },
-        { texte: "⏳ Passer un Jour", action: advanceDay }
+        { texte: "🏋️ Salle d'Entraînement", action: openTrainings },
+        { texte: "🛏️ Se reposer (Restaure PV/PM, 1 jour)", action: restAtHome },
+        { texte: "⏳ Passer un Jour", action: () => finishHubAction(1) }
     ];
 
     actions.forEach(a => {
@@ -158,58 +163,17 @@ function enterHub() {
     });
 }
 
-// Avancer d'un jour
-function advanceDay() {
-    gameState.player.timers.loyerJours--;
-    if (gameState.player.timers.loyerJours <= 0) {
-        if (gameState.player.or >= 150) {
-            gameState.player.or -= 150;
-            gameState.player.timers.loyerJours = 7;
-            eventText.innerHTML += "<br><span style='color:var(--neon-green);'>Le propriétaire a prélevé 150 Or pour le loyer.</span>";
-        } else {
-            saveGameToHistory("Expulsé pour impayés (Faillite)");
-            alert("FAILLITE : Vous n'avez pas de quoi payer le loyer. Expulsion imminente !");
-            location.reload();
-            return;
-        }
-    }
-    updateHUD();
-    enterHub();
-}
-
-// Entraînement physique
-function trainPhysically() {
-    const statsList = ["force", "agilite", "vitalite", "reflexe"];
-    const randomStat = statsList[Math.floor(Math.random() * statsList.length)];
-    gameState.player.statsMax[randomStat] += 1;
-    gameState.player.statsActuelles.fatigue = Math.min(100, gameState.player.statsActuelles.fatigue + 15);
-    
-    eventTitle.textContent = "[ ENTRAÎNEMENT TERMINÉ ]";
-    eventText.innerHTML = `Vous avez sueur et sang à l'entraînement.<br><br><span style="color:var(--neon-blue);">[SYSTÈMES] : +1 en ${randomStat.toUpperCase()} !</span>`;
-    eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Terminer la journée</button>`;
-}
-
-// Repos
-function restAtHome() {
-    const heal = Math.floor(gameState.player.statsMax.pvMax * 0.4);
-    gameState.player.statsActuelles.pvActuels = Math.min(gameState.player.statsMax.pvMax, gameState.player.statsActuelles.pvActuels + heal);
-    gameState.player.statsActuelles.fatigue = Math.max(0, gameState.player.statsActuelles.fatigue - 30);
-
-    eventTitle.textContent = "[ REPOS PROFOND ]";
-    eventText.innerHTML = `Vous avez récupéré des forces chez vous.<br><br><span style="color:var(--neon-green);">PV restaurés : +${heal} | Fatigue réduite.</span>`;
-    eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Continuer</button>`;
-}
-
 function finishHubAction(daysPassed) {
     for(let i=0; i<daysPassed; i++) {
         gameState.player.timers.loyerJours--;
         if (gameState.player.timers.loyerJours <= 0) {
-            if (gameState.player.or >= 150) {
-                gameState.player.or -= 150;
+            const loyer = gameState.player.timers.montantLoyer;
+            if (gameState.player.or >= loyer) {
+                gameState.player.or -= loyer;
                 gameState.player.timers.loyerJours = 7;
+                alert(`Le propriétaire a prélevé ${loyer} Or pour le loyer.`);
             } else {
-                saveGameToHistory("Expulsé pour impayés (Faillite)");
-                alert("FAILLITE : Expulsé pour impayés !");
+                alert(`FAILLITE : Vous n'avez pas les ${loyer} Or pour payer le loyer. Expulsion !`);
                 location.reload();
                 return;
             }
@@ -219,25 +183,66 @@ function finishHubAction(daysPassed) {
     enterHub();
 }
 
-// --- BOUTIQUES MULTIPLES ---
+// Entraînements ciblés
+function openTrainings() {
+    eventTitle.textContent = "[ SALLE D'ENTRAÎNEMENT ]";
+    eventText.textContent = "Chaque séance prend 1 jour et augmente votre fatigue.";
+    eventChoices.innerHTML = "";
+
+    const trainings = [
+        { nom: "Musculation Intensive (+Force)", stat: "force" },
+        { nom: "Cardio & Sprints (+Agilité)", stat: "agilite" },
+        { nom: "Encaisser les chocs (+Vitalité)", stat: "vitalite" },
+        { nom: "Méditation Profonde (+Intelligence)", stat: "intelligence" },
+        { nom: "Tir sur cible (+Perception)", stat: "perception" }
+    ];
+
+    trainings.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = "hologram-btn";
+        btn.textContent = t.nom;
+        btn.addEventListener('click', () => {
+            gameState.player.statsMax[t.stat] += 1;
+            gameState.player.statsActuelles.fatigue = Math.min(100, gameState.player.statsActuelles.fatigue + 20);
+            
+            eventTitle.textContent = "[ ENTRAÎNEMENT TERMINÉ ]";
+            eventText.innerHTML = `Vous progressez.<br><br><span style="color:var(--neon-blue);">[SYSTÈMES] : +1 en ${t.stat.toUpperCase()} !</span>`;
+            eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Terminer la journée</button>`;
+        });
+        eventChoices.appendChild(btn);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = "hologram-btn warning";
+    backBtn.textContent = "Retour";
+    backBtn.addEventListener('click', enterHub);
+    eventChoices.appendChild(backBtn);
+}
+
+function restAtHome() {
+    gameState.player.statsActuelles.pvActuels = gameState.player.statsMax.pvMax;
+    gameState.player.statsActuelles.pmActuels = gameState.player.statsMax.pmMax;
+    gameState.player.statsActuelles.fatigue = 0;
+    eventTitle.textContent = "[ REPOS COMPLET ]";
+    eventText.innerHTML = `<span style="color:var(--neon-green);">PV, PM et Fatigue entièrement restaurés.</span>`;
+    eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Continuer</button>`;
+}
+
+// --- BOUTIQUES (Identique à la V1.1) ---
 function openShopList() {
     eventTitle.textContent = "[ MARCHÉS & BOUTIQUES ]";
     eventText.textContent = "Sélectionnez un comptoir commercial :";
     eventChoices.innerHTML = "";
 
     GAME_DATA.boutiques.forEach(shop => {
-        let isLocked = false;
-        let lockReason = "";
-
+        let isLocked = false; let lockReason = "";
         if (shop.requis.type === "rang") {
             if (shop.requis.valeur === "D" && gameState.player.rangLicence !== "D" && gameState.player.rangLicence !== "C") {
-                isLocked = true;
-                lockReason = shop.requis.message;
+                isLocked = true; lockReason = shop.requis.message;
             }
         } else if (shop.requis.type === "reputation") {
             if (gameState.player.reputation < shop.requis.valeur) {
-                isLocked = true;
-                lockReason = shop.requis.message;
+                isLocked = true; lockReason = shop.requis.message;
             }
         }
 
@@ -245,13 +250,9 @@ function openShopList() {
         btn.className = `hologram-btn ${isLocked ? 'warning' : ''}`;
         btn.textContent = `${shop.nom} ${isLocked ? `[🔒 ${lockReason}]` : ''}`;
         
-        if (!isLocked) {
-            btn.addEventListener('click', () => openShopDetail(shop));
-        } else {
-            btn.addEventListener('click', () => {
-                eventText.innerHTML = `<span style="color:var(--neon-red);">Accès refusé : ${lockReason}</span>`;
-            });
-        }
+        if (!isLocked) btn.addEventListener('click', () => openShopDetail(shop));
+        else btn.addEventListener('click', () => eventText.innerHTML = `<span style="color:var(--neon-red);">Accès refusé.</span>`);
+        
         eventChoices.appendChild(btn);
     });
 
@@ -264,13 +265,12 @@ function openShopList() {
 
 function openShopDetail(shop) {
     eventTitle.textContent = `[ ${shop.nom.toUpperCase()} ]`;
-    eventText.innerHTML = "Articles disponibles à la vente :";
+    eventText.innerHTML = "Articles disponibles :";
     eventChoices.innerHTML = "";
 
     shop.articles.forEach(itemId => {
         const obj = GAME_DATA.objets[itemId];
         if (!obj) return;
-
         const btn = document.createElement('button');
         btn.className = "hologram-btn";
         btn.textContent = `${obj.nom} — ${obj.prix} Or`;
@@ -279,9 +279,9 @@ function openShopDetail(shop) {
                 gameState.player.or -= obj.prix;
                 gameState.player.inventaire.push(obj.id);
                 updateHUD();
-                eventText.innerHTML = `<span style="color:var(--neon-green);">[ACHAT RÉUSSI] : Vous avez acquis ${obj.nom}.</span>`;
+                eventText.innerHTML = `<span style="color:var(--neon-green);">Vous avez acheté ${obj.nom}.</span>`;
             } else {
-                eventText.innerHTML = `<span style="color:var(--neon-red);">[ERREUR] : Fonds insuffisants.</span>`;
+                eventText.innerHTML = `<span style="color:var(--neon-red);">Fonds insuffisants.</span>`;
             }
         });
         eventChoices.appendChild(btn);
@@ -289,60 +289,58 @@ function openShopDetail(shop) {
 
     const backBtn = document.createElement('button');
     backBtn.className = "hologram-btn";
-    backBtn.textContent = "Retour aux Boutiques";
+    backBtn.textContent = "Retour";
     backBtn.addEventListener('click', openShopList);
     eventChoices.appendChild(backBtn);
 }
 
-// --- DONJONS ET COMBATS EN ÉTAPES ---
+// --- DONJONS ET COMBAT ---
 function openDungeons() {
     eventTitle.textContent = "[ SÉLECTION DES PORTAILS ]";
-    eventText.textContent = "Choisissez un portail de donjon à explorer :";
+    eventText.textContent = "Choisissez un portail :";
     eventChoices.innerHTML = "";
 
     GAME_DATA.donjons.forEach(d => {
         const btn = document.createElement('button');
         btn.className = "hologram-btn";
-        btn.textContent = `${d.nom} (Rang ${d.rang})`;
-        btn.addEventListener('click', () => startDungeonExploration(d));
+        btn.textContent = `${d.nom}`;
+        btn.addEventListener('click', () => startDungeon(d));
         eventChoices.appendChild(btn);
     });
 
     const backBtn = document.createElement('button');
-    backBtn.className = "hologram-btn";
-    backBtn.textContent = "Retour au Hub";
+    backBtn.className = "hologram-btn warning";
+    backBtn.textContent = "Retour";
     backBtn.addEventListener('click', enterHub);
     eventChoices.appendChild(backBtn);
 }
 
-function startDungeonExploration(dungeon) {
+function startDungeon(dungeon) {
     gameState.currentDungeon = dungeon;
-    gameState.dungeonStep = 1;
+    gameState.dungeonStep = 0;
     renderDungeonStep();
 }
 
 function renderDungeonStep() {
     const d = gameState.currentDungeon;
-    if (gameState.dungeonStep === 1) {
-        eventTitle.textContent = `[ ${d.nom.toUpperCase()} - EXPLORATION ]`;
-        eventText.innerHTML = "Vous franchissez le seuil du portail. Une atmosphère lourde et glaciale vous enveloppe. Les couloirs sombres résonnent de bruits inquiétants...";
+    
+    if (gameState.dungeonStep < d.etapes.length) {
+        eventTitle.textContent = `[ ${d.nom} - PHASE ${gameState.dungeonStep + 1} ]`;
+        eventText.innerHTML = d.etapes[gameState.dungeonStep];
         eventChoices.innerHTML = "";
 
         const nextBtn = document.createElement('button');
         nextBtn.className = "hologram-btn primary";
-        nextBtn.textContent = "Avancer prudemment dans la zone";
+        nextBtn.textContent = "Avancer";
         nextBtn.addEventListener('click', () => {
-            gameState.dungeonStep = 2;
+            gameState.dungeonStep++;
             renderDungeonStep();
         });
         eventChoices.appendChild(nextBtn);
-
-    } else if (gameState.dungeonStep === 2) {
-        // Lancer le combat
+    } else {
+        // Début du combat
         const template = GAME_DATA.monstres[d.monstreId];
-        gameState.combat = {
-            monstre: JSON.parse(JSON.stringify(template))
-        };
+        gameState.combat = { monstre: JSON.parse(JSON.stringify(template)) };
         renderCombatTurn();
     }
 }
@@ -350,60 +348,119 @@ function renderDungeonStep() {
 function renderCombatTurn() {
     const m = gameState.combat.monstre;
     eventTitle.textContent = `[ COMBAT : ${m.nom.toUpperCase()} ]`;
-    eventText.innerHTML = `<em>${m.description}</em><br><br><strong>Monstre - PV :</strong> ${m.stats.pv}/${m.stats.pvMax} | <strong>Force :</strong> ${m.stats.force}<br><strong>Vos PV :</strong> ${Math.floor(gameState.player.statsActuelles.pvActuels)}/${gameState.player.statsMax.pvMax}`;
+    eventText.innerHTML = `<em>${m.description}</em><br><br>
+        <strong>Monstre :</strong> ${m.stats.pv}/${m.stats.pvMax} PV<br>
+        <strong>Vous :</strong> ${Math.floor(gameState.player.statsActuelles.pvActuels)} PV | ${Math.floor(gameState.player.statsActuelles.pmActuels)} PM`;
     eventChoices.innerHTML = "";
 
-    const btnAttaquer = document.createElement('button');
-    btnAttaquer.className = "hologram-btn primary";
-    btnAttaquer.textContent = "🗡️ Attaquer au corps à corps";
-    btnAttaquer.addEventListener('click', () => executeCombatAction());
-    eventChoices.appendChild(btnAttaquer);
+    const btnCAC = document.createElement('button');
+    btnCAC.className = "hologram-btn primary";
+    btnCAC.textContent = "🗡️ Frappe Mêlée (Force)";
+    btnCAC.addEventListener('click', () => executeCombatTurn("cac"));
+    eventChoices.appendChild(btnCAC);
 
-    const btnFuir = document.createElement('button');
-    btnFuir.className = "hologram-btn warning";
-    btnFuir.textContent = "🏃 Fuir en catastrophe vers le Hub";
-    btnFuir.addEventListener('click', () => {
-        finishHubAction(1);
-    });
-    eventChoices.appendChild(btnFuir);
+    const btnMagie = document.createElement('button');
+    btnMagie.className = "hologram-btn primary";
+    btnMagie.textContent = "🔥 Magie (Intel | -10 PM)";
+    if (gameState.player.statsActuelles.pmActuels < 10) btnMagie.disabled = true;
+    btnMagie.addEventListener('click', () => executeCombatTurn("magie"));
+    eventChoices.appendChild(btnMagie);
+
+    const btnDistance = document.createElement('button');
+    btnDistance.className = "hologram-btn primary";
+    btnDistance.textContent = "🏹 Tir Précis (Perception)";
+    btnDistance.addEventListener('click', () => executeCombatTurn("distance"));
+    eventChoices.appendChild(btnDistance);
+
+    const btnDefendre = document.createElement('button');
+    btnDefendre.className = "hologram-btn";
+    btnDefendre.textContent = "🛡️ Posture Défensive";
+    btnDefendre.addEventListener('click', () => executeCombatTurn("defendre"));
+    eventChoices.appendChild(btnDefendre);
 }
 
-function executeCombatAction() {
+function executeCombatTurn(actionType) {
     const m = gameState.combat.monstre;
-    let degatsJoueur = gameState.player.statsMax.force * 2;
-    m.stats.pv -= degatsJoueur;
+    const p = gameState.player;
+    let degatsJoueur = 0;
+    gameState.isDefending = false;
 
+    // Phase Attaque du Joueur
+    if (actionType === "cac") {
+        degatsJoueur = p.statsMax.force * 2;
+    } else if (actionType === "magie") {
+        p.statsActuelles.pmActuels -= 10;
+        degatsJoueur = p.statsMax.intelligence * 2.5;
+    } else if (actionType === "distance") {
+        degatsJoueur = p.statsMax.perception * 1.5 + p.statsMax.agilite;
+    } else if (actionType === "defendre") {
+        gameState.isDefending = true;
+    }
+
+    m.stats.pv -= Math.floor(degatsJoueur);
+
+    // Victoire ?
     if (m.stats.pv <= 0) {
         const orGagne = Math.floor(Math.random() * (m.recompenses.orMax - m.recompenses.orMin)) + m.recompenses.orMin;
-        gameState.player.or += orGagne;
-        gameState.player.reputation += 3;
-        saveGameToHistory(`Victoire contre ${m.nom}`);
+        p.or += orGagne;
+        p.reputation += 3;
         
-        eventTitle.textContent = "[ VICTOIRE DANS LE DONJON ]";
-        eventText.innerHTML = `Vous terrassez le ${m.nom} dans un dernier assaut fulgurant !<br><br><span style="color:var(--neon-green);">Butin récupéré : +${orGagne} Or | +3 Réputation.</span>`;
-        eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Retourner au Hub (1 jour écoulé)</button>`;
+        eventTitle.textContent = "[ VICTOIRE ]";
+        eventText.innerHTML = `Le monstre s'effondre.<br><br><span style="color:var(--neon-green);">+${orGagne} Or | +3 Rép</span>`;
+        eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="finishHubAction(1)">Retourner au Hub</button>`;
         updateHUD();
         return;
     }
 
-    let degatsMonstre = Math.max(1, m.stats.force - Math.floor(gameState.player.statsMax.vitalite / 2));
-    gameState.player.statsActuelles.pvActuels -= degatsMonstre;
+    // Phase Attaque du Monstre
+    let esquiveJoueur = Math.random() * 100 < (p.statsMax.agilite * 2);
+    let logDefense = "";
 
-    if (gameState.player.statsActuelles.pvActuels <= 0) {
-        gameState.player.statsActuelles.pvActuels = 0;
-        updateHUD();
-        saveGameToHistory(`Mort au combat contre ${m.nom}`);
-        eventTitle.textContent = "[ ÉCHEC CRITIQUE ]";
-        eventText.innerHTML = "Vous avez succombé aux blessures infligées par le monstre... Le Système s'active d'urgence.";
-        eventChoices.innerHTML = `<button class="hologram-btn warning" onclick="location.reload()">Recommencer une partie</button>`;
-        return;
+    if (esquiveJoueur) {
+        logDefense = "Vous avez esquivé l'attaque !";
+    } else {
+        let degatsMonstre = m.stats.force - Math.floor(p.statsMax.vitalite / 2);
+        if (gameState.isDefending) degatsMonstre = Math.floor(degatsMonstre * 0.25); // Réduction 75%
+        if (degatsMonstre < 1) degatsMonstre = 1;
+
+        p.statsActuelles.pvActuels -= degatsMonstre;
+        logDefense = `Le monstre inflige ${degatsMonstre} dégâts.`;
+    }
+
+    // Mort / Double Éveil
+    if (p.statsActuelles.pvActuels <= 0) {
+        if (!gameState.doubleEveilDeclenche && Math.random() < 0.2) { 
+            // 20% de chance de déclencher le Double Éveil à la mort
+            gameState.doubleEveilDeclenche = true;
+            p.statsActuelles.pvActuels = p.statsMax.pvMax;
+            p.statsActuelles.pmActuels = p.statsMax.pmMax;
+            p.statsMax.force += 15;
+            p.statsMax.agilite += 15;
+            p.statsMax.intelligence += 15;
+            p.rangLicence = "C";
+            p.classe = `Grand ${p.classe}`;
+
+            eventTitle.textContent = "[ ANOMALIE DÉTECTÉE : DOUBLE ÉVEIL ]";
+            eventText.innerHTML = `<span style="color:var(--neon-blue); font-size:1.1em; text-shadow: 0 0 10px var(--neon-blue);">Une aura écrasante jaillit de votre corps à l'instant où vous alliez succomber. Le Système redémarre... Vos statistiques explosent !</span>`;
+            eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="renderCombatTurn()">Exterminer la cible</button>`;
+            updateHUD();
+            return;
+        } else {
+            eventTitle.textContent = "[ MORT ]";
+            eventText.innerHTML = "Vous avez succombé dans le donjon.";
+            eventChoices.innerHTML = `<button class="hologram-btn warning" onclick="location.reload()">Recommencer</button>`;
+            return;
+        }
     }
 
     updateHUD();
-    renderCombatTurn();
+    eventText.innerHTML += `<br><br><strong>Tour ennemi :</strong> ${logDefense}`;
+    
+    // On met un timeout léger pour laisser le joueur lire le log avant de rafraichir (ou l'ajouter dans le rendu)
+    setTimeout(renderCombatTurn, 1000); 
 }
 
-// --- INVENTAIRE, ÉQUIPEMENT & VENTE ---
+// --- INVENTAIRE & STATS (Géré comme V1.1) ---
 function openInventoryModal() {
     renderInventoryGrid();
     renderEquipmentDisplay();
@@ -413,17 +470,13 @@ function openInventoryModal() {
 function renderInventoryGrid() {
     const grid = document.getElementById('inventory-grid-container');
     grid.innerHTML = "";
-    document.getElementById('item-details').textContent = "Sélectionnez un objet.";
-    document.getElementById('item-actions').innerHTML = "";
-
     for (let i = 0; i < 12; i++) {
         const slot = document.createElement('div');
         slot.className = "inventory-slot";
         const itemId = gameState.player.inventaire[i];
-        
         if (itemId && GAME_DATA.objets[itemId]) {
             const obj = GAME_DATA.objets[itemId];
-            slot.textContent = obj.nom; // Tronqué automatiquement par CSS si trop long
+            slot.textContent = obj.nom;
             slot.addEventListener('click', () => selectInventoryItem(i, obj));
         } else {
             slot.textContent = "[Vide]";
@@ -432,120 +485,31 @@ function renderInventoryGrid() {
     }
 }
 
+function selectInventoryItem(index, obj) {
+    const actions = document.getElementById('item-actions');
+    actions.innerHTML = "";
+    if (obj.type === "consommable") {
+        const btn = document.createElement('button'); btn.className = "hologram-btn primary"; btn.textContent = "Utiliser";
+        btn.onclick = () => {
+            if(obj.effet.soinPv) gameState.player.statsActuelles.pvActuels = Math.min(gameState.player.statsMax.pvMax, gameState.player.statsActuelles.pvActuels + obj.effet.soinPv);
+            if(obj.effet.soinPm) gameState.player.statsActuelles.pmActuels = Math.min(gameState.player.statsMax.pmMax, gameState.player.statsActuelles.pmActuels + obj.effet.soinPm);
+            gameState.player.inventaire.splice(index, 1); updateHUD(); renderInventoryGrid();
+        };
+        actions.appendChild(btn);
+    }
+    // Vendre
+    const sellBtn = document.createElement('button'); sellBtn.className = "hologram-btn warning"; sellBtn.textContent = `Vendre (+${Math.floor(obj.prix/2)})`;
+    sellBtn.onclick = () => { gameState.player.or += Math.floor(obj.prix/2); gameState.player.inventaire.splice(index, 1); updateHUD(); renderInventoryGrid(); };
+    actions.appendChild(sellBtn);
+}
+
 function renderEquipmentDisplay() {
     const eq = gameState.player.equipement;
-    document.getElementById('eq-tete').textContent = `Tête : ${eq.tete ? GAME_DATA.objets[eq.tete].nom : '[Vide]'}`;
-    document.getElementById('eq-torse').textContent = `Torse : ${eq.torse ? GAME_DATA.objets[eq.torse].nom : '[Vide]'}`;
-    document.getElementById('eq-mains').textContent = `Mains : ${eq.mains ? GAME_DATA.objets[eq.mains].nom : '[Vide]'}`;
-    document.getElementById('eq-accessoire').textContent = `Accessoire : ${eq.accessoire ? GAME_DATA.objets[eq.accessoire].nom : '[Vide]'}`;
-}
-
-function selectInventoryItem(index, obj) {
-    document.getElementById('item-details').textContent = `[${obj.nom}] (${obj.type}) — Prix d'achat: ${obj.prix} Or`;
-    const actionsContainer = document.getElementById('item-actions');
-    actionsContainer.innerHTML = "";
-
-    if (obj.type === "consommable") {
-        const useBtn = document.createElement('button');
-        useBtn.className = "hologram-btn primary";
-        useBtn.textContent = "Utiliser";
-        useBtn.addEventListener('click', () => {
-            useConsumable(index, obj);
-        });
-        actionsContainer.appendChild(useBtn);
-    } else if (obj.type === "arme" || obj.type === "armure") {
-        const equipBtn = document.createElement('button');
-        equipBtn.className = "hologram-btn primary";
-        equipBtn.textContent = "Équiper";
-        equipBtn.addEventListener('click', () => {
-            equipItemFromInventory(index, obj);
-        });
-        actionsContainer.appendChild(equipBtn);
-    }
-
-    // Bouton Vendre
-    const sellBtn = document.createElement('button');
-    sellBtn.className = "hologram-btn warning";
-    sellBtn.textContent = `Vendre (+${Math.floor(obj.prix / 2)} Or)`;
-    sellBtn.addEventListener('click', () => {
-        sellItemFromInventory(index, obj);
+    ['tete', 'torse', 'mains', 'accessoire'].forEach(slot => {
+        document.getElementById(`eq-${slot}`).textContent = `${slot.toUpperCase()} : ${eq[slot] ? GAME_DATA.objets[eq[slot]].nom : '[Vide]'}`;
     });
-    actionsContainer.appendChild(sellBtn);
 }
 
-function useConsumable(index, obj) {
-    const p = gameState.player;
-    if (obj.effet.soinPv) {
-        p.statsActuelles.pvActuels = Math.min(p.statsMax.pvMax, p.statsActuelles.pvActuels + obj.effet.soinPv);
-    } else if (obj.effet.soinPvPourcentage) {
-        const heal = Math.floor(p.statsMax.pvMax * (obj.effet.soinPvPourcentage / 100));
-        p.statsActuelles.pvActuels = Math.min(p.statsMax.pvMax, p.statsActuelles.pvActuels + heal);
-    }
-    p.inventaire.splice(index, 1);
-    updateHUD();
-    renderInventoryGrid();
-}
-
-function equipItemFromInventory(index, obj) {
-    const p = gameState.player;
-    const slot = obj.slot;
-
-    if (p.equipement[slot]) {
-        const oldItemId = p.equipement[slot];
-        const oldObj = GAME_DATA.objets[oldItemId];
-        if (oldObj && oldObj.bonusStats) {
-            for (let stat in oldObj.bonusStats) {
-                p.statsMax[stat] -= oldObj.bonusStats[stat];
-            }
-        }
-        p.inventaire[index] = oldItemId;
-    } else {
-        p.inventaire.splice(index, 1);
-    }
-
-    p.equipement[slot] = obj.id;
-    if (obj.bonusStats) {
-        for (let stat in obj.bonusStats) {
-            p.statsMax[stat] += obj.bonusStats[stat];
-        }
-    }
-
-    updateHUD();
-    renderInventoryGrid();
-    renderEquipmentDisplay();
-}
-
-function sellItemFromInventory(index, obj) {
-    const p = gameState.player;
-    const gain = Math.floor(obj.prix / 2);
-    p.or += gain;
-    p.inventaire.splice(index, 1);
-    updateHUD();
-    renderInventoryGrid();
-    document.getElementById('item-details').textContent = `Vendu ${obj.nom} pour ${gain} Or.`;
-}
-
-function closeInventoryModal() {
-    document.getElementById('modal-inventory').classList.add('hidden');
-}
-
-function openStatsModal() {
-    const p = gameState.player;
-    const content = document.getElementById('stats-content');
-    content.innerHTML = `
-        <strong>Rang de Licence :</strong> ${p.rangLicence}<br>
-        <strong>Réputation :</strong> ${p.reputation}<br>
-        <strong>Niveau :</strong> ${p.niveau}<br><br>
-        Force : ${p.statsMax.force}<br>
-        Agilité : ${p.statsMax.agilite}<br>
-        Vitalité : ${p.statsMax.vitalite}<br>
-        Intelligence : ${p.statsMax.intelligence}<br>
-        Perception : ${p.statsMax.perception}<br>
-        Réflexe : ${p.statsMax.reflexe}
-    `;
-    document.getElementById('modal-stats').classList.remove('hidden');
-}
-
-function closeStatsModal() {
-    document.getElementById('modal-stats').classList.add('hidden');
-}
+function closeInventoryModal() { document.getElementById('modal-inventory').classList.add('hidden'); }
+function openStatsModal() { document.getElementById('modal-stats').classList.remove('hidden'); document.getElementById('stats-content').innerHTML = `Force: ${gameState.player.statsMax.force} <br> Agilité: ${gameState.player.statsMax.agilite} <br> Vitalité: ${gameState.player.statsMax.vitalite} <br> Intelligence: ${gameState.player.statsMax.intelligence} <br> Perception: ${gameState.player.statsMax.perception}`; }
+function closeStatsModal() { document.getElementById('modal-stats').classList.add('hidden'); }
