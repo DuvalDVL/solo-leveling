@@ -2,100 +2,66 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solo Leveling - Text RPG</title>
-    <link rel="stylesheet" href="css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Système - Text RPG</title>
+    <!-- Chargement des polices futuristes et lisibles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="game-container">
-        <!-- Barre d'État (Toujours visible) -->
-        <header id="status-bar">
-            <div class="stat-item" title="Points de Vie">❤️ <span id="stat-hp">100</span></div>
-            <div class="stat-item" title="Mana">🔷 <span id="stat-mp">50</span></div>
-            <div class="stat-item" title="Argent">💰 <span id="stat-money">0</span>₩</div>
-            <div class="stat-item" title="Fatigue">⚡ <span id="stat-fatigue">0</span>/100</div>
-            <div class="stat-item" title="Moral">🧠 <span id="stat-morale">100</span></div>
-        </header>
 
-        <main id="screen-viewport">
-            <!-- 1. Écran Titre -->
-            <section id="screen-title" class="screen active">
-                <div class="title-wrapper">
-                    <h1 class="glitch-title">SOLO LEVELING</h1>
-                    <p class="subtitle">Text RPG - Edition Privée</p>
-                </div>
-                <div class="menu-actions">
-                    <button class="btn primary" onclick="GameEngine.startMode(1)">Nouvelle Partie (Simulation)</button>
-                    <button class="btn secondary" onclick="GameEngine.startMode(2)">Mode Chasseur Établi (BETA)</button>
-                    <button class="btn outline hidden" id="btn-load" onclick="GameEngine.loadGame()">Charger la partie</button>
-                </div>
-            </section>
-
-            <!-- 2. Écran de Création / Transition -->
-            <section id="screen-creation" class="screen hidden">
-                <h2 id="creation-title">Phase de Transition</h2>
-                <div id="creation-text-box" class="text-box"></div>
-                <div id="creation-choices" class="choices-container"></div>
-            </section>
-
-            <!-- 3. Écran de la Ville -->
-            <section id="screen-city" class="screen hidden">
-                <div class="city-header">
-                    <h3>Monde Réel</h3>
-                    <p>Rang : <strong id="player-rank" style="color: var(--primary-blue);"></strong></p>
-                    <p>Jours restants : <span id="days-left">30</span></p>
-                </div>
-                <div class="city-dashboard">
-                    <button class="city-btn" onclick="CityManager.openShop()">Boutique</button>
-                    <button class="city-btn" onclick="CityManager.openTraining()">S'entraîner</button>
-                    <button class="city-btn" onclick="CityManager.openSocial()">Réseaux & Contacts</button>
-                    <button class="city-btn" onclick="CityManager.openLife()">Se Reposer</button>
-                </div>
-                <div class="city-footer">
-                    <button class="btn secondary full-width" style="margin-bottom: 10px;" onclick="CityManager.openProfile()">Profil & Stats</button>
-                    <button class="btn primary full-width" onclick="CityManager.openRaidBoard()">Consulter les Portails</button>
-                </div>
-            </section>
-
-            <!-- 4. Écran de Donjon -->
-            <section id="screen-dungeon" class="screen hidden">
-                <div id="dungeon-header">
-                    <span id="dungeon-name">Portail</span>
-                    <span id="dungeon-progress">Exploration en cours</span>
-                </div>
-                <div id="dungeon-text-box" class="text-box"></div>
-                <div id="dungeon-choices" class="choices-container"></div>
-            </section>
-
-   <!-- 5. Écran de Résumé (Fin de partie / Retraite) -->
-            <section id="screen-summary" class="screen hidden">
-                <div id="summary-content" class="text-box" style="text-align: left; overflow-y: auto;">
-                    <!-- Rempli par le JS -->
-                </div>
-                <div class="choices-container">
-                    <button class="btn system" onclick="location.reload()">Retour à l'écran titre</button>
-                </div>
-            </section>
-        </main>
-
-        <!-- Fenêtre Modale -->
-        <div id="modal-overlay" class="hidden">
-            <div id="modal-content">
-                <h3 id="modal-title">Alerte</h3>
-                <div id="modal-text" style="margin: 15px 0; line-height: 1.5; font-size: 0.95rem;">Description</div>
-                <div id="modal-actions"></div>
+        <!-- ÉCRAN 1 : MENU PRINCIPAL -->
+        <section id="screen-home" class="screen active">
+            <div class="title-container">
+                <h1 class="neon-title">[ S Y S T È M E ]</h1>
+                <p class="subtitle">Initialisation en cours...</p>
             </div>
-        </div>
+            
+            <div class="menu-buttons">
+                <button id="btn-new-game" class="hologram-btn primary">Nouvelle Partie</button>
+                <button id="btn-history" class="hologram-btn">Historique</button>
+                <button id="btn-help" class="hologram-btn">En savoir Plus</button>
+            </div>
+        </section>
+
+        <!-- ÉCRAN 2 : HISTORIQUE -->
+        <section id="screen-history" class="screen hidden">
+            <div class="hologram-panel">
+                <h2 class="panel-title">[ ARCHIVES DU JOUEUR ]</h2>
+                <div class="panel-content">
+                    <p class="sys-msg">Récupération des données passées...</p>
+                    <ul class="history-list">
+                        <li><strong>Partie #1</strong> - Rang E - Mort par Gobelin (Jour 4)</li>
+                        <li><strong>Partie #2</strong> - Rang D - Vaincu dans la Zone de Pénalité (Jour 12)</li>
+                    </ul>
+                </div>
+                <button class="hologram-btn btn-back">Retour au Menu</button>
+            </div>
+        </section>
+
+        <!-- ÉCRAN 3 : EN SAVOIR PLUS -->
+        <section id="screen-help" class="screen hidden">
+            <div class="hologram-panel">
+                <h2 class="panel-title">[ GUIDE D'ÉVEIL ]</h2>
+                <div class="panel-content">
+                    <p>Bienvenue dans le Système. Ce monde est impitoyable pour les faibles.</p>
+                    <ul>
+                        <li><strong>Phase 1 :</strong> Vos choix civils définiront votre classe et vos statistiques de départ.</li>
+                        <li><strong>Phase 2 :</strong> Survivez. Payez vos dettes. Vous ne pourrez pas monter en niveau sans l'aide du Système.</li>
+                        <li><strong>Phase 3 :</strong> Prouvez votre valeur.</li>
+                    </ul>
+                    <p class="sys-msg warning">Attention : La mort dans les donjons est définitive.</p>
+                </div>
+                <button class="hologram-btn btn-back">Retour au Menu</button>
+            </div>
+        </section>
+
     </div>
 
-    <!-- ORDRE STRICT DES SCRIPTS -->
-    <script src="js/storage.js"></script>
-    <script src="data/traits.js"></script>
-    <script src="data/events_civil.js"></script>
-    <script src="data/events_dungeon.js"></script>
-    <script src="js/engine.js"></script>
-    <script src="js/city.js"></script>
-    <script src="js/dungeon.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
