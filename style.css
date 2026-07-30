@@ -1,0 +1,169 @@
+/* --- VARIABLES DE COULEURS --- */
+:root {
+    --bg-dark: #0a0c10;
+    --bg-panel: rgba(15, 20, 29, 0.75);
+    --neon-blue: #00f0ff;
+    --neon-blue-dim: rgba(0, 240, 255, 0.3);
+    --neon-red: #ff0055;
+    --text-main: #e2e8f0;
+    --font-sys: 'Orbitron', sans-serif;
+    --font-text: 'Inter', sans-serif;
+}
+
+/* --- RESET GLOBAL --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-text);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* Petit effet de grille en fond pour le côté digital */
+    background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+#game-container {
+    width: 100%;
+    max-width: 800px;
+    height: 90vh;
+    position: relative;
+    padding: 20px;
+}
+
+/* --- GESTION DES ÉCRANS --- */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* --- TYPOGRAPHIE --- */
+.neon-title {
+    font-family: var(--font-sys);
+    font-size: 3rem;
+    color: var(--neon-blue);
+    text-shadow: 0 0 10px var(--neon-blue-dim), 0 0 20px var(--neon-blue);
+    letter-spacing: 5px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-family: var(--font-sys);
+    color: var(--neon-blue-dim);
+    text-align: center;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
+/* --- BOUTONS HOLOGRAPHIQUES --- */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.hologram-btn {
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid var(--neon-blue-dim);
+    color: var(--neon-blue);
+    font-family: var(--font-sys);
+    font-size: 1rem;
+    padding: 15px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.2s ease;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.hologram-btn:hover {
+    background: var(--neon-blue-dim);
+    box-shadow: 0 0 15px var(--neon-blue-dim);
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+.hologram-btn.primary {
+    border-color: var(--neon-blue);
+    box-shadow: inset 0 0 10px var(--neon-blue-dim);
+}
+
+/* --- PANNEAUX (Historique & Aide) --- */
+.hologram-panel {
+    background: var(--bg-panel);
+    border-left: 3px solid var(--neon-blue);
+    border-right: 1px solid var(--neon-blue-dim);
+    padding: 30px;
+    width: 100%;
+    max-width: 600px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+.panel-title {
+    font-family: var(--font-sys);
+    color: var(--neon-blue);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--neon-blue-dim);
+    padding-bottom: 10px;
+}
+
+.panel-content {
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.panel-content ul {
+    margin-top: 15px;
+    padding-left: 20px;
+}
+
+.panel-content li {
+    margin-bottom: 10px;
+}
+
+.sys-msg {
+    font-family: var(--font-sys);
+    color: var(--neon-blue);
+    font-size: 0.9rem;
+    margin-top: 15px;
+}
+
+.sys-msg.warning {
+    color: var(--neon-red);
+    text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+}
