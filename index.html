@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Système - Text RPG (V1.3)</title>
+    <title>Le Système - Text RPG (V1.0 Final)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
@@ -13,28 +13,26 @@
 
     <div id="game-container">
 
-        <!-- ÉCRAN 1 : MENU PRINCIPAL -->
+        <!-- ÉCRAN ACCUEIL -->
         <section id="screen-home" class="screen active">
             <div class="title-container">
-                <h1 class="neon-title">[ S Y S T È M𝙴 ]</h1>
-                <p class="subtitle">Protocole d'Éveil V1.3</p>
+                <h1 class="neon-title">[ S Y S T È M E ]</h1>
+                <p class="subtitle">Protocole Chasseur V1.0</p>
             </div>
             <div class="menu-buttons">
                 <button id="btn-new-game" class="hologram-btn primary">Nouvelle Partie</button>
-                <button id="btn-history" class="hologram-btn">Historique</button>
-                <button id="btn-help" class="hologram-btn">En savoir Plus</button>
             </div>
         </section>
 
-        <!-- ÉCRAN 1.5 : CRÉATION DE PERSONNAGE -->
+        <!-- CRÉATION DE PERSONNAGE -->
         <section id="screen-creation" class="screen hidden">
             <div class="hologram-panel">
-                <h2 class="panel-title">[ IDENTIFICATION ]</h2>
+                <h2 class="panel-title">[ IDENTIFICATION CIVILE ]</h2>
                 <div class="panel-content creation-form">
-                    <label class="sys-msg">Nom du Joueur :</label>
+                    <label class="sys-msg">Nom du Chasseur :</label>
                     <input type="text" id="input-nom" class="hologram-input" value="Sung" maxlength="15">
                     
-                    <label class="sys-msg" style="margin-top:15px; display:block;">Statut Civil (Métier) :</label>
+                    <label class="sys-msg" style="margin-top:15px; display:block;">Statut Professionnel :</label>
                     <select id="select-metier" class="hologram-input">
                         <option value="Ouvrier">Ouvrier (Force/Vitalité)</option>
                         <option value="Employé de Bureau">Employé de Bureau (Intelligence/Or)</option>
@@ -42,42 +40,42 @@
                         <option value="Étudiant">Étudiant (Intelligence/Agilité)</option>
                     </select>
                 </div>
-                <button id="btn-start-civil" class="hologram-btn primary" style="margin-top: 20px;">Confirmer et Lancer</button>
+                <button id="btn-start-civil" class="hologram-btn primary" style="margin-top: 20px;">Valider l'Identité</button>
             </div>
         </section>
 
-        <!-- ÉCRAN 4 : JEU PRINCIPAL & HUD -->
+        <!-- JEU PRINCIPAL & HUD -->
         <section id="screen-game" class="screen hidden">
-            <!-- HUD SUPÉRIEUR -->
             <div class="game-hud">
                 <div class="hud-item"><span>RANG:</span> <span id="hud-rang">E</span></div>
                 <div class="hud-item"><span>CLASSE:</span> <span id="hud-classe" style="color:var(--neon-green);">Aucune</span></div>
+                <div class="hud-item"><span>NIV:</span> <span id="hud-niveau">1</span></div>
+                <div class="hud-item" id="hud-container-xp" style="display:none;"><span>XP:</span> <span id="hud-xp">0</span>/<span id="hud-xpsuiv">100</span></div>
                 <div class="hud-item"><span>PV:</span> <span id="hud-pv">100</span>/<span id="hud-pvmax">100</span></div>
                 <div class="hud-item"><span>PM:</span> <span id="hud-pm">50</span>/<span id="hud-pmmax">50</span></div>
                 <div class="hud-item"><span>OR:</span> <span id="hud-or">300</span> 🪙</div>
                 <div class="hud-item"><span>LOYER:</span> <span id="hud-loyer">7</span>j</div>
+                <div class="hud-item"><button class="hologram-btn" style="padding:2px 8px; font-size:10px;" onclick="openInventoryModal()">Sac</button></div>
+                <div class="hud-item"><button class="hologram-btn" style="padding:2px 8px; font-size:10px;" onclick="openStatsModal()">Stats</button></div>
             </div>
 
-            <!-- CONTENEUR PRINCIPAL DE SCÈNE (CENTRE) -->
             <div class="hologram-panel game-panel">
                 <h2 id="event-title" class="panel-title">[ INITIALISATION ]</h2>
-                <div id="event-text" class="panel-content">
-                    Connexion au réseau du Système...
-                </div>
+                <div id="event-text" class="panel-content">Connexion au réseau...</div>
                 <div id="event-choices" class="choices-container"></div>
             </div>
         </section>
 
     </div>
 
-    <!-- MODALES INVENTAIRE ET STATS -->
+    <!-- MODALE INVENTAIRE -->
     <div id="modal-inventory" class="modal hidden">
         <div class="hologram-panel modal-panel">
-            <h2 class="panel-title">[ INVENTAIRE & ÉQUIPEMENT ]</h2>
+            <h2 class="panel-title">[ SAC & ÉQUIPEMENT ]</h2>
             <div class="inventory-layout">
                 <div class="inventory-grid" id="inventory-grid-container"></div>
                 <div class="equipped-sidebar">
-                    <h3 class="sys-msg" style="margin-top:0;">Équipé :</h3>
+                    <h3 class="sys-msg">Équipement :</h3>
                     <div class="equip-slot" id="eq-tete">Tête : [Vide]</div>
                     <div class="equip-slot" id="eq-torse">Torse : [Vide]</div>
                     <div class="equip-slot" id="eq-mains">Mains : [Vide]</div>
@@ -90,15 +88,15 @@
         </div>
     </div>
 
+    <!-- MODALE STATS -->
     <div id="modal-stats" class="modal hidden">
         <div class="hologram-panel modal-panel">
-            <h2 class="panel-title">[ STATISTIQUES DU JOUEUR ]</h2>
+            <h2 class="panel-title">[ FICHE DU CHASSEUR ]</h2>
             <div id="stats-content" class="panel-content"></div>
             <button class="hologram-btn" onclick="closeStatsModal()">Fermer</button>
         </div>
     </div>
 
-    <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
