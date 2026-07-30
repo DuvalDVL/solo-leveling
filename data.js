@@ -7,8 +7,7 @@ const GAME_DATA = {
         or: 300,
         timers: {
             loyerJours: 7,
-            hopitalJours: 28,
-            queteJournaliereHeures: 24
+            hopitalJours: 28
         },
         statsActuelles: {
             pvActuels: 100,
@@ -31,7 +30,7 @@ const GAME_DATA = {
             mains: null,
             accessoire: null
         },
-        inventaire: ["item_bandage_01", "item_potion_mineure"]
+        inventaire: ["item_bandage_01", "item_potion_mineure", "item_dague_emoussee"]
     },
 
     objets: {
