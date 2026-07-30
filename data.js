@@ -11,12 +11,15 @@ const GAME_DATA = {
         metierCivil: "Ouvrier",
         classe: "Aucune",
         rangLicence: "E",
-        reputation: 10,
         niveau: 1,
+        xp: 0,
+        xpSuivant: 100,
+        reputation: 10,
         or: 300,
+        doubleEveille: false,
         timers: {
             loyerJours: 7,
-            montantLoyer: 250 // Réduit pour l'équilibrage
+            montantLoyer: 250
         },
         statsActuelles: {
             pvActuels: 100,
@@ -39,34 +42,34 @@ const GAME_DATA = {
 
     sequencesEveil: {
         "Guerrier": [
-            "Le réveil sonne. Vous ouvrez les yeux, le corps trempé de sueurs froides. Vos muscles brûlent d'une chaleur anormale, comme si vous aviez couru un marathon en dormant.",
-            "En voulant éteindre votre réveil, votre main s'abat sur la table de nuit. Un énorme *CRAC* retentit. Le réveil est pulvérisé et le bois massif de la table s'est fendu en deux sous votre force.",
-            "Paniqué, vous prenez votre téléphone et tapez : *'Force surhumaine soudaine, muscles brûlants, hallucination ?'* Les résultats du forum des Éveillés sont unanimes : c'est le Protocole.",
-            "Vous vous rendez au Centre de l'Association des Chasseurs. Après avoir pulvérisé la machine de test de frappe, l'examinateur vous tend un badge. Vous êtes un Chasseur de type Combattant."
+            "Le réveil sonne. Vous vous levez, le corps trempé de sueurs. Vos muscles brûlent d'une chaleur anormale.",
+            "En voulant éteindre votre réveil, votre main s'abat sur la table de nuit et la pulvérise sous votre force.",
+            "Sur les forums des Éveillés, les résultats pointent vers un éveil de type Combattant/Guerrier.",
+            "Au Centre de l'Association, l'examinateur valide votre licence de Chasseur de rang E."
         ],
         "Assassin": [
-            "Le réveil sonne, mais vous l'aviez entendu s'enclencher une fraction de seconde avant. Le monde autour de vous semble bouger au ralenti.",
-            "Une mouche vole dans la pièce. Son bourdonnement vous agresse les oreilles. D'un mouvement sec, sans même regarder, vous l'attrapez entre votre pouce et votre index. Vos réflexes sont terrifiants.",
-            "Vous faites une recherche vocale : *'Perception ralentie du temps, réflexes anormaux'*... Les forums parlent d'un type d'Éveil spécifique et mortel.",
-            "Au Centre d'Évaluation, vous parvenez à esquiver les lasers d'exercice avec une aisance fantomatique. Vous ressortez avec une licence de Chasseur de type Assassin."
+            "Le réveil sonne. Le monde autour de vous semble soudainement fonctionner au ralenti.",
+            "Une mouche bourdonne ; d'un mouvement machinal et fulgurant, vous l'attrapez entre deux doigts.",
+            "Vos réflexes sont terrifiants. Les articles en ligne évoquent un éveil d'assassin.",
+            "Au Centre d'Évaluation, vos esquives fantomatiques valident votre licence d'Assassin de rang E."
         ],
         "Mage": [
-            "Le réveil crépite avant même de sonner. Vous vous levez avec une migraine terrible, sentant des picotements électriques à la surface de votre peau.",
-            "En voulant attraper votre verre d'eau, celui-ci glisse sur la table, lévitant à quelques centimètres de la surface, poussé par une aura bleutée émanant de votre main.",
-            "Vous cherchez sur le net : *'Télékinésie involontaire, électricité statique permanente'*... Les articles spécialisés parlent de l'ouverture des circuits de Mana.",
-            "À l'Association, l'orbe de mesure magique s'illumine d'un éclat aveuglant à votre contact. L'examinateur, impressionné, vous enregistre en tant que Mage."
+            "Le réveil crépite et s'éteint dans une gerbe d'étincelles bleutées. Votre peau picote.",
+            "Votre verre d'eau lévite de quelques centimètres, attiré par une étrange aura de mana.",
+            "Les circuits de mana de votre corps semblent s'être ouverts durant la nuit.",
+            "L'orbe magique de l'Association s'illumine aveuglément. Vous êtes enregistré comme Mage."
         ],
         "Ranger": [
-            "Le réveil sonne. Mais vous entendez aussi les battements de cœur de votre voisin du dessus, et le bruit des voitures à trois pâtés de maisons. Vos sens sont en surchauffe.",
-            "Vous regardez par la fenêtre. À plus de 500 mètres, vous arrivez à lire parfaitement les petits caractères sur un panneau publicitaire, avec une netteté absolue.",
-            "Vous tapez frénétiquement : *'Ouïe absolue, vision télescopique soudaine'*... Tout pointe vers un Éveil lié à l'acuité sensorielle.",
-            "Au stand de tir du Centre d'Évaluation, vous touchez 100% des cibles en mouvement dans l'obscurité totale. Vous êtes certifié Chasseur de type Ranger."
+            "Le réveil sonne, mais vous entendez distinctement les battements de cœur à l'extérieur.",
+            "Vous regardez par la fenêtre et lisez un panneau publicitaire à plus de 500 mètres avec une netteté absolue.",
+            "Votre ouïe et votre vision ont muté de manière spectaculaire.",
+            "Au stand de tir, vous touchez 100% des cibles mobiles. Licence de Ranger validée."
         ],
         "Tank": [
-            "Le réveil sonne. Vous vous levez d'un bond, mais vous vous sentez incroyablement lourd. Comme si vos os étaient faits de tungstène.",
-            "Dans votre précipitation, vous vous cognez violemment le petit orteil contre le pied métallique du lit. Au lieu de hurler de douleur, c'est le métal du lit qui se tord sous l'impact. Vous n'avez rien senti.",
-            "Vous cherchez : *'Densité osseuse anormale, invulnérabilité soudaine'*... Le diagnostic des forums d'Éveillés est clair.",
-            "À l'Association, la presse hydraulique de test ne parvient même pas à vous faire reculer d'un pas. Vous recevez votre licence de Chasseur de type Tank."
+            "Le réveil sonne. Vous vous levez avec une sensation de lourdeur métallique dans les os.",
+            "Vous vous cognez violemment le pied contre le lit : c'est le cadre en fer qui se tord, vous ne sentez rien.",
+            "Votre densité corporelle a radicalement changé.",
+            "La presse hydraulique de l'Association cède face à votre résistance. Licence de Tank validée."
         ]
     },
 
@@ -76,20 +79,20 @@ const GAME_DATA = {
         "item_potion_mineure": { id: "item_potion_mineure", nom: "Potion de Soin Mineure", type: "consommable", rarete: "vert", prix: 200, effet: { soinPvPourcentage: 30 } },
         "item_potion_mana": { id: "item_potion_mana", nom: "Potion de Mana", type: "consommable", rarete: "vert", prix: 250, effet: { soinPm: 30 } },
         "item_dague_emoussee": { id: "item_dague_emoussee", nom: "Dague Émoussée", type: "arme", slot: "mains", rarete: "gris", prix: 300, bonusStats: { agilite: 2 } },
-        "item_epee_fer": { id: "item_epee_fer", nom: "Épée Longue en Fer", type: "arme", slot: "mains", rarete: "gris", prix: 450, bonusStats: { force: 3 } }
+        "item_epee_fer": { id: "item_epee_fer", nom: "Épée Longue en Fer", type: "arme", slot: "mains", rarete: "gris", prix: 450, bonusStats: { force: 3 } },
+        "item_cle_systeme": { id: "item_cle_systeme", nom: "Clé du Donjon Instantané", type: "special", rarete: "or", prix: 1000, effet: { description: "Ouvre une dimension de donjon personnel." } }
     },
 
     boutiques: [
         { id: "shop_civil", nom: "Épicerie de Quartier", requis: { type: "aucun" }, articles: ["item_bandage_01", "item_vetement_sport"] },
-        { id: "shop_assoc_e", nom: "Boutique Association - Rang E", requis: { type: "rang", valeur: "E", message: "Requiert une licence de Chasseur" }, articles: ["item_potion_mineure", "item_potion_mana", "item_dague_emoussee"] },
-        { id: "shop_assoc_d", nom: "Boutique Association - Rang D", requis: { type: "rang", valeur: "D", message: "Rang insuffisant (Requis: Rang D)" }, articles: ["item_epee_fer"] },
-        { id: "shop_noir", nom: "Marché Noir Clandestin", requis: { type: "reputation", valeur: 25, message: "Réputation insuffisante (Requis: 25)" }, articles: ["item_potion_mineure", "item_epee_fer"] }
+        { id: "shop_assoc_e", nom: "Boutique Association - Rang E", requis: { type: "rang", valeur: "E", message: "Requiert une licence" }, articles: ["item_potion_mineure", "item_potion_mana", "item_dague_emoussee"] },
+        { id: "shop_systeme", nom: "Boutique Secrète du Système", requis: { type: "systeme", message: "Réservé au Joueur du Système" }, articles: ["item_potion_mineure", "item_cle_systeme", "item_epee_fer"] }
     ],
 
     monstres: {
-        "mob_gobelin": { nom: "Gobelin Éclaireur", rang: "E", stats: { pv: 40, pvMax: 40, force: 7, agilite: 8 }, recompenses: { xp: 20, orMin: 80, orMax: 150 }, description: "Un humanoïde vicieux armé d'un couteau rouillé." },
-        "mob_loup_feroce": { nom: "Loup des Cavernes", rang: "E", stats: { pv: 60, pvMax: 60, force: 10, agilite: 14 }, recompenses: { xp: 35, orMin: 120, orMax: 200 }, description: "Une bête sauvage aux yeux luisants bavant de salive toxique." },
-        "mob_orc": { nom: "Haut-Orc des Cavernes", rang: "D", stats: { pv: 120, pvMax: 120, force: 18, agilite: 10 }, recompenses: { xp: 80, orMin: 250, orMax: 400 }, description: "Un colosse musclé brandissant une lourde massue." }
+        "mob_gobelin": { nom: "Gobelin Éclaireur", rang: "E", stats: { pv: 40, pvMax: 40, force: 7, agilite: 8 }, recompenses: { xp: 25, orMin: 80, orMax: 150 }, description: "Un humanoïde vicieux armé d'un couteau rouillé." },
+        "mob_loup_feroce": { nom: "Loup des Cavernes", rang: "E", stats: { pv: 60, pvMax: 60, force: 10, agilite: 14 }, recompenses: { xp: 40, orMin: 120, orMax: 200 }, description: "Une bête sauvage aux yeux luisants." },
+        "mob_statue_dieu": { nom: "La Statue de Dieu (Temple de Carthenon)", rang: "RED", stats: { pv: 500, pvMax: 500, force: 30, agilite: 25 }, recompenses: { xp: 500, orMin: 2000, orMax: 5000 }, description: "Une immense entité de pierre omnisciente au sourire énigmatique." }
     },
 
     evenementsCivils: [
@@ -122,33 +125,33 @@ const GAME_DATA = {
         }
     ],
 
-    donjons: [
+    donjonsStandards: [
         { 
             id: "dungeon_e1", 
             nom: "Portail Mineur (Ruines Enfouies)", 
             rang: "E", 
             monstreId: "mob_gobelin",
             etapes: [
-                { type: "texte", texte: "Vous rejoignez une petite équipe de 3 Chasseurs précaires. L'atmosphère est lourde et sent la moisissure." },
-                { type: "interactif", texte: "Un piège à fléchettes s'active brusquement dans le couloir !", choix: [
-                    { texte: "Plonger sur le côté (Agilité)", stat: "agilite", diff: 6, succes: "Vous esquivez de justesse ! Vous gagnez en assurance.", echec: "Vous êtes touché. Vous perdez 15 PV.", degats: 15 },
-                    { texte: "Se protéger le visage (Vitalité)", stat: "vitalite", diff: 5, succes: "Les flèches rebondissent presque sur vos avant-bras.", echec: "Une flèche s'enfonce dans votre épaule. Vous perdez 20 PV.", degats: 20 }
+                { type: "texte", texte: "Vous rejoignez une petite équipe de Chasseurs de bas étage. L'air est humide et empeste la vase." },
+                { type: "interactif", texte: "Un mécanisme de fléchettes murales s'enclenche soudainement !", choix: [
+                    { texte: "Esquiver par une roulade (Agilité)", stat: "agilite", diff: 6, succes: "Esquive parfaite ! Votre agilité vous sauve.", echec: "Touché à l'épaule ! -15 PV.", degats: 15 },
+                    { texte: "Encaisser de dos avec le sac (Vitalité)", stat: "vitalite", diff: 5, succes: "Le sac encaisse l'essentiel des dégâts.", echec: "Une fluche pénètre la chair. -20 PV.", degats: 20 }
                 ]},
-                { type: "texte", texte: "Isolé après le piège, vous apercevez une silhouette menaçante s'approcher..." }
+                { type: "texte", texte: "Le chemin se dégage, mais un monstre rôde plus loin..." }
             ]
         },
         { 
             id: "dungeon_e2", 
-            nom: "Portail Mineur (Forêt Sombre)", 
+            nom: "Portail Mineur (Caverne Sombre)", 
             rang: "E", 
             monstreId: "mob_loup_feroce",
             etapes: [
-                { type: "texte", texte: "La forêt est silencieuse. Trop silencieuse. Vous trouvez le cadavre d'un ancien chasseur." },
-                { type: "interactif", texte: "Son sac semble intact, mais il est bloqué sous un lourd rocher.", choix: [
-                    { texte: "Soulever le rocher (Force)", stat: "force", diff: 7, succes: "Vous libérez le sac et trouvez 150 Or !", echec: "Le rocher vous échappe et écrase vos doigts. Vous perdez 10 PV.", degats: 10, lootOr: 150 },
-                    { texte: "Fouiller délicatement avec un bâton (Perception)", stat: "perception", diff: 6, succes: "Vous réussissez à extraire quelques pièces (100 Or) sans prendre de risque.", echec: "Le sac se déchire, vous ne trouvez rien.", degats: 0, lootOr: 100 }
+                { type: "texte", texte: "La galerie rocheuse est jonchée d'os brisés. Un cadavre d'aventurier gît près d'un coffre entrouvert." },
+                { type: "interactif", texte: "Le coffre est lourdement coincé sous un éboulis de pierres.", choix: [
+                    { texte: "Forcer et soulever les pierres (Force)", stat: "force", diff: 7, succes: "Vous dégagez le coffre et empochez 150 Or !", echec: "Une pierre glisse sur vos doigts. -10 PV.", degats: 10, lootOr: 150 },
+                    { texte: "Fouiller avec une tige de fer (Perception)", stat: "perception", diff: 6, succes: "Vous récupérez adroitement 100 Or.", echec: "Rien d'accessible dans les décombres.", degats: 0, lootOr: 100 }
                 ]},
-                { type: "texte", texte: "L'odeur du sang du chasseur a attiré un prédateur de la forêt..." }
+                { type: "texte", texte: "Des bruits de grognements résonnent dans les échos de la caverne..." }
             ]
         }
     ]
