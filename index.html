@@ -60,6 +60,28 @@
             </div>
         </section>
 
+        <!-- ÉCRAN 4 : LE JEU (PHASE 1 & EXPLORATION) -->
+        <section id="screen-game" class="screen hidden">
+            <!-- HUD SUPÉRIEUR -->
+            <div class="game-hud">
+                <div class="hud-item"><span>RANG:</span> <span id="hud-rang">E</span></div>
+                <div class="hud-item"><span>LVL:</span> <span id="hud-lvl">1</span></div>
+                <div class="hud-item"><span>PV:</span> <span id="hud-pv">100</span>/<span id="hud-pvmax">100</span></div>
+                <div class="hud-item"><span>OR:</span> <span id="hud-or">200</span></div>
+            </div>
+
+            <!-- ZONE DE SCÈNE HOLOGRAPHIQUE -->
+            <div class="hologram-panel game-panel">
+                <h2 id="event-title" class="panel-title">[ CHARGEMENT... ]</h2>
+                <div id="event-text" class="panel-content">
+                    Analyse de l'environnement en cours...
+                </div>
+                <div id="event-choices" class="choices-container">
+                    <!-- Les boutons de choix seront injectés dynamiquement ici -->
+                </div>
+            </div>
+        </section>
+
     </div>
 
     <!-- SCRIPTS -->
