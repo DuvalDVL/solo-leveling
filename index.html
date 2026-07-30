@@ -3,130 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Système - Text RPG (V1.0 Final)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <title>Solo Hunter RPG</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="game-container">
+    <!-- BARRE DE STATUT SUPÉRIEURE -->
+    <header id="top-bar">
+        <div class="stat-group">
+            <span class="label">RANG:</span> <span id="ui-rang" class="value rang-e">E</span><br>
+            <span class="label">CLASSE:</span> <span id="ui-classe" class="value class-text">Ranger</span>
+        </div>
+        <div class="stat-group">
+            <span class="label">NIV:</span> <span id="ui-niveau" class="value">5</span><br>
+            <span class="label">XP:</span> <span id="ui-xp" class="value">108/505</span>
+        </div>
+        <div class="stat-group">
+            <span class="label">PV:</span> <span id="ui-pv" class="value">203/210</span><br>
+            <span class="label">PM:</span> <span id="ui-pm" class="value">90/120</span>
+        </div>
+        <div class="stat-group">
+            <span class="label">OR:</span> <span id="ui-or" class="value">2487</span><br>
+            <span class="label">LOYER:</span> <span id="ui-loyer" class="value">3j</span>
+        </div>
+        <div class="stat-group buttons">
+            <button id="btn-sac" class="sys-btn" onclick="toggleModal('modal-inventory')">SAC</button>
+            <button id="btn-stats" class="sys-btn" onclick="toggleModal('modal-stats')">STATS</button>
+        </div>
+    </header>
 
-        <!-- ÉCRAN ACCUEIL -->
-        <section id="screen-home" class="screen active">
-            <div class="title-container">
-                <h1 class="neon-title">[ S Y S T È M E ]</h1>
-                <p class="subtitle">Protocole Chasseur V1.0</p>
-            </div>
-            <div class="menu-buttons">
-                <!-- Bouton affiché uniquement si une sauvegarde existe -->
-                <button id="btn-continue" class="hologram-btn primary" style="display:none;">Reprendre la partie en cours</button>
-                <button id="btn-new-game" class="hologram-btn primary">Nouvelle Partie</button>
-                <button id="btn-rules" class="hologram-btn" onclick="openRulesModal()">Règles du Système</button>
-                <button id="btn-pantheon" class="hologram-btn" onclick="openPantheonModal()">Panthéon des Chasseurs</button>
-            </div>
-        </section>
-
-        <!-- CRÉATION DE PERSONNAGE -->
-        <section id="screen-creation" class="screen hidden">
-            <div class="hologram-panel">
-                <h2 class="panel-title">[ IDENTIFICATION CIVILE ]</h2>
-                <div class="panel-content creation-form">
-                    <label class="sys-msg">Nom du Chasseur :</label>
-                    <input type="text" id="input-nom" class="hologram-input" value="Sung" maxlength="15">
-                    
-                    <label class="sys-msg" style="margin-top:15px; display:block;">Statut Professionnel :</label>
-                    <select id="select-metier" class="hologram-input">
-                        <option value="Ouvrier">Ouvrier (Bonus Force/Vitalité)</option>
-                        <option value="Employé de Bureau">Employé de Bureau (Bonus Intelligence/Pécule Départ)</option>
-                        <option value="Livreur">Livreur (Bonus Agilité/Vitalité)</option>
-                        <option value="Étudiant">Étudiant (Bonus Intelligence/Agilité)</option>
-                    </select>
-                </div>
-                <button id="btn-start-civil" class="hologram-btn primary" style="margin-top: 20px;">Valider l'Identité</button>
-            </div>
-        </section>
-
-        <!-- JEU PRINCIPAL & HUD -->
-        <section id="screen-game" class="screen hidden">
-            <div class="game-hud">
-                <div class="hud-item"><span>RANG:</span> <span id="hud-rang">E</span></div>
-                <div class="hud-item"><span>CLASSE:</span> <span id="hud-classe" style="color:var(--neon-green);">Aucune</span></div>
-                <div class="hud-item"><span>NIV:</span> <span id="hud-niveau">1</span></div>
-                <div class="hud-item" id="hud-container-xp" style="display:none;"><span>XP:</span> <span id="hud-xp">0</span>/<span id="hud-xpsuiv">100</span></div>
-                <div class="hud-item"><span>PV:</span> <span id="hud-pv">100</span>/<span id="hud-pvmax">100</span></div>
-                <div class="hud-item"><span>PM:</span> <span id="hud-pm">50</span>/<span id="hud-pmmax">50</span></div>
-                <div class="hud-item"><span>OR:</span> <span id="hud-or">300</span> 🪙</div>
-                <div class="hud-item"><span>LOYER:</span> <span id="hud-loyer">7</span>j</div>
-                <div class="hud-item"><button class="hologram-btn" style="padding:2px 8px; font-size:10px;" onclick="openInventoryModal()">Sac</button></div>
-                <div class="hud-item"><button class="hologram-btn" style="padding:2px 8px; font-size:10px;" onclick="openStatsModal()">Stats</button></div>
-            </div>
-
-            <div class="hologram-panel game-panel">
-                <h2 id="event-title" class="panel-title">[ INITIALISATION ]</h2>
-                <div id="event-text" class="panel-content">Connexion au réseau en cours...</div>
-                <div id="event-choices" class="choices-container"></div>
+    <!-- FENÊTRE PRINCIPALE (Le conteneur dynamique) -->
+    <main id="game-window">
+        <!-- VUE : HUB CENTRAL -->
+        <section id="view-hub" class="view active">
+            <h1 class="view-title">[ HUB CENTRAL ]</h1>
+            <p class="system-prompt">Que souhaitez-vous faire aujourd'hui ?</p>
+            
+            <div class="action-menu">
+                <button class="action-btn">Faire la Quête Quotidienne</button>
+                <button class="action-btn">Rejoindre un Portail (Association)</button>
+                <button class="action-btn">Aller au Bureau des Guildes</button>
+                <button class="action-btn danger-btn">Visiter le Marché Noir</button>
+                <button class="action-btn system-color hidden" id="btn-system-shop">Ouvrir la Boutique du Système</button>
+                <button class="action-btn">Se reposer (Passer au jour suivant)</button>
             </div>
         </section>
 
-    </div>
+        <!-- VUE : COMBAT (Cachée par défaut) -->
+        <section id="view-combat" class="view hidden">
+            <h1 class="view-title text-red">[ COMBAT ENGAGÉ ]</h1>
+            <div id="enemy-info">
+                <h2 id="enemy-name" class="rang-d">(D) Chef Hobgobelin</h2>
+                <div class="enemy-hp-bar"><div id="enemy-hp-fill"></div></div>
+            </div>
+            
+            <div id="combat-log" class="log-box">
+                <p class="log-text">Le Chef Hobgobelin vous dévisage...</p>
+            </div>
 
-    <!-- MODALE INVENTAIRE -->
+            <div class="combat-actions">
+                <button class="action-btn">Attaquer</button>
+                <button class="action-btn">Compétence</button>
+                <button class="action-btn text-blue">Analyser (Perception)</button>
+                <button class="action-btn text-red">Trahir / Fuir</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- PANNEAU LATÉRAL (Quêtes & Alertes) -->
+    <aside id="side-panel">
+        <h3 class="panel-title">[ TRACKER ]</h3>
+        <p class="tracker-item">Fatigue : <span id="ui-fatigue">0/100</span></p>
+        <p class="tracker-item">Karma : <span id="ui-karma">Neutre</span></p>
+        <hr class="sys-hr">
+        <p class="tracker-item text-blue">Quête Quotidienne : Non accomplie</p>
+    </aside>
+
+    <!-- MODALE : INVENTAIRE -->
     <div id="modal-inventory" class="modal hidden">
-        <div class="hologram-panel modal-panel">
-            <h2 class="panel-title">[ SAC & ÉQUIPEMENT ]</h2>
+        <div class="modal-content">
+            <h2 class="modal-title">[ SAC & ÉQUIPEMENT ]</h2>
+            
             <div class="inventory-layout">
-                <div class="inventory-grid" id="inventory-grid-container"></div>
-                <div class="equipped-sidebar">
-                    <h3 class="sys-msg">Équipement :</h3>
-                    <div class="equip-slot" id="eq-tete">Tête : [Vide]</div>
-                    <div class="equip-slot" id="eq-torse">Torse : [Vide]</div>
-                    <div class="equip-slot" id="eq-mains">Mains : [Vide]</div>
-                    <div class="equip-slot" id="eq-accessoire">Accessoire : [Vide]</div>
+                <!-- Grille du Sac (12 Slots) -->
+                <div class="bag-grid">
+                    <!-- Slot 1 : Objet stackable avec liseret Vert (Rang D) -->
+                    <div class="item-slot">
+                        <img src="assets/items/consommables/potion_soin_d.png" alt="Potion" class="item-img img-placeholder">
+                        <span class="item-name rang-d">(D) Potion de Soin</span>
+                        <span class="item-stack">x5</span>
+                    </div>
+                    <!-- Slot 2 : Arme avec liseret Gris (Rang E) -->
+                    <div class="item-slot border-e">
+                        <img src="assets/items/armes/dague_emoussee.png" alt="Dague" class="item-img img-placeholder">
+                        <span class="item-name rang-e">(E) Dague Émoussée</span>
+                    </div>
+                    <!-- Slots vides -->
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                    <div class="item-slot empty"></div>
+                </div>
+
+                <!-- Emplacements d'Équipement -->
+                <div class="equipment-panel">
+                    <h3 class="equip-title">Équipement :</h3>
+                    <div class="equip-slot">Tête : [Vide]</div>
+                    <div class="equip-slot">Torse : Vêtements de Sport</div>
+                    <div class="equip-slot">Mains : <span class="rang-e">(E) Arc Novice</span></div>
+                    <div class="equip-slot">Access. : [Vide]</div>
                 </div>
             </div>
-            <div id="item-details" class="item-details">Sélectionnez un objet.</div>
-            <div id="item-actions" class="item-actions-container"></div>
-            <button class="hologram-btn" onclick="closeInventoryModal()" style="margin-top:15px;">Fermer l'inventaire</button>
+
+            <!-- Description de l'objet sélectionné -->
+            <div id="item-details" class="item-details-box">
+                <h4 class="item-detail-name rang-s">Clé du Donjon Instantané</h4>
+                <p class="item-detail-type">Type: Spécial</p>
+                <p class="item-detail-desc">Ouvre une dimension de donjon personnel. Requis pour l'Ascension.</p>
+            </div>
+
+            <button class="sys-btn w-100 mt-20" onclick="toggleModal('modal-inventory')">FERMER L'INVENTAIRE</button>
         </div>
     </div>
 
-    <!-- MODALE STATS -->
+    <!-- MODALE : STATISTIQUES -->
     <div id="modal-stats" class="modal hidden">
-        <div class="hologram-panel modal-panel">
-            <h2 class="panel-title">[ FICHE DU CHASSEUR ]</h2>
-            <div id="stats-content" class="panel-content"></div>
-            <button class="hologram-btn" onclick="closeStatsModal()">Fermer la fiche</button>
-        </div>
-    </div>
-
-    <!-- MODALE RÈGLES -->
-    <div id="modal-rules" class="modal hidden">
-        <div class="hologram-panel modal-panel">
-            <h2 class="panel-title">[ RÈGLES DU JEU ]</h2>
-            <div class="panel-content" style="text-align: left; font-size: 0.9em;">
-                <p><strong>1. Phase Civile :</strong> Vos premiers choix déterminent votre Classe lors de l'Éveil.</p>
-                <p><strong>2. Survie :</strong> Vous devez payer un loyer tous les 7 jours. Si vous manquez de fonds, c'est la mort (Game Over).</p>
-                <p><strong>3. Évolution :</strong> Entraînez-vous pour augmenter vos stats (3 fois max par attribut au départ). Explorez des portails pour l'or.</p>
-                <p><strong>4. L'Anomalie :</strong> Le monde cache des secrets. Survivre à certains drames pourrait vous accorder des privilèges hors normes...</p>
+        <div class="modal-content">
+            <h2 class="modal-title">[ STATISTIQUES DU JOUEUR ]</h2>
+            <div class="stats-grid">
+                <p>Force : <span id="stat-str">12</span></p>
+                <p>Agilité : <span id="stat-agi">15</span></p>
+                <p>Vitalité : <span id="stat-vit">10</span></p>
+                <p>Intelligence : <span id="stat-int">8</span></p>
+                <p>Perception : <span id="stat-per">14</span></p>
             </div>
-            <button class="hologram-btn" onclick="closeRulesModal()" style="margin-top:15px;">Fermer</button>
+            <hr class="sys-hr">
+            <p class="text-blue">Points libres à distribuer : <span id="stat-points">0</span></p>
+            <button class="sys-btn w-100 mt-20" onclick="toggleModal('modal-stats')">FERMER</button>
         </div>
     </div>
 
-    <!-- MODALE PANTHÉON -->
-    <div id="modal-pantheon" class="modal hidden">
-        <div class="hologram-panel modal-panel">
-            <h2 class="panel-title">[ PANTHÉON DES CHASSEURS ]</h2>
-            <div id="pantheon-content" class="panel-content" style="max-height: 300px; overflow-y: auto;">
-                Chargement des archives...
-            </div>
-            <button class="hologram-btn" onclick="closePantheonModal()" style="margin-top:15px;">Fermer</button>
-        </div>
-    </div>
-
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+    <!-- Script de l'interface (temporaire pour gérer les modales en attendant le moteur) -->
+    <script>
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>
