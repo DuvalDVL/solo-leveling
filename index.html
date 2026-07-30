@@ -20,7 +20,11 @@
                 <p class="subtitle">Protocole Chasseur V1.0</p>
             </div>
             <div class="menu-buttons">
+                <!-- Bouton affiché uniquement si une sauvegarde existe -->
+                <button id="btn-continue" class="hologram-btn primary" style="display:none;">Reprendre la partie en cours</button>
                 <button id="btn-new-game" class="hologram-btn primary">Nouvelle Partie</button>
+                <button id="btn-rules" class="hologram-btn" onclick="openRulesModal()">Règles du Système</button>
+                <button id="btn-pantheon" class="hologram-btn" onclick="openPantheonModal()">Panthéon des Chasseurs</button>
             </div>
         </section>
 
@@ -34,10 +38,10 @@
                     
                     <label class="sys-msg" style="margin-top:15px; display:block;">Statut Professionnel :</label>
                     <select id="select-metier" class="hologram-input">
-                        <option value="Ouvrier">Ouvrier (Force/Vitalité)</option>
-                        <option value="Employé de Bureau">Employé de Bureau (Intelligence/Or)</option>
-                        <option value="Livreur">Livreur (Agilité/Vitalité)</option>
-                        <option value="Étudiant">Étudiant (Intelligence/Agilité)</option>
+                        <option value="Ouvrier">Ouvrier (Bonus Force/Vitalité)</option>
+                        <option value="Employé de Bureau">Employé de Bureau (Bonus Intelligence/Pécule Départ)</option>
+                        <option value="Livreur">Livreur (Bonus Agilité/Vitalité)</option>
+                        <option value="Étudiant">Étudiant (Bonus Intelligence/Agilité)</option>
                     </select>
                 </div>
                 <button id="btn-start-civil" class="hologram-btn primary" style="margin-top: 20px;">Valider l'Identité</button>
@@ -61,7 +65,7 @@
 
             <div class="hologram-panel game-panel">
                 <h2 id="event-title" class="panel-title">[ INITIALISATION ]</h2>
-                <div id="event-text" class="panel-content">Connexion au réseau...</div>
+                <div id="event-text" class="panel-content">Connexion au réseau en cours...</div>
                 <div id="event-choices" class="choices-container"></div>
             </div>
         </section>
@@ -84,7 +88,7 @@
             </div>
             <div id="item-details" class="item-details">Sélectionnez un objet.</div>
             <div id="item-actions" class="item-actions-container"></div>
-            <button class="hologram-btn" onclick="closeInventoryModal()" style="margin-top:15px;">Fermer</button>
+            <button class="hologram-btn" onclick="closeInventoryModal()" style="margin-top:15px;">Fermer l'inventaire</button>
         </div>
     </div>
 
@@ -93,10 +97,36 @@
         <div class="hologram-panel modal-panel">
             <h2 class="panel-title">[ FICHE DU CHASSEUR ]</h2>
             <div id="stats-content" class="panel-content"></div>
-            <button class="hologram-btn" onclick="closeStatsModal()">Fermer</button>
+            <button class="hologram-btn" onclick="closeStatsModal()">Fermer la fiche</button>
         </div>
     </div>
 
+    <!-- MODALE RÈGLES -->
+    <div id="modal-rules" class="modal hidden">
+        <div class="hologram-panel modal-panel">
+            <h2 class="panel-title">[ RÈGLES DU JEU ]</h2>
+            <div class="panel-content" style="text-align: left; font-size: 0.9em;">
+                <p><strong>1. Phase Civile :</strong> Vos premiers choix déterminent votre Classe lors de l'Éveil.</p>
+                <p><strong>2. Survie :</strong> Vous devez payer un loyer tous les 7 jours. Si vous manquez de fonds, c'est la mort (Game Over).</p>
+                <p><strong>3. Évolution :</strong> Entraînez-vous pour augmenter vos stats (3 fois max par attribut au départ). Explorez des portails pour l'or.</p>
+                <p><strong>4. L'Anomalie :</strong> Le monde cache des secrets. Survivre à certains drames pourrait vous accorder des privilèges hors normes...</p>
+            </div>
+            <button class="hologram-btn" onclick="closeRulesModal()" style="margin-top:15px;">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODALE PANTHÉON -->
+    <div id="modal-pantheon" class="modal hidden">
+        <div class="hologram-panel modal-panel">
+            <h2 class="panel-title">[ PANTHÉON DES CHASSEURS ]</h2>
+            <div id="pantheon-content" class="panel-content" style="max-height: 300px; overflow-y: auto;">
+                Chargement des archives...
+            </div>
+            <button class="hologram-btn" onclick="closePantheonModal()" style="margin-top:15px;">Fermer</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
