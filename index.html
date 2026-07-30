@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Système - Text RPG</title>
-    <!-- Chargement des polices futuristes et lisibles -->
+    <title>Le Système - Text RPG (V1.0)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
@@ -18,9 +17,8 @@
         <section id="screen-home" class="screen active">
             <div class="title-container">
                 <h1 class="neon-title">[ S Y S T È M E ]</h1>
-                <p class="subtitle">Initialisation en cours...</p>
+                <p class="subtitle">Protocole d'Éveil V1.0</p>
             </div>
-            
             <div class="menu-buttons">
                 <button id="btn-new-game" class="hologram-btn primary">Nouvelle Partie</button>
                 <button id="btn-history" class="hologram-btn">Historique</button>
@@ -33,58 +31,82 @@
             <div class="hologram-panel">
                 <h2 class="panel-title">[ ARCHIVES DU JOUEUR ]</h2>
                 <div class="panel-content">
-                    <p class="sys-msg">Récupération des données passées...</p>
-                    <ul class="history-list">
-                        <li><strong>Partie #1</strong> - Rang E - Mort par Gobelin (Jour 4)</li>
-                        <li><strong>Partie #2</strong> - Rang D - Vaincu dans la Zone de Pénalité (Jour 12)</li>
+                    <ul id="history-list" class="history-list">
+                        <li>Aucune archive enregistrée.</li>
                     </ul>
                 </div>
                 <button class="hologram-btn btn-back">Retour au Menu</button>
             </div>
         </section>
 
-        <!-- ÉCRAN 3 : EN SAVOIR PLUS -->
+        <!-- ÉCRAN 3 : AIDE -->
         <section id="screen-help" class="screen hidden">
             <div class="hologram-panel">
                 <h2 class="panel-title">[ GUIDE D'ÉVEIL ]</h2>
                 <div class="panel-content">
-                    <p>Bienvenue dans le Système. Ce monde est impitoyable pour les faibles.</p>
-                    <ul>
-                        <li><strong>Phase 1 :</strong> Vos choix civils définiront votre classe et vos statistiques de départ.</li>
-                        <li><strong>Phase 2 :</strong> Survivez. Payez vos dettes. Vous ne pourrez pas monter en niveau sans l'aide du Système.</li>
-                        <li><strong>Phase 3 :</strong> Affrontez le Double Donjon et éveillez-vous en tant que Joueur.</li>
-                    </ul>
-                    <p class="sys-msg warning">Attention : La mort dans les donjons est définitive.</p>
+                    <p>Bienvenue dans le Système. Vos choix civils détermineront vos prédispositions.</p>
+                    <p>Ensuite, survivez en gérant vos quêtes, payez votre loyer et vos frais médicaux, et terrassez les donjons.</p>
+                    <p class="sys-msg warning">Avertissement : Le temps s'écoule à chaque action.</p>
                 </div>
                 <button class="hologram-btn btn-back">Retour au Menu</button>
             </div>
         </section>
 
-        <!-- ÉCRAN 4 : LE JEU (PHASE 1 & EXPLORATION) -->
+        <!-- ÉCRAN 4 : JEU PRINCIPAL & HUD -->
         <section id="screen-game" class="screen hidden">
             <!-- HUD SUPÉRIEUR -->
             <div class="game-hud">
                 <div class="hud-item"><span>RANG:</span> <span id="hud-rang">E</span></div>
                 <div class="hud-item"><span>LVL:</span> <span id="hud-lvl">1</span></div>
                 <div class="hud-item"><span>PV:</span> <span id="hud-pv">100</span>/<span id="hud-pvmax">100</span></div>
-                <div class="hud-item"><span>OR:</span> <span id="hud-or">200</span></div>
+                <div class="hud-item"><span>OR:</span> <span id="hud-or">300</span> 🪙</div>
+                <div class="hud-item"><span>LOYER:</span> <span id="hud-loyer">7</span>j</div>
             </div>
 
-            <!-- ZONE DE SCÈNE HOLOGRAPHIQUE -->
+            <!-- CONTENEUR PRINCIPAL DE SCÈNE -->
             <div class="hologram-panel game-panel">
-                <h2 id="event-title" class="panel-title">[ CHARGEMENT... ]</h2>
+                <h2 id="event-title" class="panel-title">[ INITIALISATION ]</h2>
                 <div id="event-text" class="panel-content">
-                    Analyse de l'environnement en cours...
+                    Connexion au réseau du Système...
                 </div>
                 <div id="event-choices" class="choices-container">
-                    <!-- Les boutons de choix seront injectés dynamiquement ici -->
+                    <!-- Boutons injectés dynamiquement -->
                 </div>
+            </div>
+
+            <!-- MENU RACCOURCIS / HUBS DE LA PHASE 2 -->
+            <div id="hub-navigation" class="hub-nav hidden">
+                <button class="hub-btn" onclick="openDungeons()">🚪 Donjons</button>
+                <button class="hub-btn" onclick="openShop()">🛒 Boutique</button>
+                <button class="hub-btn" onclick="openInventoryModal()">🎒 Sac</button>
+                <button class="hub-btn" onclick="openStatsModal()">📊 Stats</button>
+                <button class="hub-btn primary" onclick="advanceDay()">⏳ Passer un Jour</button>
             </div>
         </section>
 
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- MODALE INVENTAIRE / GRILLE -->
+    <div id="modal-inventory" class="modal hidden">
+        <div class="hologram-panel modal-panel">
+            <h2 class="panel-title">[ INVENTAIRE - GRILLE ]</h2>
+            <div class="inventory-grid" id="inventory-grid-container">
+                <!-- Grille d'icônes -->
+            </div>
+            <div id="item-details" class="item-details">Sélectionnez un objet.</div>
+            <button class="hologram-btn" onclick="closeInventoryModal()">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODALE STATS -->
+    <div id="modal-stats" class="modal hidden">
+        <div class="hologram-panel modal-panel">
+            <h2 class="panel-title">[ STATISTIQUES DU JOUEUR ]</h2>
+            <div id="stats-content" class="panel-content"></div>
+            <button class="hologram-btn" onclick="closeStatsModal()">Fermer</button>
+        </div>
+    </div>
+
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
