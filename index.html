@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Système - Text RPG (V1.0)</title>
+    <title>Le Système - Text RPG (V1.1)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
@@ -16,8 +16,8 @@
         <!-- ÉCRAN 1 : MENU PRINCIPAL -->
         <section id="screen-home" class="screen active">
             <div class="title-container">
-                <h1 class="neon-title">[ S Y S T È M E ]</h1>
-                <p class="subtitle">Protocole d'Éveil V1.0</p>
+                <h1 class="neon-title">[ S Y S T È M𝙴 ]</h1>
+                <p class="subtitle">Protocole d'Éveil V1.1</p>
             </div>
             <div class="menu-buttons">
                 <button id="btn-new-game" class="hologram-btn primary">Nouvelle Partie</button>
@@ -44,8 +44,8 @@
             <div class="hologram-panel">
                 <h2 class="panel-title">[ GUIDE D'ÉVEIL ]</h2>
                 <div class="panel-content">
-                    <p>Bienvenue dans le Système. Vos choix civils détermineront vos prédispositions.</p>
-                    <p>Survivez en gérant vos quêtes, payez votre loyer, équipez votre matériel et terrassez les donjons.</p>
+                    <p>Bienvenue dans le Système. Vos choix civils initiaux déterminent votre évaluation de Chasseur.</p>
+                    <p>Dans le Hub Central, gérez vos quêtes, entraînez-vous, reposez-vous, achetez de l'équipement et conquérez les donjons avant l'échéance du loyer.</p>
                     <p class="sys-msg warning">Avertissement : Le temps s'écoule à chaque action.</p>
                 </div>
                 <button class="hologram-btn btn-back">Retour au Menu</button>
@@ -63,7 +63,7 @@
                 <div class="hud-item"><span>LOYER:</span> <span id="hud-loyer">7</span>j</div>
             </div>
 
-            <!-- CONTENEUR PRINCIPAL DE SCÈNE -->
+            <!-- CONTENEUR PRINCIPAL DE SCÈNE (CENTRE) -->
             <div class="hologram-panel game-panel">
                 <h2 id="event-title" class="panel-title">[ INITIALISATION ]</h2>
                 <div id="event-text" class="panel-content">
@@ -71,24 +71,26 @@
                 </div>
                 <div id="event-choices" class="choices-container"></div>
             </div>
-
-            <!-- MENU RACCOURCIS / HUBS DE LA PHASE 2 -->
-            <div id="hub-navigation" class="hub-nav hidden">
-                <button class="hub-btn" onclick="openDungeons()">🚪 Donjons</button>
-                <button class="hub-btn" onclick="openShop()">🛒 Boutique</button>
-                <button class="hub-btn" onclick="openInventoryModal()">🎒 Sac</button>
-                <button class="hub-btn" onclick="openStatsModal()">📊 Stats</button>
-                <button class="hub-btn primary" onclick="advanceDay()">⏳ Passer un Jour</button>
-            </div>
         </section>
 
     </div>
 
-    <!-- MODALE INVENTAIRE / GRILLE -->
+    <!-- MODALE INVENTAIRE / GRILLE & ÉQUIPEMENT -->
     <div id="modal-inventory" class="modal hidden">
         <div class="hologram-panel modal-panel">
-            <h2 class="panel-title">[ INVENTAIRE - GRILLE ]</h2>
-            <div class="inventory-grid" id="inventory-grid-container"></div>
+            <h2 class="panel-title">[ INVENTAIRE & ÉQUIPEMENT ]</h2>
+            <div class="inventory-layout">
+                <!-- Grille des sacs -->
+                <div class="inventory-grid" id="inventory-grid-container"></div>
+                <!-- Équipements portés -->
+                <div class="equipped-sidebar">
+                    <h3 class="sys-msg" style="margin-top:0;">Équipé :</h3>
+                    <div class="equip-slot" id="eq-tete">Tête : [Vide]</div>
+                    <div class="equip-slot" id="eq-torse">Torse : [Vide]</div>
+                    <div class="equip-slot" id="eq-mains">Mains : [Vide]</div>
+                    <div class="equip-slot" id="eq-accessoire">Accessoire : [Vide]</div>
+                </div>
+            </div>
             <div id="item-details" class="item-details">Sélectionnez un objet.</div>
             <div id="item-actions" class="item-actions-container"></div>
             <button class="hologram-btn" onclick="closeInventoryModal()" style="margin-top:15px;">Fermer</button>
