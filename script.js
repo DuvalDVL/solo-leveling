@@ -1,130 +1,381 @@
-const GAME_DATA = {
-    joueurTemplate: {
-        nom: "Sung",
-        metierCivil: "Chomeur",
-        classe: "Inconnue",
-        niveau: 1,
-        or: 300,
-        timers: {
-            loyerJours: 7,
-            hopitalJours: 28
-        },
-        statsActuelles: {
-            pvActuels: 100,
-            pmActuels: 50,
-            fatigue: 0
-        },
-        statsMax: {
-            pvMax: 100,
-            pmMax: 50,
-            force: 5,
-            agilite: 5,
-            vitalite: 5,
-            intelligence: 5,
-            perception: 7,
-            reflexe: 6
-        },
-        equipement: {
-            tete: null,
-            torse: "item_vetement_sport",
-            mains: null,
-            accessoire: null
-        },
-        inventaire: ["item_bandage_01", "item_potion_mineure", "item_dague_emoussee"]
-    },
-
-    objets: {
-        "item_vetement_sport": {
-            id: "item_vetement_sport",
-            nom: "Vêtements de Sport Renforcés",
-            type: "armure",
-            slot: "torse",
-            rarete: "gris",
-            prix: 200,
-            bonusStats: { vitalite: 1, agilite: 1 }
-        },
-        "item_bandage_01": {
-            id: "item_bandage_01",
-            nom: "Bandage de Fortune",
-            type: "consommable",
-            rarete: "gris",
-            prix: 50,
-            effet: { soinPv: 25 }
-        },
-        "item_potion_mineure": {
-            id: "item_potion_mineure",
-            nom: "Potion de Soin Mineure",
-            type: "consommable",
-            rarete: "vert",
-            prix: 250,
-            effet: { soinPvPourcentage: 30 }
-        },
-        "item_dague_emoussee": {
-            id: "item_dague_emoussee",
-            nom: "Dague Émoussée",
-            type: "arme",
-            slot: "mains",
-            rarete: "gris",
-            prix: 300,
-            bonusStats: { agilite: 2 }
-        },
-        "item_epee_fer": {
-            id: "item_epee_fer",
-            nom: "Épée Longue en Fer",
-            type: "arme",
-            slot: "mains",
-            rarete: "gris",
-            prix: 350,
-            bonusStats: { force: 2 }
-        }
-    },
-
-    monstres: {
-        "mob_gobelin": {
-            nom: "Gobelin Éclaireur",
-            rang: "E",
-            stats: { pv: 30, pvMax: 30, force: 6, agilite: 8 },
-            recompenses: { xp: 20, orMin: 30, orMax: 60 }
-        },
-        "mob_loup_feroce": {
-            nom: "Loup Féroce",
-            rang: "E",
-            stats: { pv: 45, pvMax: 45, force: 8, agilite: 12 },
-            recompenses: { xp: 35, orMin: 50, orMax: 100 }
-        },
-        "mob_orc": {
-            nom: "Haut-Orc des Cavernes",
-            rang: "D",
-            stats: { pv: 90, pvMax: 90, force: 15, agilite: 10 },
-            recompenses: { xp: 80, orMin: 150, orMax: 300 }
-        }
-    },
-
-    evenementsCivils: [
-        {
-            id: "evt_metro_01",
-            titre: "Le Vol à la Tire dans le Métro",
-            texte: "Un homme bouscule violemment une passagère et s'enfuit avec son sac vers vous.",
-            choix: [
-                { texte: "Plaquer le voleur au sol.", gainStat: "reflexe", valeur: 1, affinite: "Assassin" },
-                { texte: "Suivre discrètement sa fuite.", gainStat: "perception", valeur: 1, affinite: "Ranger" },
-                { texte: "Crier pour alerter la foule.", gainStat: "intelligence", valeur: 1, affinite: "Mage" }
-            ]
-        },
-        {
-            id: "evt_chantier_01",
-            titre: "L'Incident sur le Chantier",
-            texte: "Un bloc de béton instable menace de s'effondrer lors de votre service de portage.",
-            choix: [
-                { texte: "Retenir le bloc à mains nues.", gainStat: "force", valeur: 1, affinite: "Berserker" },
-                { texte: "Esquiver l'impact de justesse.", gainStat: "agilite", valeur: 1, affinite: "Assassin" },
-                { texte: "Encaisser pour protéger un collègue.", gainStat: "vitalite", valeur: 1, affinite: "Tank" }
-            ]
-        }
-    ],
-
-    donjons: [
-        { id: "dungeon_e", nom: "Portail de Rang E (Carrière Abandonnée)", rang: "E", monstreId: "mob_gobelin" },
-        { id: "dungeon_d", nom: "Portail de Rang D (Caverne des Loups)", rang: "D", monstreId: "mob_orc" }
-    ]
+let gameState = {
+    player: null,
+    phase: 1,
+    currentEventIndex: 0,
+    combat: null
 };
+
+// Ciblages DOM
+const screenHome = document.getElementById('screen-home');
+const screenHistory = document.getElementById('screen-history');
+const screenHelp = document.getElementById('screen-help');
+const screenGame = document.getElementById('screen-game');
+
+const btnNewGame = document.getElementById('btn-new-game');
+const btnHistory = document.getElementById('btn-history');
+const btnHelp = document.getElementById('btn-help');
+const btnsBack = document.querySelectorAll('.btn-back');
+
+const hudRang = document.getElementById('hud-rang');
+const hudLvl = document.getElementById('hud-lvl');
+const hudPv = document.getElementById('hud-pv');
+const hudPvMax = document.getElementById('hud-pvmax');
+const hudOr = document.getElementById('hud-or');
+const hudLoyer = document.getElementById('hud-loyer');
+
+const eventTitle = document.getElementById('event-title');
+const eventText = document.getElementById('event-text');
+const eventChoices = document.getElementById('event-choices');
+const hubNav = document.getElementById('hub-navigation');
+
+function switchScreen(from, to) {
+    from.classList.remove('active');
+    from.classList.add('hidden');
+    setTimeout(() => {
+        to.classList.remove('hidden');
+        to.classList.add('active');
+    }, 300);
+}
+
+// Gestion de l'historique dans LocalStorage
+function saveGameToHistory(statusText) {
+    let history = JSON.parse(localStorage.getItem('system_history')) || [];
+    history.unshift({ date: new Date().toLocaleDateString(), statut: statusText, niveau: gameState.player.niveau });
+    if (history.length > 10) history.pop();
+    localStorage.setItem('system_history', JSON.stringify(history));
+}
+
+function loadHistoryList() {
+    const list = document.getElementById('history-list');
+    let history = JSON.parse(localStorage.getItem('system_history')) || [];
+    if (history.length === 0) {
+        list.innerHTML = "<li>Aucune archive enregistrée.</li>";
+        return;
+    }
+    list.innerHTML = "";
+    history.forEach(h => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>[${h.date}]</strong> - Niveau ${h.niveau} - ${h.statut}`;
+        list.appendChild(li);
+    });
+}
+
+btnHistory.addEventListener('click', () => {
+    loadHistoryList();
+    switchScreen(screenHome, screenHistory);
+});
+btnHelp.addEventListener('click', () => switchScreen(screenHome, screenHelp));
+btnsBack.forEach(btn => btn.addEventListener('click', (e) => switchScreen(e.target.closest('.screen'), screenHome)));
+
+// Nouvelle Partie
+btnNewGame.addEventListener('click', () => {
+    gameState.player = JSON.parse(JSON.stringify(GAME_DATA.joueurTemplate));
+    gameState.phase = 1;
+    gameState.currentEventIndex = 0;
+    switchScreen(screenHome, screenGame);
+    updateHUD();
+    loadCivilEvent();
+});
+
+function updateHUD() {
+    if (!gameState.player) return;
+    hudRang.textContent = gameState.player.niveau >= 10 ? 'D' : 'E';
+    hudLvl.textContent = gameState.player.niveau;
+    hudPv.textContent = gameState.player.statsActuelles.pvActuels;
+    hudPvMax.textContent = gameState.player.statsMax.pvMax;
+    hudOr.textContent = gameState.player.or;
+    hudLoyer.textContent = gameState.player.timers.loyerJours;
+}
+
+// --- PHASE 1 : ÉVÉNEMENTS CIVILS ---
+function loadCivilEvent() {
+    hubNav.classList.add('hidden');
+    const events = GAME_DATA.evenementsCivils;
+
+    if (gameState.currentEventIndex >= events.length) {
+        gameState.phase = 2;
+        eventTitle.textContent = "[ ÉVEIL DU SYSTÈME ]";
+        eventText.innerHTML = "Votre corps réagit. Une interface holographique bleue s'illumine soudainement devant vos yeux.<br><br><em>⚠️ [QUÊTE JOURNALIÈRE ATTRIBUÉE] : Survivez et gagnez votre place.</em>";
+        eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="enterHub()">Accéder au Hub Central</button>`;
+        return;
+    }
+
+    const evt = events[gameState.currentEventIndex];
+    eventTitle.textContent = `[ ${evt.titre.toUpperCase()} ]`;
+    eventText.textContent = evt.texte;
+    eventChoices.innerHTML = "";
+
+    evt.choix.forEach(choix => {
+        const btn = document.createElement('button');
+        btn.className = "hologram-btn";
+        btn.textContent = choix.texte;
+        btn.addEventListener('click', () => {
+            gameState.player.statsMax[choix.gainStat] += choix.valeur;
+            eventText.innerHTML += `<br><br><span style="color:var(--neon-blue);">[SYSTÈMES] : +${choix.valeur} en ${choix.gainStat.toUpperCase()} enregistré.</span>`;
+            eventChoices.innerHTML = "";
+            setTimeout(() => {
+                gameState.currentEventIndex++;
+                loadCivilEvent();
+            }, 1200);
+        });
+        eventChoices.appendChild(btn);
+    });
+}
+
+// --- PHASE 2 : HUB CENTRAL ---
+function enterHub() {
+    hubNav.classList.remove('hidden');
+    eventTitle.textContent = "[ HUB CENTRAL - QUARTIER GÉNÉRAL ]";
+    eventText.innerHTML = "Que souhaitez-vous faire aujourd'hui ?<br><br><em>Rappel : Le loyer tombe dans <span style='color:var(--neon-red);'>" + gameState.player.timers.loyerJours + " jours</span>.</em>";
+    eventChoices.innerHTML = "";
+}
+
+function advanceDay() {
+    gameState.player.timers.loyerJours--;
+    if (gameState.player.timers.loyerJours <= 0) {
+        if (gameState.player.or >= 150) {
+            gameState.player.or -= 150;
+            gameState.player.timers.loyerJours = 7;
+            alert("Le propriétaire a prélevé 150 Or pour le loyer.");
+        } else {
+            saveGameToHistory("Expulsé pour impayés (Faillite)");
+            alert("FAILLITE : Vous n'avez pas de quoi payer le loyer. Expulsion !");
+            location.reload();
+            return;
+        }
+    }
+    updateHUD();
+    enterHub();
+}
+
+// --- DONJONS ET COMBATS ---
+function openDungeons() {
+    eventTitle.textContent = "[ SÉLECTION DES PORTAILS ]";
+    eventText.textContent = "Choisissez un donjon à explorer :";
+    eventChoices.innerHTML = "";
+    hubNav.classList.add('hidden');
+
+    GAME_DATA.donjons.forEach(d => {
+        const btn = document.createElement('button');
+        btn.className = "hologram-btn";
+        btn.textContent = `${d.nom} (Rang ${d.rang})`;
+        btn.addEventListener('click', () => startCombat(d.monstreId));
+        eventChoices.appendChild(btn);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = "hologram-btn";
+    backBtn.textContent = "Retour au Hub";
+    backBtn.addEventListener('click', enterHub);
+    eventChoices.appendChild(backBtn);
+}
+
+function startCombat(monstreKey) {
+    const template = GAME_DATA.monstres[monstreKey];
+    gameState.combat = {
+        monstre: JSON.parse(JSON.stringify(template))
+    };
+    renderCombatTurn();
+}
+
+function renderCombatTurn() {
+    const m = gameState.combat.monstre;
+    eventTitle.textContent = `[ COMBAT : ${m.nom.toUpperCase()} ]`;
+    eventText.innerHTML = `Monstre - PV : ${m.stats.pv}/${m.stats.pvMax} | Force : ${m.stats.force}<br>Vos PV : ${gameState.player.statsActuelles.pvActuels}/${gameState.player.statsMax.pvMax}`;
+    eventChoices.innerHTML = "";
+    hubNav.classList.add('hidden');
+
+    const btnAttaquer = document.createElement('button');
+    btnAttaquer.className = "hologram-btn primary";
+    btnAttaquer.textContent = "🗡️ Attaquer";
+    btnAttaquer.addEventListener('click', () => executeCombatAction('attaquer'));
+    eventChoices.appendChild(btnAttaquer);
+
+    const btnFuir = document.createElement('button');
+    btnFuir.className = "hologram-btn";
+    btnFuir.textContent = "🏃 Fuir le donjon";
+    btnFuir.addEventListener('click', enterHub);
+    eventChoices.appendChild(btnFuir);
+}
+
+function executeCombatAction(action) {
+    const m = gameState.combat.monstre;
+    if (action === 'attaquer') {
+        let degatsJoueur = gameState.player.statsMax.force * 2;
+        m.stats.pv -= degatsJoueur;
+
+        if (m.stats.pv <= 0) {
+            const orGagne = Math.floor(Math.random() * (m.recompenses.orMax - m.recompenses.orMin)) + m.recompenses.orMin;
+            gameState.player.or += orGagne;
+            saveGameToHistory(`Victoire contre ${m.nom}`);
+            eventTitle.textContent = "[ VICTOIRE ]";
+            eventText.innerHTML = `Vous avez vaincu le ${m.nom} !<br>Butin récupéré : +${orGagne} Or.`;
+            eventChoices.innerHTML = `<button class="hologram-btn primary" onclick="enterHub()">Retour au Hub</button>`;
+            updateHUD();
+            return;
+        }
+
+        let degatsMonstre = Math.max(1, m.stats.force - Math.floor(gameState.player.statsMax.vitalite / 2));
+        gameState.player.statsActuelles.pvActuels -= degatsMonstre;
+
+        if (gameState.player.statsActuelles.pvActuels <= 0) {
+            gameState.player.statsActuelles.pvActuels = 0;
+            updateHUD();
+            saveGameToHistory(`Mort au combat contre ${m.nom}`);
+            eventTitle.textContent = "[ ÉCHEC CRITIQUE ]";
+            eventText.innerHTML = "Vous avez succombé dans le donjon... Le Système intervient d'urgence.";
+            eventChoices.innerHTML = `<button class="hologram-btn warning" onclick="location.reload()">Recommencer</button>`;
+            return;
+        }
+    }
+    updateHUD();
+    renderCombatTurn();
+}
+
+// --- BOUTIQUE ---
+function openShop() {
+    eventTitle.textContent = "[ BOUTIQUE DU SYSTÈMES ]";
+    eventText.textContent = "Achetez de quoi survivre :";
+    eventChoices.innerHTML = "";
+    hubNav.classList.add('hidden');
+
+    Object.values(GAME_DATA.objets).forEach(obj => {
+        const btn = document.createElement('button');
+        btn.className = "hologram-btn";
+        btn.textContent = `${obj.nom} - ${obj.prix} Or`;
+        btn.addEventListener('click', () => {
+            if (gameState.player.or >= obj.prix) {
+                gameState.player.or -= obj.prix;
+                gameState.player.inventaire.push(obj.id);
+                alert(`Achat réussi : ${obj.nom}`);
+                updateHUD();
+            } else {
+                alert("Fonds insuffisants.");
+            }
+        });
+        eventChoices.appendChild(btn);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.className = "hologram-btn";
+    backBtn.textContent = "Retour au Hub";
+    backBtn.addEventListener('click', enterHub);
+    eventChoices.appendChild(backBtn);
+}
+
+// --- INVENTAIRE, CONSOMMABLES & ÉQUIPEMENT ---
+function openInventoryModal() {
+    renderInventoryGrid();
+    document.getElementById('modal-inventory').classList.remove('hidden');
+}
+
+function renderInventoryGrid() {
+    const grid = document.getElementById('inventory-grid-container');
+    grid.innerHTML = "";
+    document.getElementById('item-details').textContent = "Sélectionnez un objet.";
+    document.getElementById('item-actions').innerHTML = "";
+
+    for (let i = 0; i < 15; i++) {
+        const slot = document.createElement('div');
+        slot.className = "inventory-slot";
+        const itemId = gameState.player.inventaire[i];
+        
+        if (itemId && GAME_DATA.objets[itemId]) {
+            const obj = GAME_DATA.objets[itemId];
+            slot.textContent = obj.nom;
+            slot.addEventListener('click', () => selectInventoryItem(i, obj));
+        } else {
+            slot.textContent = "[Vide]";
+        }
+        grid.appendChild(slot);
+    }
+}
+
+function selectInventoryItem(index, obj) {
+    document.getElementById('item-details').textContent = `${obj.nom} (${obj.type}) - ${obj.prix} Or`;
+    const actionsContainer = document.getElementById('item-actions');
+    actionsContainer.innerHTML = "";
+
+    if (obj.type === "consommable") {
+        const useBtn = document.createElement('button');
+        useBtn.className = "hologram-btn primary";
+        useBtn.textContent = "Utiliser";
+        useBtn.addEventListener('click', () => {
+            useConsumable(index, obj);
+        });
+        actionsContainer.appendChild(useBtn);
+    } else if (obj.type === "arme" || obj.type === "armure") {
+        const equipBtn = document.createElement('button');
+        equipBtn.className = "hologram-btn primary";
+        equipBtn.textContent = "Équiper";
+        equipBtn.addEventListener('click', () => {
+            equipItemFromInventory(index, obj);
+        });
+        actionsContainer.appendChild(equipBtn);
+    }
+}
+
+function useConsumable(index, obj) {
+    const p = gameState.player;
+    if (obj.effet.soinPv) {
+        p.statsActuelles.pvActuels = Math.min(p.statsMax.pvMax, p.statsActuelles.pvActuels + obj.effet.soinPv);
+    } else if (obj.effet.soinPvPourcentage) {
+        const heal = Math.floor(p.statsMax.pvMax * (obj.effet.soinPvPourcentage / 100));
+        p.statsActuelles.pvActuels = Math.min(p.statsMax.pvMax, p.statsActuelles.pvActuels + heal);
+    }
+    p.inventaire.splice(index, 1);
+    updateHUD();
+    renderInventoryGrid();
+}
+
+function equipItemFromInventory(index, obj) {
+    const p = gameState.player;
+    const slot = obj.slot;
+
+    // Si un objet est déjà équipé, on le remet dans l'inventaire
+    if (p.equipement[slot]) {
+        const oldItemId = p.equipement[slot];
+        const oldObj = GAME_DATA.objets[oldItemId];
+        if (oldObj && oldObj.bonusStats) {
+            for (let stat in oldObj.bonusStats) {
+                p.statsMax[stat] -= oldObj.bonusStats[stat];
+            }
+        }
+        p.inventaire[index] = oldItemId;
+    } else {
+        p.inventaire.splice(index, 1);
+    }
+
+    // Équiper le nouvel objet
+    p.equipement[slot] = obj.id;
+    if (obj.bonusStats) {
+        for (let stat in obj.bonusStats) {
+            p.statsMax[stat] += obj.bonusStats[stat];
+        }
+    }
+
+    updateHUD();
+    renderInventoryGrid();
+}
+
+function closeInventoryModal() {
+    document.getElementById('modal-inventory').classList.add('hidden');
+}
+
+function openStatsModal() {
+    const p = gameState.player;
+    const content = document.getElementById('stats-content');
+    content.innerHTML = `
+        Force : ${p.statsMax.force}<br>
+        Agilité : ${p.statsMax.agilite}<br>
+        Vitalité : ${p.statsMax.vitalite}<br>
+        Intelligence : ${p.statsMax.intelligence}<br>
+        Perception : ${p.statsMax.perception}<br>
+        Réflexe : ${p.statsMax.reflexe}
+    `;
+    document.getElementById('modal-stats').classList.remove('hidden');
+}
+
+function closeStatsModal() {
+    document.getElementById('modal-stats').classList.add('hidden');
+}
