@@ -2,159 +2,135 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solo Hunter RPG</title>
+    <title>SYSTEM_OVERRIDE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- BARRE DE STATUT SUPÉRIEURE -->
-    <header id="top-bar">
-        <div class="stat-group">
-            <span class="label">RANG:</span> <span id="ui-rang" class="value rang-e">E</span><br>
-            <span class="label">CLASSE:</span> <span id="ui-classe" class="value class-text">Ranger</span>
+<div id="game-container">
+
+    <!-- HUD PERMANENT (Visible en jeu) -->
+    <div id="game-hud" class="game-hud hidden">
+        <div class="hud-stats">
+            <span id="hud-name">Nom</span> | 
+            <span>NIV <strong id="hud-level">1</strong></span> | 
+            <span>PV: <span id="hud-pv">100/100</span></span> | 
+            <span>PM: <span id="hud-pm">50/50</span></span> | 
+            <span>OR: <span id="hud-or" style="color: var(--neon-yellow)">100</span></span>
         </div>
-        <div class="stat-group">
-            <span class="label">NIV:</span> <span id="ui-niveau" class="value">5</span><br>
-            <span class="label">XP:</span> <span id="ui-xp" class="value">108/505</span>
-        </div>
-        <div class="stat-group">
-            <span class="label">PV:</span> <span id="ui-pv" class="value">203/210</span><br>
-            <span class="label">PM:</span> <span id="ui-pm" class="value">90/120</span>
-        </div>
-        <div class="stat-group">
-            <span class="label">OR:</span> <span id="ui-or" class="value">2487</span><br>
-            <span class="label">LOYER:</span> <span id="ui-loyer" class="value">3j</span>
-        </div>
-        <div class="stat-group buttons">
-            <button id="btn-sac" class="sys-btn" onclick="toggleModal('modal-inventory')">SAC</button>
-            <button id="btn-stats" class="sys-btn" onclick="toggleModal('modal-stats')">STATS</button>
-        </div>
-    </header>
-
-    <!-- FENÊTRE PRINCIPALE (Le conteneur dynamique) -->
-    <main id="game-window">
-        <!-- VUE : HUB CENTRAL -->
-        <section id="view-hub" class="view active">
-            <h1 class="view-title">[ HUB CENTRAL ]</h1>
-            <p class="system-prompt">Que souhaitez-vous faire aujourd'hui ?</p>
-            
-            <div class="action-menu">
-                <button class="action-btn">Faire la Quête Quotidienne</button>
-                <button class="action-btn">Rejoindre un Portail (Association)</button>
-                <button class="action-btn">Aller au Bureau des Guildes</button>
-                <button class="action-btn danger-btn">Visiter le Marché Noir</button>
-                <button class="action-btn system-color hidden" id="btn-system-shop">Ouvrir la Boutique du Système</button>
-                <button class="action-btn">Se reposer (Passer au jour suivant)</button>
-            </div>
-        </section>
-
-        <!-- VUE : COMBAT (Cachée par défaut) -->
-        <section id="view-combat" class="view hidden">
-            <h1 class="view-title text-red">[ COMBAT ENGAGÉ ]</h1>
-            <div id="enemy-info">
-                <h2 id="enemy-name" class="rang-d">(D) Chef Hobgobelin</h2>
-                <div class="enemy-hp-bar"><div id="enemy-hp-fill"></div></div>
-            </div>
-            
-            <div id="combat-log" class="log-box">
-                <p class="log-text">Le Chef Hobgobelin vous dévisage...</p>
-            </div>
-
-            <div class="combat-actions">
-                <button class="action-btn">Attaquer</button>
-                <button class="action-btn">Compétence</button>
-                <button class="action-btn text-blue">Analyser (Perception)</button>
-                <button class="action-btn text-red">Trahir / Fuir</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- PANNEAU LATÉRAL (Quêtes & Alertes) -->
-    <aside id="side-panel">
-        <h3 class="panel-title">[ TRACKER ]</h3>
-        <p class="tracker-item">Fatigue : <span id="ui-fatigue">0/100</span></p>
-        <p class="tracker-item">Karma : <span id="ui-karma">Neutre</span></p>
-        <hr class="sys-hr">
-        <p class="tracker-item text-blue">Quête Quotidienne : Non accomplie</p>
-    </aside>
-
-    <!-- MODALE : INVENTAIRE -->
-    <div id="modal-inventory" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="modal-title">[ SAC & ÉQUIPEMENT ]</h2>
-            
-            <div class="inventory-layout">
-                <!-- Grille du Sac (12 Slots) -->
-                <div class="bag-grid">
-                    <!-- Slot 1 : Objet stackable avec liseret Vert (Rang D) -->
-                    <div class="item-slot">
-                        <img src="assets/items/consommables/potion_soin_d.png" alt="Potion" class="item-img img-placeholder">
-                        <span class="item-name rang-d">(D) Potion de Soin</span>
-                        <span class="item-stack">x5</span>
-                    </div>
-                    <!-- Slot 2 : Arme avec liseret Gris (Rang E) -->
-                    <div class="item-slot border-e">
-                        <img src="assets/items/armes/dague_emoussee.png" alt="Dague" class="item-img img-placeholder">
-                        <span class="item-name rang-e">(E) Dague Émoussée</span>
-                    </div>
-                    <!-- Slots vides -->
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                    <div class="item-slot empty"></div>
-                </div>
-
-                <!-- Emplacements d'Équipement -->
-                <div class="equipment-panel">
-                    <h3 class="equip-title">Équipement :</h3>
-                    <div class="equip-slot">Tête : [Vide]</div>
-                    <div class="equip-slot">Torse : Vêtements de Sport</div>
-                    <div class="equip-slot">Mains : <span class="rang-e">(E) Arc Novice</span></div>
-                    <div class="equip-slot">Access. : [Vide]</div>
-                </div>
-            </div>
-
-            <!-- Description de l'objet sélectionné -->
-            <div id="item-details" class="item-details-box">
-                <h4 class="item-detail-name rang-s">Clé du Donjon Instantané</h4>
-                <p class="item-detail-type">Type: Spécial</p>
-                <p class="item-detail-desc">Ouvre une dimension de donjon personnel. Requis pour l'Ascension.</p>
-            </div>
-
-            <button class="sys-btn w-100 mt-20" onclick="toggleModal('modal-inventory')">FERMER L'INVENTAIRE</button>
+        <div style="display: flex; gap: 10px;">
+            <button id="btn-open-inventory" class="hologram-btn" style="padding: 4px 10px; font-size: 0.75rem;">Inventaire</button>
+            <button id="btn-menu-principal" class="hologram-btn warning" style="padding: 4px 10px; font-size: 0.75rem;">Menu</button>
         </div>
     </div>
 
-    <!-- MODALE : STATISTIQUES -->
+    <!-- 1. ÉCRAN TITRE -->
+    <div id="screen-title" class="screen active">
+        <h1 class="neon-title">SYSTEM_OVERRIDE</h1>
+        <div class="subtitle">RPG Cyberpunk Souterrain</div>
+        <div class="menu-buttons">
+            <button id="btn-continue" class="hologram-btn primary" disabled>Continuer la Partie</button>
+            <button id="btn-new-game" class="hologram-btn">Nouvelle Partie</button>
+        </div>
+    </div>
+
+    <!-- 2. ÉCRAN CREATION DE PERSONNAGE -->
+    <div id="screen-creation" class="screen hidden">
+        <div class="hologram-panel">
+            <h2 class="panel-title">Initialisation du Sujet</h2>
+            <div class="panel-content">
+                <label>Entrez votre identifiant :</label>
+                <input type="text" id="input-player-name" class="hologram-input" value="Aventurier" maxlength="15">
+            </div>
+            <button id="btn-start-adventure" class="hologram-btn primary">S'éveiller dans le Secteur</button>
+        </div>
+    </div>
+
+    <!-- 3. ÉCRAN HUB (CENTRE-VILLE / BASE) -->
+    <div id="screen-hub" class="screen hidden">
+        <div class="hologram-panel">
+            <div class="panel-title">
+                <span>HUB - SECTEUR CENTRAL</span>
+                <button id="btn-open-stats" class="hologram-btn primary" style="font-size: 0.75rem; padding: 5px 10px;">Fiche / Stats (<span id="stat-points-indicator">0</span> pts)</button>
+            </div>
+            <div class="panel-content">
+                <p>Bienvenue dans la zone sécurisée. Choisissez votre prochaine destination :</p>
+                <div class="hub-grid">
+                    <button id="hub-btn-donjon" class="hologram-btn primary">⚡ Entrer dans le Donjon</button>
+                    <button id="hub-btn-marche" class="hologram-btn">🛒 Marché Noir</button>
+                    <button id="hub-btn-guilde" class="hologram-btn">🛡️ Quartier des Guildes</button>
+                    <button id="hub-btn-repos" class="hologram-btn success">💊 Infirmerie (Repos)</button>
+                </div>
+            </div>
+            <div id="hub-msg" class="sys-msg"></div>
+        </div>
+    </div>
+
+    <!-- 4. ÉCRAN EVENEMENT / DONJON -->
+    <div id="screen-event" class="screen hidden">
+        <div class="hologram-panel game-panel">
+            <h2 id="event-title" class="panel-title">Exploration...</h2>
+            <div id="event-text" class="panel-content">--</div>
+            <div id="event-choices" class="choices-container"></div>
+        </div>
+    </div>
+
+    <!-- MODALE STATS & LEVEL UP -->
     <div id="modal-stats" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="modal-title">[ STATISTIQUES DU JOUEUR ]</h2>
-            <div class="stats-grid">
-                <p>Force : <span id="stat-str">12</span></p>
-                <p>Agilité : <span id="stat-agi">15</span></p>
-                <p>Vitalité : <span id="stat-vit">10</span></p>
-                <p>Intelligence : <span id="stat-int">8</span></p>
-                <p>Perception : <span id="stat-per">14</span></p>
+        <div class="hologram-panel modal-panel">
+            <div class="panel-title">
+                <span>Attribution des Caractéristiques</span>
+                <span>Pts dispo : <strong id="available-stat-points" style="color:var(--neon-yellow)">0</strong></span>
             </div>
-            <hr class="sys-hr">
-            <p class="text-blue">Points libres à distribuer : <span id="stat-points">0</span></p>
-            <button class="sys-btn w-100 mt-20" onclick="toggleModal('modal-stats')">FERMER</button>
+            <div class="panel-content">
+                <div class="stat-allocation-row">
+                    <span>Force (Dégâts physiques) : <strong id="val-force">10</strong></span>
+                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('force')">+</button></div>
+                </div>
+                <div class="stat-allocation-row">
+                    <span>Agilité (Esquive, Fuite) : <strong id="val-agilite">10</strong></span>
+                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('agilite')">+</button></div>
+                </div>
+                <div class="stat-allocation-row">
+                    <span>Intelligence (Magie, PM) : <strong id="val-intel">10</strong></span>
+                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('intelligence')">+</button></div>
+                </div>
+                <div class="stat-allocation-row">
+                    <span>Perception (Détection, Pièges) : <strong id="val-perception">10</strong></span>
+                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('perception')">+</button></div>
+                </div>
+            </div>
+            <button id="btn-close-stats" class="hologram-btn primary">Fermer</button>
         </div>
     </div>
 
-    <!-- Script de l'interface (temporaire pour gérer les modales en attendant le moteur) -->
-    <script>
-        function toggleModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.toggle('hidden');
-        }
-    </script>
+    <!-- MODALE INVENTAIRE -->
+    <div id="modal-inventory" class="modal hidden">
+        <div class="hologram-panel modal-panel">
+            <div class="panel-title">Inventaire & Équipement</div>
+            <div class="inventory-layout">
+                <div id="inventory-grid" class="inventory-grid">
+                    <!-- Les items générés en JS s'afficheront ici -->
+                </div>
+                <div class="equipped-sidebar">
+                    <div>Arme: <div id="equip-arme" class="equip-slot">Aucune</div></div>
+                    <div>Armure: <div id="equip-armure" class="equip-slot">Aucune</div></div>
+                    <div>Accessoire: <div id="equip-accessoire" class="equip-slot">Aucun</div></div>
+                </div>
+            </div>
+            <div id="item-details" class="item-details">Sélectionnez un objet...</div>
+            <div id="item-actions" class="item-actions-container">
+                <button id="btn-use-item" class="hologram-btn primary hidden">Utiliser / Équiper</button>
+                <button id="btn-drop-item" class="hologram-btn warning hidden">Jeter</button>
+            </div>
+            <button id="btn-close-inventory" class="hologram-btn" style="margin-top: 15px;">Fermer</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="events.js"></script>
+<script src="game.js"></script>
 </body>
 </html>
