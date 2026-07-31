@@ -2,135 +2,92 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>SYSTEM_OVERRIDE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Solo Leveling - Text RPG</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/system-ui.css">
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
+    <!-- Conteneur Principal du Jeu -->
+    <div id="game-container">
+        <!-- En-tête / Barre d'État -->
+        <header id="status-bar" class="hidden">
+            <div class="stat-item" title="Points de Vie"><span id="stat-hp">100</span></div>
+            <div class="stat-item" title="Mana"><span id="stat-mp">50</span></div>
+            <div class="stat-item" title="Argent"><span id="stat-money">0</span></div>
+            <div class="stat-item" title="Fatigue"><span id="stat-fatigue">0</span>/100</div>
+            <div class="stat-item" title="Moral"><span id="stat-morale">100</span></div>
+        </header>
 
-<div id="game-container">
+        <!-- ZONE DYNAMIQUE DES ÉCRANS -->
+        <main id="screen-viewport">
+            
+            <!-- 1. Écran Titre -->
+            <section id="screen-title" class="screen active">
+                <div class="title-wrapper">
+                    <h1 class="glitch-title">SOLO LEVELING</h1>
+                    <p class="subtitle">Text RPG Édition Privée</p>
+                </div>
+                <div class="menu-actions">
+                    <button class="btn primary" onclick="GameEngine.startMode(1)">Mode Principal (Simulation)</button>
+                    <button class="btn secondary" onclick="GameEngine.startMode(2)">Mode Chasseur Établi</button>
+                    <button class="btn system" onclick="GameEngine.startMode(3)">Mode Système</button>
+                    <button class="btn outline hidden" id="btn-load" onclick="GameEngine.loadGame()">Charger la partie</button>
+                </div>
+            </section>
 
-    <!-- HUD PERMANENT (Visible en jeu) -->
-    <div id="game-hud" class="game-hud hidden">
-        <div class="hud-stats">
-            <span id="hud-name">Nom</span> | 
-            <span>NIV <strong id="hud-level">1</strong></span> | 
-            <span>PV: <span id="hud-pv">100/100</span></span> | 
-            <span>PM: <span id="hud-pm">50/50</span></span> | 
-            <span>OR: <span id="hud-or" style="color: var(--neon-yellow)">100</span></span>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button id="btn-open-inventory" class="hologram-btn" style="padding: 4px 10px; font-size: 0.75rem;">Inventaire</button>
-            <button id="btn-menu-principal" class="hologram-btn warning" style="padding: 4px 10px; font-size: 0.75rem;">Menu</button>
+            <!-- 2. Écran de Création / Phase Pré-éveil -->
+            <section id="screen-creation" class="screen hidden">
+                <h2 id="creation-title">Phase de Transition</h2>
+                <div id="creation-text-box" class="text-box"></div>
+                <div id="creation-choices" class="choices-container"></div>
+            </section>
+
+            <!-- 3. Écran de la Ville (Hub) -->
+            <section id="screen-city" class="screen hidden">
+                <div class="city-header">
+                    <h3>Monde Réel Saisons & Gestion</h3>
+                    <p>Jours restants avant le prochain Raid: <span id="days-left">30</span></p>
+                </div>
+                <div class="city-dashboard">
+                    <button class="city-btn" onclick="CityManager.openShop()">Boutique / Shop</button>
+                    <button class="city-btn" onclick="CityManager.openTraining()">S'entraîner (Stats)</button>
+                    <button class="city-btn" onclick="CityManager.openSocial()">Réseaux / Networking</button>
+                    <button class="city-btn" onclick="CityManager.openLife()">Vie Privée / Repos</button>
+                </div>
+                <div class="city-footer">
+                    <button class="btn primary full-width" onclick="CityManager.openRaidBoard()">Consulter les Portails</button>
+                </div>
+            </section>
+
+            <!-- 4. Écran de Donjon / Combat -->
+            <section id="screen-dungeon" class="screen hidden">
+                <div id="dungeon-header">
+                    <span id="dungeon-name">Portail de Rang E</span>
+                    <span id="dungeon-progress">Salle 1 / 5</span>
+                </div>
+                <div id="dungeon-text-box" class="text-box"></div>
+                <div id="dungeon-choices" class="choices-container"></div>
+            </section>
+
+        </main>
+
+        <!-- Zone de Notification / Popup Événement Aléatoire -->
+        <div id="modal-overlay" class="hidden">
+            <div id="modal-content">
+                <h3 id="modal-title">Alerte</h3>
+                <p id="modal-text">Description de l'événement...</p>
+                <div id="modal-actions"></div>
+            </div>
         </div>
     </div>
 
-    <!-- 1. ÉCRAN TITRE -->
-    <div id="screen-title" class="screen active">
-        <h1 class="neon-title">SYSTEM_OVERRIDE</h1>
-        <div class="subtitle">RPG Cyberpunk Souterrain</div>
-        <div class="menu-buttons">
-            <button id="btn-continue" class="hologram-btn primary" disabled>Continuer la Partie</button>
-            <button id="btn-new-game" class="hologram-btn">Nouvelle Partie</button>
-        </div>
-    </div>
-
-    <!-- 2. ÉCRAN CREATION DE PERSONNAGE -->
-    <div id="screen-creation" class="screen hidden">
-        <div class="hologram-panel">
-            <h2 class="panel-title">Initialisation du Sujet</h2>
-            <div class="panel-content">
-                <label>Entrez votre identifiant :</label>
-                <input type="text" id="input-player-name" class="hologram-input" value="Aventurier" maxlength="15">
-            </div>
-            <button id="btn-start-adventure" class="hologram-btn primary">S'éveiller dans le Secteur</button>
-        </div>
-    </div>
-
-    <!-- 3. ÉCRAN HUB (CENTRE-VILLE / BASE) -->
-    <div id="screen-hub" class="screen hidden">
-        <div class="hologram-panel">
-            <div class="panel-title">
-                <span>HUB - SECTEUR CENTRAL</span>
-                <button id="btn-open-stats" class="hologram-btn primary" style="font-size: 0.75rem; padding: 5px 10px;">Fiche / Stats (<span id="stat-points-indicator">0</span> pts)</button>
-            </div>
-            <div class="panel-content">
-                <p>Bienvenue dans la zone sécurisée. Choisissez votre prochaine destination :</p>
-                <div class="hub-grid">
-                    <button id="hub-btn-donjon" class="hologram-btn primary">⚡ Entrer dans le Donjon</button>
-                    <button id="hub-btn-marche" class="hologram-btn">🛒 Marché Noir</button>
-                    <button id="hub-btn-guilde" class="hologram-btn">🛡️ Quartier des Guildes</button>
-                    <button id="hub-btn-repos" class="hologram-btn success">💊 Infirmerie (Repos)</button>
-                </div>
-            </div>
-            <div id="hub-msg" class="sys-msg"></div>
-        </div>
-    </div>
-
-    <!-- 4. ÉCRAN EVENEMENT / DONJON -->
-    <div id="screen-event" class="screen hidden">
-        <div class="hologram-panel game-panel">
-            <h2 id="event-title" class="panel-title">Exploration...</h2>
-            <div id="event-text" class="panel-content">--</div>
-            <div id="event-choices" class="choices-container"></div>
-        </div>
-    </div>
-
-    <!-- MODALE STATS & LEVEL UP -->
-    <div id="modal-stats" class="modal hidden">
-        <div class="hologram-panel modal-panel">
-            <div class="panel-title">
-                <span>Attribution des Caractéristiques</span>
-                <span>Pts dispo : <strong id="available-stat-points" style="color:var(--neon-yellow)">0</strong></span>
-            </div>
-            <div class="panel-content">
-                <div class="stat-allocation-row">
-                    <span>Force (Dégâts physiques) : <strong id="val-force">10</strong></span>
-                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('force')">+</button></div>
-                </div>
-                <div class="stat-allocation-row">
-                    <span>Agilité (Esquive, Fuite) : <strong id="val-agilite">10</strong></span>
-                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('agilite')">+</button></div>
-                </div>
-                <div class="stat-allocation-row">
-                    <span>Intelligence (Magie, PM) : <strong id="val-intel">10</strong></span>
-                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('intelligence')">+</button></div>
-                </div>
-                <div class="stat-allocation-row">
-                    <span>Perception (Détection, Pièges) : <strong id="val-perception">10</strong></span>
-                    <div><button class="hologram-btn stat-btn" onclick="ajouterStat('perception')">+</button></div>
-                </div>
-            </div>
-            <button id="btn-close-stats" class="hologram-btn primary">Fermer</button>
-        </div>
-    </div>
-
-    <!-- MODALE INVENTAIRE -->
-    <div id="modal-inventory" class="modal hidden">
-        <div class="hologram-panel modal-panel">
-            <div class="panel-title">Inventaire & Équipement</div>
-            <div class="inventory-layout">
-                <div id="inventory-grid" class="inventory-grid">
-                    <!-- Les items générés en JS s'afficheront ici -->
-                </div>
-                <div class="equipped-sidebar">
-                    <div>Arme: <div id="equip-arme" class="equip-slot">Aucune</div></div>
-                    <div>Armure: <div id="equip-armure" class="equip-slot">Aucune</div></div>
-                    <div>Accessoire: <div id="equip-accessoire" class="equip-slot">Aucun</div></div>
-                </div>
-            </div>
-            <div id="item-details" class="item-details">Sélectionnez un objet...</div>
-            <div id="item-actions" class="item-actions-container">
-                <button id="btn-use-item" class="hologram-btn primary hidden">Utiliser / Équiper</button>
-                <button id="btn-drop-item" class="hologram-btn warning hidden">Jeter</button>
-            </div>
-            <button id="btn-close-inventory" class="hologram-btn" style="margin-top: 15px;">Fermer</button>
-        </div>
-    </div>
-
-</div>
-
-<script src="events.js"></script>
-<script src="game.js"></script>
+    <!-- Scripts JS -->
+    <script src="data/events_civil.js"></script>
+    <script src="data/events_dungeon.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/city.js"></script>
 </body>
 </html>
