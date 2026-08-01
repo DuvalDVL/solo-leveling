@@ -2,92 +2,120 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solo Leveling - Text RPG</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/system-ui.css">
-    <link rel="stylesheet" href="css/mobile.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Leveling RPG - Projet</title>
+    <!-- Le CSS sera géré à la toute fin -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Conteneur Principal du Jeu -->
+    <!-- CONTENEUR GLOBAL -->
     <div id="game-container">
-        <!-- En-tête / Barre d'État -->
-        <header id="status-bar" class="hidden">
-            <div class="stat-item" title="Points de Vie"><span id="stat-hp">100</span></div>
-            <div class="stat-item" title="Mana"><span id="stat-mp">50</span></div>
-            <div class="stat-item" title="Argent"><span id="stat-money">0</span></div>
-            <div class="stat-item" title="Fatigue"><span id="stat-fatigue">0</span>/100</div>
-            <div class="stat-item" title="Moral"><span id="stat-morale">100</span></div>
+        
+        <!-- HUD (Affichage Tête Haute) - Totalement masqué en Phase 1 -->
+        <header id="hud" style="display: none;">
+            <div class="hud-top">
+                <span id="hud-name"></span> | Classe : <span id="hud-class"></span> | Rang <span id="hud-rank">E</span> | Niv. <span id="hud-level">1</span>
+            </div>
+            <div class="hud-stats">
+                PV: <span id="hud-hp"></span>/<span id="hud-maxhp"></span> | 
+                PM: <span id="hud-mp"></span>/<span id="hud-maxmp"></span> | 
+                Fatigue: <span id="hud-fatigue">0</span>/100
+            </div>
+            <div class="hud-economy">
+                Or: <span id="hud-gold">0</span> | Essence: <span id="hud-essence">0</span> | Karma: <span id="hud-karma">0</span>
+            </div>
+            
+            <!-- Interface Système (Débloquée en Phase 3 uniquement) -->
+            <div id="hud-system" style="display: none;">
+                Points libres: <span id="hud-freepoints">0</span>
+                <button onclick="addStat('force')">+ Force</button>
+                <button onclick="addStat('agilite')">+ Agilité</button>
+                <button onclick="addStat('intelligence')">+ Intel</button>
+                <button onclick="addStat('vitalite')">+ Vitalité</button>
+                <button onclick="addStat('perception')">+ Perception</button>
+            </div>
         </header>
 
-        <!-- ZONE DYNAMIQUE DES ÉCRANS -->
-        <main id="screen-viewport">
-            
-            <!-- 1. Écran Titre -->
-            <section id="screen-title" class="screen active">
-                <div class="title-wrapper">
-                    <h1 class="glitch-title">SOLO LEVELING</h1>
-                    <p class="subtitle">Text RPG Édition Privée</p>
-                </div>
-                <div class="menu-actions">
-                    <button class="btn primary" onclick="GameEngine.startMode(1)">Mode Principal (Simulation)</button>
-                    <button class="btn secondary" onclick="GameEngine.startMode(2)">Mode Chasseur Établi</button>
-                    <button class="btn system" onclick="GameEngine.startMode(3)">Mode Système</button>
-                    <button class="btn outline hidden" id="btn-load" onclick="GameEngine.loadGame()">Charger la partie</button>
-                </div>
-            </section>
-
-            <!-- 2. Écran de Création / Phase Pré-éveil -->
-            <section id="screen-creation" class="screen hidden">
-                <h2 id="creation-title">Phase de Transition</h2>
-                <div id="creation-text-box" class="text-box"></div>
-                <div id="creation-choices" class="choices-container"></div>
-            </section>
-
-            <!-- 3. Écran de la Ville (Hub) -->
-            <section id="screen-city" class="screen hidden">
-                <div class="city-header">
-                    <h3>Monde Réel Saisons & Gestion</h3>
-                    <p>Jours restants avant le prochain Raid: <span id="days-left">30</span></p>
-                </div>
-                <div class="city-dashboard">
-                    <button class="city-btn" onclick="CityManager.openShop()">Boutique / Shop</button>
-                    <button class="city-btn" onclick="CityManager.openTraining()">S'entraîner (Stats)</button>
-                    <button class="city-btn" onclick="CityManager.openSocial()">Réseaux / Networking</button>
-                    <button class="city-btn" onclick="CityManager.openLife()">Vie Privée / Repos</button>
-                </div>
-                <div class="city-footer">
-                    <button class="btn primary full-width" onclick="CityManager.openRaidBoard()">Consulter les Portails</button>
-                </div>
-            </section>
-
-            <!-- 4. Écran de Donjon / Combat -->
-            <section id="screen-dungeon" class="screen hidden">
-                <div id="dungeon-header">
-                    <span id="dungeon-name">Portail de Rang E</span>
-                    <span id="dungeon-progress">Salle 1 / 5</span>
-                </div>
-                <div id="dungeon-text-box" class="text-box"></div>
-                <div id="dungeon-choices" class="choices-container"></div>
-            </section>
-
-        </main>
-
-        <!-- Zone de Notification / Popup Événement Aléatoire -->
-        <div id="modal-overlay" class="hidden">
-            <div id="modal-content">
-                <h3 id="modal-title">Alerte</h3>
-                <p id="modal-text">Description de l'événement...</p>
-                <div id="modal-actions"></div>
+        <!-- ÉCRAN 1 : CRÉATION DE PERSONNAGE (Phase 1) -->
+        <section id="screen-creation">
+            <h1>L'Éveil</h1>
+            <div class="form-group">
+                <label for="char-name">Nom du personnage :</label>
+                <input type="text" id="char-name" placeholder="Entrez votre nom">
             </div>
-        </div>
-    </div>
+            <div class="form-group">
+                <label for="char-job">Passé / Métier :</label>
+                <select id="char-job">
+                    <option value="ouvrier">Ouvrier (Bonus Force)</option>
+                    <option value="employe">Employé (Bonus Intelligence)</option>
+                    <option value="livreur">Livreur (Bonus Agilité)</option>
+                    <option value="etudiant">Étudiant (Équilibré)</option>
+                </select>
+            </div>
+            <button onclick="startGame()">Lancer la Phase 1</button>
+        </section>
 
-    <!-- Scripts JS -->
-    <script src="data/events_civil.js"></script>
-    <script src="data/events_dungeon.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/engine.js"></script>
-    <script src="js/city.js"></script>
+        <!-- ÉCRAN 2 : ÉVÉNEMENTS NARRATIFS (Phases 1, 2 et 3) -->
+        <!-- Utilisé pour la vie civile, l'exploration de donjons et le Temple de Carthénon -->
+        <section id="screen-event" style="display: none;">
+            <h2 id="event-title">Titre de l'événement</h2>
+            <p id="event-description">Description de l'événement...</p>
+            <div id="event-choices">
+                <!-- Les boutons de choix seront injectés ici par le JS -->
+            </div>
+        </section>
+
+        <!-- ÉCRAN 3 : LE HUB CENTRAL (Phases 2 et 3) -->
+        <section id="screen-hub" style="display: none;">
+            <h2>Hub Central</h2>
+            <div id="hub-alerts">
+                <!-- Notifications (ex: Loyer dans X jours) -->
+            </div>
+            <nav id="hub-menu">
+                <button onclick="rest()">Dormir (Passe 1 jour, Restaure PV/PM)</button>
+                <button onclick="train()">S'entraîner (Passe 1 jour)</button>
+                <button onclick="showInventory()">Inventaire</button>
+                <button onclick="showShops()">Boutiques</button>
+                <button onclick="showDungeons()">Portails (Donjons)</button>
+                <button onclick="showGuild()">Guilde & Escouades</button>
+                
+                <!-- Débloqué en Phase 3 -->
+                <button id="btn-association" style="display: none;" onclick="visitAssociation()">Association des Chasseurs</button>
+                <button id="btn-system-shop" style="display: none;" onclick="showSystemShop()">Boutique du Système</button>
+            </nav>
+            <div id="hub-content">
+                <!-- Contenu dynamique du hub (grille inventaire, liste des monstres, etc.) -->
+            </div>
+        </section>
+
+        <!-- ÉCRAN 4 : COMBAT TACTIQUE -->
+        <section id="screen-combat" style="display: none;">
+            <h2 id="combat-title">Combat</h2>
+            
+            <div id="combat-arena">
+                <div id="combat-enemies">
+                    <!-- Génération dynamique des ennemis, de leurs PV et Altérations d'état -->
+                </div>
+                
+                <div id="combat-player-party">
+                    <!-- Affichage de la position (Avant/Arrière) et de l'état des alliés PNJ -->
+                </div>
+            </div>
+
+            <div id="combat-actions">
+                <!-- Boutons générés dynamiquement (Attaque, Compétence, Fuite, Analyser, Trahir) -->
+            </div>
+
+            <!-- Le Journal de Combat -->
+            <div id="combat-log" style="height: 200px; overflow-y: auto; border: 1px solid #000; margin-top: 15px; padding: 10px;">
+                <!-- Logs textuels colorés (ex: "Vous infligez 15 dégâts", "Votre allié meurt") -->
+            </div>
+        </section>
+
+    </div>
+    
+    <!-- Scripts contenant la Base de données puis la Logique -->
+    <script src="data.js"></script>
+    <script src="logic.js"></script>
 </body>
 </html>
