@@ -7,6 +7,105 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- À AJOUTER/REMPLACER DANS LE <body> -->
+
+<!-- Système de Notification In-Game (Remplace les alertes) -->
+<div id="game-notification" class="hidden">
+    <p id="notification-text"></p>
+    <button onclick="closeNotification()">Fermer</button>
+</div>
+
+<!-- MENU PRINCIPAL -->
+<div id="screen-home" class="screen">
+    <h1 class="title-font">SOLO RPG</h1>
+    <div class="menu-container">
+        <button onclick="startNewGame()">Nouvelle Partie</button>
+        <button onclick="loadGame()">Charger Partie en cours</button>
+        <button onclick="showRules()">Règles</button>
+        <button onclick="showPantheon()">Panthéon</button>
+    </div>
+</div>
+
+<!-- ÉCRAN DE CRÉATION (Correction du centrage et des couleurs) -->
+<div id="screen-creation" class="screen hidden">
+    <h2>Création de Personnage</h2>
+    <div class="form-group">
+        <label>Nom du Personnage :</label>
+        <input type="text" id="player-name" class="dark-input" value="Sung">
+    </div>
+    <div class="form-group">
+        <label>Choisissez votre Métier :</label>
+        <select id="player-profession" class="dark-input">
+            <option value="ouvrier">Ouvrier (Force +2, Vitalité +2, 100 Or)</option>
+            <option value="employe">Employé de bureau (Int +2, Per +2, 300 Or)</option>
+            <!-- Autres options... -->
+        </select>
+    </div>
+    <button class="btn-center" onclick="startCivilPhase()">Commencer l'aventure</button>
+</div>
+
+<!-- PHASE 1 : ÉVÉNEMENTS CIVILS -->
+<div id="screen-civil" class="screen hidden">
+    <h2 id="civil-title"></h2>
+    <p id="civil-description"></p>
+    <div id="civil-choices" class="choices-container"></div>
+</div>
+
+<!-- PHASE 1 : CONSÉQUENCE DU CHOIX -->
+<div id="screen-event-result" class="screen hidden">
+    <h2>Résultat</h2>
+    <p id="event-result-text"></p>
+    <button class="btn-center" onclick="nextCivilEvent()">CONTINUER</button>
+</div>
+
+<!-- FLUX DE L'ÉVEIL -->
+<div id="screen-awakening-narrative" class="screen hidden">
+    <h2>Un changement étrange...</h2>
+    <p id="awakening-narrative-text"></p>
+    <button class="btn-center" onclick="triggerInternetSearch()">Continuer</button>
+</div>
+
+<div id="screen-internet-search" class="screen hidden">
+    <p>Vous recherchez vos symptômes sur internet... Tout indique que vous pourriez avoir connu un Éveil.</p>
+    <button class="btn-center" onclick="triggerAssociationEval()">Se faire évaluer à l'Association</button>
+</div>
+
+<div id="screen-diploma" class="screen hidden">
+    <div class="diploma-box">
+        <h2>LICENCE DE CHASSEUR</h2>
+        <p><strong>Nom :</strong> <span id="dip-name"></span></p>
+        <p><strong>Rang :</strong> <span id="dip-rank"></span></p>
+        <p><strong>Classe :</strong> <span id="dip-class"></span></p>
+        <hr>
+        <p><em>Notes de l'évaluateur : À peine plus fort qu'un humain standard.</em></p>
+    </div>
+    <button class="btn-center" onclick="enterPhase2Hub()">Accepter et continuer</button>
+</div>
+
+<!-- INVENTAIRE & ÉQUIPEMENT (MODAL REFONDU) -->
+<div id="inventory-modal" class="modal hidden">
+    <div class="modal-content inventory-layout">
+        <span class="close-btn" onclick="toggleInventory()">&times;</span>
+        <h2>Inventaire du Chasseur</h2>
+        <div class="inventory-split">
+            <!-- Grille des 12 objets -->
+            <div id="inventory-grid" class="inventory-grid"></div>
+            
+            <!-- Équipement -->
+            <div class="equipment-grid">
+                <div class="equip-slot" id="slot-head">Tête</div>
+                <div class="equip-slot" id="slot-neck">Collier</div>
+                <div class="equip-slot" id="slot-body">Corps</div>
+                <div class="equip-slot" id="slot-cape">Cape</div>
+                <div class="equip-slot" id="slot-weapon">Arme</div>
+                <div class="equip-slot" id="slot-rhand">Bague D.</div>
+                <div class="equip-slot" id="slot-lhand">Bague G.</div>
+                <div class="equip-slot" id="slot-boots">Bottes</div>
+            </div>
+        </div>
+    </div>
+</div>
     <div id="game-container">
         <!-- EN-TÊTE ET HUD DU JOUEUR -->
         <header id="hud" style="display: none;">
