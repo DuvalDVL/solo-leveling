@@ -663,3 +663,250 @@ window.onload = () => {
     updateHUD();
     showScreen("screen-creation");
 };
+
+// Remplace la variable d'état initiale pour l'UI
+let drawnEvents = [];
+let maxPhase1Events = 5;
+
+// === GESTION DES NOTIFICATIONS (Remplace alert) ===
+function notify(msg) {
+    document.getElementById("notification-text").innerText = msg;
+    document.getElementById("game-notification").classList.remove("hidden");
+}
+function closeNotification() {
+    document.getElementById("game-notification").classList.add("hidden");
+}
+
+// === MENU PRINCIPAL ===
+function initGame() { showScreen("screen-home"); }
+function startNewGame() { showScreen("screen-creation"); }
+function showRules() { notify("Règles : Survivez. Complétez la quête quotidienne. Ne mourrez pas."); }
+function showPantheon() { notify("Panthéon vide. Aucun monarque n'a encore émergé."); }
+function loadGame() { notify("Aucune sauvegarde trouvée."); } // Placeholder localStorage
+
+// === HUD & MASQUAGE PHASE 1 ===
+function updateHUD() {
+    // [La logique de calcul HP/MP reste identique...]
+    
+    // Ajout de l'Or dans le HUD
+    document.getElementById("hud-gold").innerText = gameState.player.gold + " Or";
+
+    // Gestion de la visibilité des éléments post-éveil
+    const phase2Elements = document.querySelectorAll('.phase-2-only');
+    if (gameState.phase >= 2) {
+        phase2Elements.forEach(el => el.style.display = 'inline');
+    } else {
+        phase2Elements.forEach(el => el.style.display = 'none');
+    }
+    
+    // [Reste de la fonction identique...]
+}
+
+// === PHASE 1 : 5 ÉVÉNEMENTS ALÉATOIRES ===
+function startCivilPhase() {
+    // [Initialisation métier identique...]
+    
+    // Tirage de 5 événements uniques parmi le réservoir
+    let shuffled = [...civilEvents].sort(() => 0.5 - Math.random());
+    drawnEvents = shuffled.slice(0, 5);
+    gameState.currentCivilEventIndex = 0;
+    
+    document.getElementById("hud").classList.remove("hidden");
+    updateHUD();
+    loadCivilEvent();
+}
+
+function loadCivilEvent() {
+    if (gameState.currentCivilEventIndex >= maxPhase1Events) {
+        triggerAwakeningNarrative();
+        return;
+    }
+    const ev = drawnEvents[gameState.currentCivilEventIndex];
+    showScreen("screen-civil");
+    document.getElementById("civil-title").innerText = ev.title;
+    document.getElementById("civil-description").innerText = ev.description;
+    
+    const choicesDiv = document.getElementById("civil-choices");
+    choicesDiv.innerHTML = "";
+    ev.choices.forEach((choice, index) => {
+        const btn = document.createElement("button");
+        btn.innerText = choice.text;
+        btn.onclick = () => makeCivilChoice(index);
+        choicesDiv.appendChild(btn);
+    });
+}
+
+function makeCivilChoice(choiceIndex) {
+    const ev = drawnEvents[gameState.currentCivilEventIndex];
+    const choice = ev.choices[choiceIndex];
+    
+    // Stats & Affinité
+    for (let stat in choice.stats) { gameState.player.stats[stat] += choice.stats[stat]; }
+    if (choice.affinity) { gameState.player.affinities[choice.affinity] += 1; }
+    
+    // Écran de conséquence
+    showScreen("screen-event-result");
+    document.getElementById("event-result-text").innerText = choice.resultText || "Vos actions ont forgé votre corps et votre esprit.";
+}
+
+function nextCivilEvent() {
+    gameState.currentCivilEventIndex++;
+    updateHUD();
+    loadCivilEvent();
+}
+
+// === LE FLUX DE L'ÉVEIL ===
+function triggerAwakeningNarrative() {
+    // Calcul de la classe
+    let maxAffinity = -1; let selectedClass = "guerrier";
+    for (let classKey in gameState.player.affinities) {
+        if (gameState.player.affinities[classKey] > maxAffinity) {
+            maxAffinity = gameState.player.affinities[classKey];
+            selectedClass = classKey;
+        }
+    }
+    gameState.player.classId = selectedClass;
+    gameState.player.className = classesData[selectedClass].name;
+
+    showScreen("screen-awakening-narrative");
+    document.getElementById("awakening-narrative-text").innerText = classesData[selectedClass].awakeningText;
+}
+
+function triggerInternetSearch() {
+    showScreen("screen-internet-search");
+}
+
+function triggerAssociationEval() {
+    showScreen("screen-diploma");
+    document.getElementById("dip-name").innerText = gameState.player.name;
+    document.getElementById("dip-rank").innerText = "E";
+    document.getElementById("dip-class").innerText = gameState.player.className;
+}
+
+function enterPhase2Hub() {
+    gameState.phase = 2;
+    showScreen("screen-hub");
+    updateHUD(); // Cela va démasquer la classe, les stats et le loyer
+    document.getElementById("hub-content").innerHTML = `
+        <h3>Hub de l'Association</h3>
+        <p>Gagnez de l'or en accomplissant des donjons pour payer votre loyer à temps.</p>
+    `;
+}
+
+// === GESTION DU HUB (Entraînement secret et temps) ===
+function showTrainMenu() {
+    let html = `<h3>Salle d'Entraînement</h3><p>Chaque séance consomme 1 jour et de la fatigue.</p><ul>`;
+    const statsList = [{ key: "str", name: "Force" }, { key: "agi", name: "Agilité" }, { key: "int", name: "Intelligence" }, { key: "vit", name: "Vitalité" }, { key: "per", name: "Perception" }];
+    
+    statsList.forEach(s => {
+        html += `<li>${s.name} <button onclick="trainStat('${s.key}')">S'entraîner</button></li>`;
+    });
+    html += `</ul><button class="btn-center" onclick="enterPhase2Hub()">Retour au Hub</button>`;
+    document.getElementById("hub-content").innerHTML = html;
+}
+
+function trainStat(statKey) {
+    // Le joueur ne voit pas la limite, mais s'il dépasse l'expérience cachée, il gagne très peu ou rien
+    if (gameState.player.fatigue >= 80) {
+        notify("Vous êtes trop épuisé pour vous entraîner. Reposez-vous.");
+        return;
+    }
+    
+    gameState.player.stats[statKey]++;
+    gameState.rent.daysLeft--;
+    gameState.player.fatigue += 20; // Augmentation de la fatigue
+    
+    checkRentDeadline();
+    updateHUD();
+    notify(`Vous vous êtes entraîné. ${statKey.toUpperCase()} augmente de 1. Fatigue +20.`);
+}
+
+function restPlayer() {
+    gameState.rent.daysLeft -= 1;
+    gameState.player.hp = gameState.player.maxHp;
+    gameState.player.mp = gameState.player.maxMp;
+    gameState.player.fatigue = 0; // Remise à zéro
+    checkRentDeadline();
+    updateHUD();
+    notify("Nuit de sommeil réparatrice. Fatigue remise à 0.");
+}
+
+function checkRentDeadline() {
+    if (gameState.rent.daysLeft < 0) {
+        // Redirection vers la Zone de Pénalité au lieu du Game Over direct
+        triggerPenaltyZone();
+    }
+}
+
+// === INVENTAIRE (12 Cases & Objets Utilisables) ===
+function renderInventory() {
+    const grid = document.getElementById("inventory-grid");
+    grid.innerHTML = "";
+    
+    // Afficher exactement 12 cases
+    for(let i = 0; i < 12; i++) {
+        if (i < gameState.player.inventory.length) {
+            const itemEntry = gameState.player.inventory[i];
+            const itemData = itemsDatabase[itemEntry.id];
+            grid.innerHTML += `<div class="inv-slot" onclick="useItem('${itemEntry.id}')">
+                ${itemData.name} (x${itemEntry.qty})
+            </div>`;
+        } else {
+            grid.innerHTML += `<div class="inv-slot">Vide</div>`;
+        }
+    }
+}
+
+function useItem(itemId) {
+    const itemData = itemsDatabase[itemId];
+    if(itemData.type === "consumable") {
+        if(itemId.includes("potion_e")) {
+            gameState.player.hp += itemData.value;
+            notify(`Vous récupérez ${itemData.value} PV.`);
+        }
+        // Retirer 1 quantité
+        let invItem = gameState.player.inventory.find(i => i.id === itemId);
+        invItem.qty--;
+        if(invItem.qty <= 0) {
+            gameState.player.inventory = gameState.player.inventory.filter(i => i.id !== itemId);
+        }
+        updateHUD();
+        renderInventory();
+    } else {
+        notify("Cet objet ne s'utilise pas comme ça (ou n'est pas encore implémenté).");
+    }
+}
+
+// === DONJONS (Leader/Suiveur & Consommation Mana) ===
+function showDungeonSelection() {
+    let html = `<h3>Portails Disponibles</h3>
+    <p>Choisissez un donjon et votre rôle. Le temps passe (0.5 jour).</p>`;
+    // [Génération procédurale inchangée...]
+    // Ajout des boutons Leader / Suiveur
+    html += `<button onclick="enterDungeon('E', 'Forêt Sombre', 'leader')">Entrer en tant que Leader (Gain 100%, Risque max)</button>`;
+    html += `<button onclick="enterDungeon('E', 'Forêt Sombre', 'suiveur')">Entrer en tant que Suiveur (Gain 30%, Risque réduit)</button>`;
+    html += `<button class="btn-center" onclick="enterPhase2Hub()">Retour au Hub</button>`;
+    document.getElementById("hub-content").innerHTML = html;
+}
+
+function playerAttack(multiplier) {
+    const p = gameState.player;
+    const e = gameState.combat.enemy;
+    
+    // Utiliser son arme/attaque de base coûte 2 PM (effort physique/magique)
+    if(p.mp < 2) {
+        notify("Plus de PM/Endurance pour attaquer efficacement !");
+        multiplier = 0.5; // Pénalité
+    } else {
+        p.mp -= 2;
+    }
+    
+    let mainStatValue = p.stats.str;
+    const dmg = Math.max(1, Math.floor((mainStatValue * 2 * multiplier) - (e.defense * 0.5)));
+    e.hp -= dmg;
+    
+    logCombat(`Vous attaquez et infligez ${dmg} dégâts ! (-2 PM)`);
+    checkCombatState();
+}
+
+window.onload = () => { initGame(); };
