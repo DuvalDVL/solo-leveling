@@ -273,6 +273,12 @@ function passerJournee() {
             return false;
         }
     }
+
+    if (typeof verifierTraqueAssociation === "function") verifierTraqueAssociation();
+    if (typeof verifierControleAssociation === "function") verifierControleAssociation();
+    if (typeof verifierArcsNarratifs === "function") verifierArcsNarratifs();
+    if (typeof verifierEveilMonarque === "function") verifierEveilMonarque();
+
     return true;
 }
 
