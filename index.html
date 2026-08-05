@@ -36,6 +36,39 @@
     </section>
 
     <!-- ============================== -->
+    <!-- CONTROLE DE L'ASSOCIATION -->
+    <!-- ============================== -->
+    <section id="view-controle-association" class="view">
+        <h2>Controle de l'Association</h2>
+        <div class="narrative-box">
+            <p id="controle-texte"></p>
+        </div>
+        <div id="controle-choix" class="choices-container"></div>
+    </section>
+
+    <!-- ============================== -->
+    <!-- APPEL DU MONARQUE -->
+    <!-- ============================== -->
+    <section id="view-appel-monarque" class="view">
+        <h2>Ascension</h2>
+        <div class="narrative-box">
+            <p id="appel-monarque-texte"></p>
+        </div>
+        <div id="appel-monarque-choix" class="choices-container"></div>
+    </section>
+
+    <!-- ============================== -->
+    <!-- ARC NARRATIF -->
+    <!-- ============================== -->
+    <section id="view-arc-narratif" class="view">
+        <h2>...</h2>
+        <div class="narrative-box">
+            <p id="arc-texte"></p>
+        </div>
+        <div id="arc-choix" class="choices-container"></div>
+    </section>
+
+    <!-- ============================== -->
     <!-- REGLES -->
     <!-- ============================== -->
     <section id="view-regles" class="view">
@@ -362,6 +395,7 @@
 <script src="data-personnages.js" charset="UTF-8"></script>
 <script src="data-evenements-phase1.js" charset="UTF-8"></script>
 <script src="data-evenements-donjon.js" charset="UTF-8"></script>
+<script src="data-arcs.js" charset="UTF-8"></script>
 
 <!-- ============================== -->
 <!-- CHARGEMENT DU MOTEUR -->
@@ -371,6 +405,9 @@
 <script src="engine-combat.js" charset="UTF-8"></script>
 <script src="engine-donjon.js" charset="UTF-8"></script>
 <script src="engine-boutiques.js" charset="UTF-8"></script>
+<script src="engine-association.js" charset="UTF-8"></script>
+<script src="engine-monarque.js" charset="UTF-8"></script>
+<script src="engine-arcs.js" charset="UTF-8"></script>
 
 <!-- ============================== -->
 <!-- GLUE D'INTERFACE (rendu de listes dynamiques propres au HTML, pas de logique de jeu) -->
