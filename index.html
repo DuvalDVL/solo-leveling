@@ -3,16 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Chasseur du Systeme - RPG Textuel</title>
+<title>Chasseur du Système - RPG Textuel</title>
 <link rel="stylesheet" href="style.css">
-<style>
-    /* Regles structurelles minimales, non esthetiques : gestion de l'affichage des vues et de la modale.
-       Le CSS complet (theme visuel) sera ajoute dans style.css a la derniere etape du projet. */
-    .view { display: none; }
-    .view.active { display: block; }
-    .modal { display: none; }
-    .modal.actif { display: flex; }
-</style>
 </head>
 <body>
 
@@ -22,13 +14,13 @@
     <!-- ECRAN TITRE -->
     <!-- ============================== -->
     <section id="view-titre" class="view active">
-        <h1>Chasseur du Systeme</h1>
-        <p>RPG textuel inspire de Solo Leveling</p>
+        <h1>Chasseur du Système</h1>
+        <p>RPG textuel inspiré de Solo Leveling</p>
         <div class="choices-container">
             <button id="btn-continuer" onclick="actionContinuerPartie()" disabled>Continuer la partie</button>
             <button onclick="lancerNouvellePartie()">Nouvelle partie</button>
-            <button onclick="actionVoirRegles()">Regles</button>
-            <button onclick="actionVoirPantheon()">Pantheon</button>
+            <button onclick="actionVoirRegles()">Règles</button>
+            <button onclick="actionVoirPantheon()">Panthéon</button>
         </div>
     </section>
 
@@ -36,12 +28,12 @@
     <!-- REGLES -->
     <!-- ============================== -->
     <section id="view-regles" class="view">
-        <h2>Regles</h2>
+        <h2>Règles</h2>
         <div class="narrative-box">
-            <p>Vous incarnez un Chasseur eveille dans un monde envahi par des portails menant a des donjons remplis de monstres.</p>
-            <p>La partie se deroule en trois phases : votre passe de civil qui determine votre classe, votre vie de chasseur qui gere votre survie economique et vos donjons, et enfin l'eveil du Joueur du Systeme qui transforme votre progression.</p>
-            <p>La mort est definitive (permadeath). Chaque partie se termine par une mort ou une retraite volontaire, et rejoint le Pantheon avec un score final.</p>
-            <p>Gerez votre loyer, votre fatigue, votre Karma et vos relations avec les guildes pour survivre le plus longtemps possible et batir la carriere la plus marquante.</p>
+            <p>Vous incarnez un Chasseur eveillé dans un monde envahi par des portails menant à des donjons remplis de monstres.</p>
+            <p>La partie se déroule en trois phases : votre passé de civil qui détermine votre classe, votre vie de chasseur qui gère votre survie économique et vos donjons, et enfin l'éveil du Joueur du Système qui transforme votre progression.</p>
+            <p>La mort est définitive (permadeath). Chaque partie se termine par une mort ou une retraite volontaire, et rejoint le Panthéon avec un score final.</p>
+            <p>Gérez votre loyer, votre fatigue, votre Karma et vos relations avec les guildes pour survivre le plus longtemps possible et batir la carrière la plus marquante.</p>
         </div>
         <button onclick="switchView('view-titre')">Retour</button>
     </section>
@@ -50,7 +42,7 @@
     <!-- PANTHEON -->
     <!-- ============================== -->
     <section id="view-pantheon" class="view">
-        <h2>Pantheon</h2>
+        <h2>Panthéon</h2>
         <div id="pantheon-liste"></div>
         <button onclick="switchView('view-titre')">Retour</button>
     </section>
@@ -59,14 +51,14 @@
     <!-- CREATION DE PERSONNAGE -->
     <!-- ============================== -->
     <section id="view-creation-personnage" class="view">
-        <h2>Creation du personnage</h2>
+        <h2>Création du personnage</h2>
         <p>Nom du chasseur :</p>
         <input type="text" id="input-nom-joueur" placeholder="Votre nom" maxlength="20">
-        <p>Choisissez votre metier de depart :</p>
+        <p>Choisissez votre métier de depart :</p>
         <div class="choices-container">
-            <button onclick="lancerPhaseCivile('ouvrier')">Ouvrier (Force, Vitalite)</button>
-            <button onclick="lancerPhaseCivile('employe')">Employe (Intelligence, Perception)</button>
-            <button onclick="lancerPhaseCivile('livreur')">Livreur (Agilite, Perception)</button>
+            <button onclick="lancerPhaseCivile('ouvrier')">Ouvrier (Force, Vitalité)</button>
+            <button onclick="lancerPhaseCivile('employe')">Employé (Intelligence, Perception)</button>
+            <button onclick="lancerPhaseCivile('livreur')">Livreur (Agilité, Perception)</button>
             <button onclick="lancerPhaseCivile('etudiant')">Etudiant (Intelligence, Perception)</button>
         </div>
     </section>
@@ -115,14 +107,14 @@
                 <span>Fatigue : <span id="ui-fatigue">-</span></span>
                 <span>Jour : <span id="ui-jour">-</span></span>
                 <span>Karma : <span id="ui-karma">-</span></span>
-                <span>Reputation : <span id="ui-reputation">-</span></span>
+                <span>Réputation : <span id="ui-reputation">-</span></span>
             </div>
             <div class="hud-attributes">
                 <span>Force : <span id="stat-force">-</span></span>
-                <span>Agilite : <span id="stat-agilite">-</span></span>
+                <span>Agilité : <span id="stat-agilite">-</span></span>
                 <span>Intelligence : <span id="stat-intelligence">-</span></span>
                 <span>Perception : <span id="stat-perception">-</span></span>
-                <span>Vitalite : <span id="stat-vitalite">-</span></span>
+                <span>Vitalité : <span id="stat-vitalite">-</span></span>
                 <span>Points libres : <span id="stat-points-libres">-</span></span>
             </div>
         </header>
@@ -130,10 +122,10 @@
         <nav class="hub-nav">
             <button onclick="ouvrirInventaire()">Inventaire</button>
             <button onclick="afficherMenuPortails()">Portails</button>
-            <button onclick="ouvrirPanneauDonjonsInstancies()">Donjons Instancies</button>
+            <button onclick="ouvrirPanneauDonjonsInstancies()">Donjons Instanciés</button>
             <button onclick="ouvrirBoutiqueAssociation()">Boutique Association</button>
             <button onclick="ouvrirMarcheNoir()">Marche Noir</button>
-            <button id="btn-boutique-systeme" onclick="ouvrirBoutiqueSysteme()" style="display:none;">Boutique du Systeme</button>
+            <button id="btn-boutique-systeme" onclick="ouvrirBoutiqueSysteme()" style="display:none;">Boutique du Système</button>
             <button onclick="ouvrirPanneauGuildes()">Guildes</button>
         </nav>
 
@@ -142,15 +134,15 @@
             <div class="choices-container">
                 <button onclick="actionDormir()">Dormir (jour suivant)</button>
                 <button onclick="actionEntrainer('force')">S'entrainer : Force</button>
-                <button onclick="actionEntrainer('agilite')">S'entrainer : Agilite</button>
+                <button onclick="actionEntrainer('agilite')">S'entrainer : Agilité</button>
                 <button onclick="actionEntrainer('intelligence')">S'entrainer : Intelligence</button>
                 <button onclick="actionEntrainer('perception')">S'entrainer : Perception</button>
-                <button onclick="actionEntrainer('vitalite')">S'entrainer : Vitalite</button>
+                <button onclick="actionEntrainer('vitalite')">S'entrainer : Vitalité</button>
             </div>
         </section>
 
         <section class="narrative-box">
-            <h3>Quete quotidienne</h3>
+            <h3>Quête quotidienne</h3>
             <div class="choices-container">
                 <button onclick="actionQueteQuotidienne('faire')">Faire le quota</button>
                 <button onclick="actionQueteQuotidienne('doubler')">Doubler le quota</button>
@@ -175,10 +167,10 @@
         <div id="guildes-liste" class="choices-container"></div>
 
         <h3>Votre propre guilde</h3>
-        <p>Statut : <span id="qg-statut">Non fondee</span></p>
+        <p>Statut : <span id="qg-statut">Non fondée</span></p>
         <div class="choices-container">
             <button onclick="fonderGuildePersonnelle(); actualiserPanneauGuildes();">Fonder ma guilde</button>
-            <button onclick="ameliorerQGGuildePersonnelle(); actualiserPanneauGuildes();">Ameliorer le QG</button>
+            <button onclick="ameliorerQGGuildePersonnelle(); actualiserPanneauGuildes();">Améliorer le QG</button>
         </div>
 
         <button onclick="switchView('view-hub')">Retour au Hub</button>
@@ -188,8 +180,8 @@
     <!-- DONJONS INSTANCIES (sous-vue du hub) -->
     <!-- ============================== -->
     <section id="view-donjons-instancies" class="view">
-        <h2>Donjons Instancies</h2>
-        <p>Utilisez une cle pour ouvrir un donjon solo.</p>
+        <h2>Donjons Instanciés</h2>
+        <p>Utilisez une clé pour ouvrir un donjon solo.</p>
         <div id="cles-liste" class="choices-container"></div>
         <button onclick="switchView('view-hub')">Retour au Hub</button>
     </section>
@@ -201,7 +193,7 @@
         <h2>Portails disponibles</h2>
         <div class="choices-container">
             <button id="btn-position-avant" class="actif" onclick="choisirPositionAvantEntree('avant_garde')">Avant-Garde</button>
-            <button id="btn-position-arriere" onclick="choisirPositionAvantEntree('arriere_garde')">Arriere-Garde</button>
+            <button id="btn-position-arriere" onclick="choisirPositionAvantEntree('arriere_garde')">Arrière-Garde</button>
         </div>
         <div id="portails-liste"></div>
         <button onclick="switchView('view-hub')">Retour au Hub</button>
@@ -241,9 +233,9 @@
     <!-- ZONE DE PENALITE -->
     <!-- ============================== -->
     <section id="view-zone-penalite" class="view">
-        <h2>Zone de Penalite</h2>
+        <h2>Zone de Pénalité</h2>
         <div class="narrative-box">
-            <p>Un desert infini. Une creature monstrueuse et invincible rode. Survivez.</p>
+            <p>Un désert infini. Une créature monstrueuse et invincible rode. Survivez.</p>
         </div>
         <div class="choices-container">
             <button onclick="actionZonePenalite('esquiver')">Esquiver</button>
@@ -264,7 +256,7 @@
     <!-- MARCHE NOIR -->
     <!-- ============================== -->
     <section id="view-marche-noir" class="view">
-        <h2>Marche Noir</h2>
+        <h2>Marché Noir</h2>
         <div id="marche-noir-liste" class="inventory-grid"></div>
         <button onclick="switchView('view-hub')">Retour au Hub</button>
     </section>
@@ -273,8 +265,8 @@
     <!-- BOUTIQUE DU SYSTEME -->
     <!-- ============================== -->
     <section id="view-boutique-systeme" class="view">
-        <h2>Boutique du Systeme</h2>
-        <h3>Vitrine Legendaire</h3>
+        <h2>Boutique du Système</h2>
+        <h3>Vitrine Légendaire</h3>
         <div id="systeme-vitrine" class="inventory-grid"></div>
         <h3>Offres du jour</h3>
         <div id="systeme-rotation" class="inventory-grid"></div>
@@ -287,7 +279,7 @@
     <section id="view-fin-partie" class="view">
         <h2>Fin de partie</h2>
         <div id="fin-partie-resume" class="narrative-box"></div>
-        <button onclick="switchView('view-titre'); initEcranTitre();">Retour a l'ecran titre</button>
+        <button onclick="switchView('view-titre'); initEcranTitre();">Retour à l'écran titre</button>
     </section>
 
     <!-- ============================== -->
