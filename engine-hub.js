@@ -267,6 +267,10 @@ function actionDormir() {
         logMessage("Une nouvelle journee commence. N'oubliez pas votre quete quotidienne.");
     }
 
+    if (player.guildeActuelle && typeof collecterSalaireGuilde === "function") {
+        collecterSalaireGuilde();
+    }
+
     sauvegarderPartie();
     updateUI();
 }
