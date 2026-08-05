@@ -1,6 +1,6 @@
 // ==========================================
 // ENGINE-CORE.JS
-// Etat du joueur, sauvegarde, ecran titre, marqueurs d'evenements rares, fin de partie et Pantheon
+// Etat du joueur, sauvegarde, ecran titre, marqueurs d'événements rares, fin de partie et Pantheon
 // ==========================================
 
 // ------------------------------------------
@@ -10,7 +10,7 @@ const SAVE_KEY = "soloHunterSave";
 const PANTHEON_KEY = "soloHunterPantheon";
 
 // ------------------------------------------
-// 1. ETAT DU JOUEUR (structure par defaut d'une nouvelle partie)
+// 1. ÉTAT DU JOUEUR (structure par defaut d'une nouvelle partie)
 // ------------------------------------------
 function creerNouveauJoueur() {
     return {
@@ -27,6 +27,8 @@ function creerNouveauJoueur() {
         pvMax: 100,
         pm: 50,
         pmMax: 50,
+        bonusPvMax: 0,        // bonus plat accorde par certains evenements (en plus de la formule derivee de la Vitalite)
+        bonusPmMax: 0,        // idem pour le Mana, derive de l'Intelligence
         or: 0,
         pierresEssence: 0,
         fatigue: 0,
@@ -37,6 +39,7 @@ function creerNouveauJoueur() {
         jourActuel: 1,
         donjonsNettoyes: 0,
         queteQuotidienneEffectuee: false,
+        queteAutomatisee: false,
         compteurQuetes: 0,
         stats: { force: 0, agilite: 0, intelligence: 0, perception: 0, vitalite: 0, pointsLibres: 0 },
         affinitesClasse: { guerrier: 0, assassin: 0, mage: 0, tank: 0, ranger: 0 },
@@ -47,11 +50,11 @@ function creerNouveauJoueur() {
         guildeActuelle: null,
         escouade: [],                                  // allies recrutes, utilises en combat de groupe
         guildePersonnelle: { fondee: false, niveau: 0 }, // QG du joueur (money sink end-game)
-        rotationSysteme: { jour: 0, items: [] },         // rotation quotidienne de la Boutique du Systeme
+        rotationSysteme: { jour: 0, items: [] },         // rotation quotidienne de la Boutique du Système
         qgGuildeNiveau: 0,
         voieMonarque: null,
         dissimulateurActif: false,
-        marqueurs: [],       // evenements rares obtenus, pour le score et le Pantheon
+        marqueurs: [],       // événements rares obtenus, pour le score et le Pantheon
         dateDebutPartie: Date.now(),
         enVie: true
     };
@@ -117,7 +120,7 @@ function sauvegarderPartie() {
         localStorage.setItem(SAVE_KEY, JSON.stringify(player));
         return true;
     } catch (erreur) {
-        console.error("[SYSTEME] Echec de sauvegarde :", erreur);
+        console.error("[SYSTÈME] Échec de sauvegarde :", erreur);
         return false;
     }
 }
@@ -129,7 +132,7 @@ function chargerPartie() {
         player = JSON.parse(donnees);
         return true;
     } catch (erreur) {
-        console.error("[SYSTEME] Sauvegarde corrompue :", erreur);
+        console.error("[SYSTÈME] Sauvegarde corrompue :", erreur);
         return false;
     }
 }
@@ -146,21 +149,21 @@ function loadGame() { return chargerPartie(); }
 // 4. MARQUEURS D'EVENEMENTS RARES
 // ------------------------------------------
 const CATALOGUE_MARQUEURS = {
-    joueur_systeme: { libelle: "Eveil du Joueur du Systeme", bonusScore: 1000 },
-    double_eveil: { libelle: "Double Eveil declenche", bonusScore: 800 },
+    joueur_systeme: { libelle: "Éveil du Joueur du Système", bonusScore: 1000 },
+    double_eveil: { libelle: "Double Éveil declenche", bonusScore: 800 },
     portail_rouge_survecu: { libelle: "Portail Rouge survecu", bonusScore: 400 },
     ascension_monarque: { libelle: "Ascension de Monarque", bonusScore: 5000 },
-    guilde_fondee: { libelle: "Guilde personnelle fondee", bonusScore: 500 },
+    guilde_fondee: { libelle: "Guilde personnelle fondée", bonusScore: 500 },
     qg_gratte_ciel: { libelle: "QG de Guilde au niveau Gratte-ciel de Maitre", bonusScore: 2000 },
     boss_s_vaincu: { libelle: "Boss de rang S vaincu", bonusScore: 1500 },
     devenu_renegat: { libelle: "Statut Criminel atteint", bonusScore: 300 },
     zone_penalite_survecue: { libelle: "Zone de Penalite survecue", bonusScore: 100 },
-    retraite_reussie: { libelle: "Retraite volontaire reussie", bonusScore: 1000 }
+    retraite_reussie: { libelle: "Retraite volontaire réussie", bonusScore: 1000 }
 };
 
 function ajouterMarqueur(idMarqueur) {
     if (!CATALOGUE_MARQUEURS[idMarqueur]) {
-        console.warn(`[SYSTEME] Marqueur inconnu : ${idMarqueur}`);
+        console.warn(`[SYSTÈME] Marqueur inconnu : ${idMarqueur}`);
         return;
     }
     if (!player.marqueurs.includes(idMarqueur)) {
@@ -260,7 +263,7 @@ function chargerPantheon() {
     try {
         return JSON.parse(donnees);
     } catch (erreur) {
-        console.error("[SYSTEME] Pantheon corrompu :", erreur);
+        console.error("[SYSTÈME] Pantheon corrompu :", erreur);
         return [];
     }
 }
@@ -270,7 +273,7 @@ function sauvegarderPantheon(pantheon) {
         localStorage.setItem(PANTHEON_KEY, JSON.stringify(pantheon));
         return true;
     } catch (erreur) {
-        console.error("[SYSTEME] Echec de sauvegarde du Pantheon :", erreur);
+        console.error("[SYSTÈME] Échec de sauvegarde du Pantheon :", erreur);
         return false;
     }
 }
@@ -308,6 +311,26 @@ function renderPantheon(pantheon) {
 }
 
 // ------------------------------------------
+// 12. ECRAN DE RESULTAT INTERMEDIAIRE
+// Affiche le texte de resultat d'un choix (evenement civil ou donjon) avant de continuer.
+// Evite l'enchainement brutal signale en playtest.
+// ------------------------------------------
+function afficherEcranResultat(texte, callbackSuivant) {
+    const vueOrigine = document.querySelector(".view.active") ? document.querySelector(".view.active").id : "view-hub";
+    const zoneTexte = document.getElementById("resultat-texte");
+    if (zoneTexte) zoneTexte.textContent = texte;
+
+    switchView("view-resultat");
+
+    const bouton = document.getElementById("resultat-continuer");
+    if (bouton) {
+        bouton.onclick = () => {
+            switchView(vueOrigine);
+            if (callbackSuivant) callbackSuivant();
+        };
+    }
+}
+// ------------------------------------------
 // 7. GESTION DES VUES
 // ------------------------------------------
 function switchView(viewId) {
@@ -326,7 +349,7 @@ function updateUI() {
         champRang.className = `value rang-${(player.rang || "e").toLowerCase()}`;
     }
 
-    setTexteSiExiste("ui-classe", player.voieMonarque ? `Monarque (${player.voieMonarque})` : (player.classe || "Non eveille"));
+    setTexteSiExiste("ui-classe", player.voieMonarque ? `Monarque (${player.voieMonarque})` : (player.classe || "Non éveillé"));
     setTexteSiExiste("ui-niveau", player.niveau);
     setTexteSiExiste("ui-xp", `${player.xp}/${player.xpMax}`);
     setTexteSiExiste("ui-pv", `${player.pv}/${player.pvMax}`);
@@ -356,7 +379,7 @@ function setTexteSiExiste(idElement, valeur) {
 // 9. JOURNAL DE MESSAGES (log simple, complete par engine-combat.js pour le journal de combat)
 // ------------------------------------------
 function logMessage(message) {
-    console.log(`[SYSTEME] ${message}`);
+    console.log(`[SYSTÈME] ${message}`);
     const zoneLog = document.getElementById("log-general");
     if (zoneLog) {
         const ligne = document.createElement("p");
