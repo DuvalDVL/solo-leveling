@@ -45,6 +45,9 @@ function creerNouveauJoueur() {
         equipement: { arme: null, armure: null, accessoire: null },
         competencesDebloquees: [],
         guildeActuelle: null,
+        escouade: [],                                  // allies recrutes, utilises en combat de groupe
+        guildePersonnelle: { fondee: false, niveau: 0 }, // QG du joueur (money sink end-game)
+        rotationSysteme: { jour: 0, items: [] },         // rotation quotidienne de la Boutique du Systeme
         qgGuildeNiveau: 0,
         voieMonarque: null,
         dissimulateurActif: false,
