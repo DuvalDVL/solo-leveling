@@ -89,6 +89,38 @@ function genererNomPortail(theme, rang) {
 // ------------------------------------------
 // 3. ENTREE DANS UN DONJON
 // ------------------------------------------
+let positionSelectionnee = "avant_garde";
+
+function choisirPositionAvantEntree(position) {
+    positionSelectionnee = position;
+    const boutonAvant = document.getElementById("btn-position-avant");
+    const boutonArriere = document.getElementById("btn-position-arriere");
+    if (boutonAvant) boutonAvant.classList.toggle("actif", position === "avant_garde");
+    if (boutonArriere) boutonArriere.classList.toggle("actif", position === "arriere_garde");
+}
+
+function afficherMenuPortails() {
+    switchView("view-portails");
+    const portails = genererPortails();
+    const conteneur = document.getElementById("portails-liste");
+    if (!conteneur) return;
+    conteneur.innerHTML = "";
+
+    portails.forEach(portail => {
+        const bloc = document.createElement("div");
+        bloc.className = `portail-carte${portail.rouge ? " portail-rouge" : ""}`;
+        bloc.innerHTML = `
+            <h4>${portail.nom}</h4>
+            <p>${portail.special === "double_donjon" ? "Une anomalie instable et inconnue." : `Environnement : ${portail.theme}`}</p>
+        `;
+        const bouton = document.createElement("button");
+        bouton.textContent = portail.special === "double_donjon" ? "Entrer (danger inconnu)" : "Entrer dans le portail";
+        bouton.onclick = () => demarrerDonjon(portail, positionSelectionnee);
+        bloc.appendChild(bouton);
+        conteneur.appendChild(bloc);
+    });
+}
+
 function demarrerDonjon(portail, positionChoisie) {
     if (portail.special === "double_donjon") {
         demarrerDoubleDonjon();
