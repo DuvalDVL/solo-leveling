@@ -13,8 +13,8 @@ const donjonEvenementsData = [
         rangMin: "E", theme: "tous", type: "interaction",
         choix: [{
             texte: "Analyser (Jet de Perception)", typeAction: "jet_perception",
-            succes_critique: { texte: "Vous desamorcez le piege et recuperez des pieces mecaniques de valeur.", item_gagne: "cristal_mana_e", xp: 20 },
-            succes: { texte: "Vous evitez habilement les dalles.", xp: 10, fatigue: 5 },
+            succes_critique: { texte: "Vous desamorcez le piege et récupérez des pieces mecaniques de valeur.", item_gagne: "cristal_mana_e", xp: 20 },
+            succes: { texte: "Vous évitez habilement les dalles.", xp: 10, fatigue: 5 },
             echec: { texte: "Vous declenchez des lames cachees.", pv: -20, statut: "saignement" },
             echec_critique: { texte: "Vous trebuchez en plein milieu du piege.", pv: -40, statut: "etourdissement" }
         }]
@@ -26,7 +26,7 @@ const donjonEvenementsData = [
         choix: [
             { texte: "Offrir de son sang (-30 PV)", effet: { pv: -30, item_gagne: "pierre_essence", msg: "L'autel brille d'une lueur rouge, vous recompensant." } },
             { texte: "Profaner l'autel", typeAction: "combat", monstre_id: "assassin_ombre" },
-            { texte: "Ignorer l'autel", effet: { msg: "Vous preferez ne pas tenter le diable." } }
+            { texte: "Ignorer l'autel", effet: { msg: "Vous préférez ne pas tenter le diable." } }
         ]
     },
     {
@@ -44,7 +44,7 @@ const donjonEvenementsData = [
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Boire l'eau magique", effet: { pv: 50, pm: 30, msg: "Une vague de fraicheur revigorante parcourt votre corps." } },
-            { texte: "Remplir une fiole vide", effet: { item_gagne: "potion_soin_e", msg: "Vous stockez de l'eau aux proprietes curatives." } }
+            { texte: "Remplir une fiole vide", effet: { item_gagne: "potion_soin_e", msg: "Vous stockez de l'eau aux propriétés curatives." } }
         ]
     },
     {
@@ -79,13 +79,13 @@ const donjonEvenementsData = [
         texte: "Une nappe de brume violette et epaisse envahit le couloir.",
         rangMin: "C", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Retenir sa respiration et foncer", effet: { pv: -15, fatigue: 10, msg: "Vous traversez au prix d'un essoufflement severe." } },
+            { texte: "Retenir sa respiration et foncer", effet: { pv: -15, fatigue: 10, msg: "Vous traversez au prix d'un essoufflement sévère." } },
             { texte: "Utiliser un morceau de tissu imbibe", effet: { msg: "Vous filtrez la fumee toxique sans encombre." } }
         ]
     },
     {
         id: "d_09_runes_piegees",
-        texte: "Le sol est grave de symboles magiques lumineux qui pulsent d'energie instable.",
+        texte: "Le sol est grave de symboles magiques lumineux qui pulsent d'énergie instable.",
         rangMin: "B", theme: "temple", type: "interaction",
         choix: [
             { texte: "Desactiver les runes (Intelligence min: 12)", condition: { stat: "intelligence", min: 12 }, effet: { xp: 50, item_gagne: "cristal_mana_d", msg: "Vous comprenez la logique arcanique et desamorcez le glyphe." } },
@@ -97,8 +97,8 @@ const donjonEvenementsData = [
         texte: "Une large crevasse coupe le chemin en deux. Le fond est invisible.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
-            { texte: "Sauter par-dessus (Agilite min: 10)", condition: { stat: "agilite", min: 10 }, effet: { msg: "Grand saut reussi avec succes." } },
-            { texte: "Chercher un contournement plus long", effet: { fatigue: 20, msg: "Vous perdez du temps et de l'energie, mais passez en securite." } }
+            { texte: "Sauter par-dessus (Agilite min: 10)", condition: { stat: "agilite", min: 10 }, effet: { msg: "Grand saut réussi avec succès." } },
+            { texte: "Chercher un contournement plus long", effet: { fatigue: 20, msg: "Vous perdez du temps et de l'énergie, mais passez en sécurité." } }
         ]
     },
     {
@@ -115,13 +115,13 @@ const donjonEvenementsData = [
         texte: "Une colonie de champignons geants diffuse une lumiere bleue apaisante.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
-            { texte: "Manger un specimen", effet: { pm: 40, pv: 10, msg: "Une energie etrange mais benefique envahit votre esprit." } },
+            { texte: "Manger un specimen", effet: { pm: 40, pv: 10, msg: "Une énergie etrange mais bénéfique envahit votre esprit." } },
             { texte: "Recolter pour la revente", effet: { or: 45, msg: "Les alchimistes les achetent a bon prix." } }
         ]
     },
     {
         id: "d_13_chenil_gobelin",
-        texte: "Vous tombez sur une cage abandonnee ou des betes feroces etaient enfermees.",
+        texte: "Vous tombez sur une cage abandonnée ou des betes feroces etaient enfermees.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Fouiller les cages", effet: { item_gagne: "cristal_mana_e", msg: "Des restes de butin oublies par les gardiens." } },
@@ -133,7 +133,7 @@ const donjonEvenementsData = [
         texte: "Des lames tranchantes en forme de balancier geant traversent le couloir en rythme.",
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Calculer le timing parfait (Perception min: 8)", condition: { stat: "perception", min: 8 }, effet: { xp: 30, msg: "Vous passez au millimetre pres." } },
+            { texte: "Calculer le timing parfait (Perception min: 8)", condition: { stat: "perception", min: 8 }, effet: { xp: 30, msg: "Vous passez au millimetre près." } },
             { texte: "Courir au hasard", effet: { pv: -35, msg: "Vous prenez une lame de plein fouet." } }
         ]
     },
@@ -142,7 +142,7 @@ const donjonEvenementsData = [
         texte: "Un vieux puits au milieu d'une salle ronde semble reagir au son de votre voix.",
         rangMin: "C", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Jeter 50 Or dans le puits", effet: { or: -50, stats_all: 1, msg: "Le puits brille. Vous sentez une amelioration globale de vos capacites." } },
+            { texte: "Jeter 50 Or dans le puits", effet: { or: -50, stats_all: 1, msg: "Le puits brille. Vous sentez une amélioration globale de vos capacités." } },
             { texte: "Ignorer cette superstition", effet: { msg: "De l'argent jete par les fenetres." } }
         ]
     },
@@ -151,7 +151,7 @@ const donjonEvenementsData = [
         texte: "Un enorme cristal brut emet des vibrations et menace d'exploser.",
         rangMin: "D", theme: "grotte", type: "interaction",
         choix: [
-            { texte: "Le stabiliser avec soin", effet: { item_gagne: "cristal_mana_d", xp: 25, msg: "Vous recuperez un cristal de qualite superieure." } },
+            { texte: "Le stabiliser avec soin", effet: { item_gagne: "cristal_mana_d", xp: 25, msg: "Vous récupérez un cristal de qualité supérieure." } },
             { texte: "Le frapper pour le briser", effet: { pv: -20, or: 60, msg: "Il explose en morceaux, vous ecorchant au passage." } }
         ]
     },
@@ -160,13 +160,13 @@ const donjonEvenementsData = [
         texte: "Une fresque murale ancienne depeint une guerre oubliee entre les hommes et les monstres.",
         rangMin: "E", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Etudier les techniques de combat gravees", effet: { force: 1, xp: 15, msg: "Votre style d'attaque gagne en precision." } },
+            { texte: "Etudier les techniques de combat gravees", effet: { force: 1, xp: 15, msg: "Votre style d'attaque gagne en précision." } },
             { texte: "Ignorer la fresque", effet: { msg: "Perte de temps." } }
         ]
     },
     {
         id: "d_18_marmite_alchimique",
-        texte: "Une vieille marmite abandonnee bout encore mysterieusement dans un coin.",
+        texte: "Une vieille marmite abandonnée bout encore mysterieusement dans un coin.",
         rangMin: "C", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Gouter le breuvage", effet: { pv: -40, pm: 50, msg: "C'etait un poison violent mais dynamisant pour le mana." } },
@@ -178,7 +178,7 @@ const donjonEvenementsData = [
         texte: "Des planches vermoulues cedent sous vos pieds au-dessus d'une fosse remplie de piques.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
-            { texte: "Se raccrocher in extremis au bord (Agilite min: 7)", condition: { stat: "agilite", min: 7 }, effet: { msg: "Vous vous retablissez de justesse." } },
+            { texte: "Se raccrocher in extremis au bord (Agilite min: 7)", condition: { stat: "agilite", min: 7 }, effet: { msg: "Vous vous rétablissez de justesse." } },
             { texte: "Tomber dans la fosse", effet: { pv: -45, statut: "saignement", msg: "Les piques vous lacerent la jambe." } }
         ]
     },
@@ -187,7 +187,7 @@ const donjonEvenementsData = [
         texte: "Un coffre richement orne scintille dans une alcove sombre.",
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Ouvrir prudemment", effet: { or: 200, msg: "Cette fois, c'etait un vrai tresor." } },
+            { texte: "Ouvrir prudemment", effet: { or: 200, msg: "Cette fois, c'etait un vrai trésor." } },
             { texte: "Attaquer preventivement", typeAction: "combat", monstre_id: "limon_acide" }
         ]
     },
@@ -215,7 +215,7 @@ const donjonEvenementsData = [
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Retenir sa respiration (Vitalite min: 10)", condition: { stat: "vitalite", min: 10 }, effet: { msg: "Vous traversez la zone avant de respirer le gaz." } },
-            { texte: "Respirer et s'endormir brievement", effet: { pv: -10, fatigue: 30, msg: "Vous vous reveillez fatigue, le sac un peu plus leger." } }
+            { texte: "Respirer et s'endormir brievement", effet: { pv: -10, fatigue: 30, msg: "Vous vous réveillez fatigue, le sac un peu plus léger." } }
         ]
     },
     {
@@ -224,7 +224,7 @@ const donjonEvenementsData = [
         rangMin: "C", theme: "tous", type: "interaction",
         choix: [
             { texte: "L'achever pour abreger ses souffrances", effet: { karma: -5, or: 70, msg: "Un acte froid mais lucratif." } },
-            { texte: "L'ignorer et le laisser a son sort", effet: { karma: -1, msg: "Vous l'evitez soigneusement." } }
+            { texte: "L'ignorer et le laisser a son sort", effet: { karma: -1, msg: "Vous l'évitez soigneusement." } }
         ]
     },
     {
@@ -238,11 +238,11 @@ const donjonEvenementsData = [
     },
     {
         id: "d_26_salle_tresor_gardee",
-        texte: "Une petite salle contient un coffre ouvert rempli d'or, mais une creature veille a l'entree.",
+        texte: "Une petite salle contient un coffre ouvert rempli d'or, mais une creature veille a l'entrée.",
         rangMin: "C", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Affronter le gardien", typeAction: "combat", monstre_id: "assassin_ombre" },
-            { texte: "Tenter le vol a la tire (Agilite min: 14)", condition: { stat: "agilite", min: 14 }, effet: { or: 300, msg: "Vol a la tire reussi. Vous repartez avec le magot." } }
+            { texte: "Tenter le vol a la tire (Agilite min: 14)", condition: { stat: "agilite", min: 14 }, effet: { or: 300, msg: "Vol a la tire réussi. Vous repartez avec le magot." } }
         ]
     },
     {
@@ -250,13 +250,13 @@ const donjonEvenementsData = [
         texte: "Des bruits de pas resonnent dans votre dos, comme si quelqu'un ou quelque chose vous traquait.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
-            { texte: "Accelerer le rythme", effet: { fatigue: 15, msg: "Vous distancez l'eventuel poursuivant au prix d'un effort intense." } },
+            { texte: "Accelerer le rythme", effet: { fatigue: 15, msg: "Vous distancez l'éventuel poursuivant au prix d'un effort intense." } },
             { texte: "Tendre une embuscade", effet: { perception: 1, xp: 15, msg: "Vous attendez, mais c'etait le simple echo de vos propres pas." } }
         ]
     },
     {
         id: "d_28_murailles_sueurs",
-        texte: "La temperature monte brusquement de plusieurs dizaines de degres dans ce secteur.",
+        texte: "La température monte brusquement de plusieurs dizaines de degrés dans ce secteur.",
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Boire de l'eau et avancer", effet: { pv: -10, msg: "La chaleur deshydrate rapidement votre corps." } },
@@ -265,20 +265,20 @@ const donjonEvenementsData = [
     },
     {
         id: "d_29_pierre_gravee_runes",
-        texte: "Une stele couverte d'inscriptions anciennes emet une faible lueur protectrice.",
+        texte: "Une stèle couverte d'inscriptions anciennes emet une faible lueur protectrice.",
         rangMin: "C", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Mediter devant la stele", effet: { pm: 50, intelligence: 1, msg: "Votre esprit absorbe la resonance magique de la pierre." } },
-            { texte: "Briser la stele pour recuperer les materiaux", effet: { or: 100, karma: -3, msg: "Vous detruisez un artefact historique pour de l'argent." } }
+            { texte: "Mediter devant la stèle", effet: { pm: 50, intelligence: 1, msg: "Votre esprit absorbe la résonance magique de la pierre." } },
+            { texte: "Briser la stèle pour récupérer les materiaux", effet: { or: 100, karma: -3, msg: "Vous detruisez un artefact historique pour de l'argent." } }
         ]
     },
     {
         id: "d_30_marais_acide_souterrain",
-        texte: "Le sol cede la place a une etendue de boue bouillonnante et corrosive.",
+        texte: "Le sol cede la place a une étendue de boue bouillonnante et corrosive.",
         rangMin: "D", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Traverser en courant (Agilite min: 9)", condition: { stat: "agilite", min: 9 }, effet: { msg: "Vous traversez avant que la boue ne ronge vos bottes." } },
-            { texte: "Subir la corrosion", effet: { pv: -25, or: -30, msg: "Votre equipement et vos jambes subissent l'acide." } }
+            { texte: "Subir la corrosion", effet: { pv: -25, or: -30, msg: "Votre équipement et vos jambes subissent l'acide." } }
         ]
     },
     {
@@ -292,7 +292,7 @@ const donjonEvenementsData = [
     },
     {
         id: "d_32_souffle_ombre",
-        texte: "Une bourrasque de vent tenebreux eteint toutes vos sources de lumiere instantanement.",
+        texte: "Une bourrasque de vent ténébreux eteint toutes vos sources de lumiere instantanement.",
         rangMin: "C", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Avancer a tatons dans le noir (Perception min: 10)", condition: { stat: "perception", min: 10 }, effet: { xp: 20, msg: "Vos sens aiguises vous guident sans encombre." } },
@@ -304,13 +304,13 @@ const donjonEvenementsData = [
         texte: "Un reliquaire en verre etincelant git brise sur le sol, son contenu eparpille.",
         rangMin: "D", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Ramasser les eclats magiques", effet: { item_gagne: "cristal_mana_d", msg: "Les fragments gardent une forte concentration de mana." } },
+            { texte: "Ramasser les éclats magiques", effet: { item_gagne: "cristal_mana_d", msg: "Les fragments gardent une forte concentration de mana." } },
             { texte: "Ne rien toucher", effet: { msg: "La prudence est de mise." } }
         ]
     },
     {
         id: "d_34_fosse_aux_goulues",
-        texte: "Des bruits de mastication et de grognements etouffes proviennent des tenebres en contrebas.",
+        texte: "Des bruits de mastication et de grognements etouffes proviennent des ténèbres en contrebas.",
         rangMin: "C", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Lancer une pierre pour faire diversion", effet: { fatigue: 5, msg: "Vous passez discretement pendant que la creature est distraite." } },
@@ -323,7 +323,7 @@ const donjonEvenementsData = [
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Garder un silence de mort", effet: { msg: "Vous traversez la zone sans alerter l'environnement." } },
-            { texte: "Crier de rage", effet: { pm: -15, force: 1, msg: "L'onde de choc resonne en vous et stimule votre adrenaline." } }
+            { texte: "Crier de rage", effet: { pm: -15, force: 1, msg: "L'onde de choc résonne en vous et stimule votre adrenaline." } }
         ]
     },
     {
@@ -340,7 +340,7 @@ const donjonEvenementsData = [
         texte: "L'eau de ce bassin reflete des decors qui ne correspondent pas du tout au donjon actuel.",
         rangMin: "B", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Plonger le regard au fond (Intelligence min: 14)", condition: { stat: "intelligence", min: 14 }, effet: { intelligence: 2, pmMax: 20, msg: "Vous percevez la veritable matrice du donjon." } },
+            { texte: "Plonger le regard au fond (Intelligence min: 14)", condition: { stat: "intelligence", min: 14 }, effet: { intelligence: 2, pmMax: 20, msg: "Vous percevez la véritable matrice du donjon." } },
             { texte: "Detourner les yeux", effet: { msg: "Ces illusions malefiques risquent de vous rendre fou." } }
         ]
     },
@@ -349,8 +349,8 @@ const donjonEvenementsData = [
         texte: "Les restes d'un ancien golem mecanique parsement le sol de metal rouille.",
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Recuperer les composants", effet: { item_gagne: "cristal_mana_d", msg: "Vous extrayez un noyau encore actif." } },
-            { texte: "Ignorer les ferrailles", effet: { msg: "Aucun interet pratique." } }
+            { texte: "Récupérer les composants", effet: { item_gagne: "cristal_mana_d", msg: "Vous extrayez un noyau encore actif." } },
+            { texte: "Ignorer les ferrailles", effet: { msg: "Aucun intérêt pratique." } }
         ]
     },
     {
@@ -367,7 +367,7 @@ const donjonEvenementsData = [
         texte: "Une barriere lumineuse transparente bloque l'acces a un couloir annexe.",
         rangMin: "E", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Canaliser son energie pour la percer", effet: { pm: -10, item_gagne: "cristal_mana_e", msg: "La barriere cede et libere un depot d'energie." } },
+            { texte: "Canaliser son énergie pour la percer", effet: { pm: -10, item_gagne: "cristal_mana_e", msg: "La barriere cede et libère un depot d'énergie." } },
             { texte: "Faire demi-tour", effet: { msg: "Vous abandonnez l'acces." } }
         ]
     },
@@ -385,7 +385,7 @@ const donjonEvenementsData = [
         texte: "Un entrepot souterrain rempli de jarres d'aromates et de poudres alchimiques anciennes.",
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Recuperer ce qui est vendable", effet: { or: 90, msg: "Les marchands du marche noir en raffolent." } },
+            { texte: "Récupérer ce qui est vendable", effet: { or: 90, msg: "Les marchands du marche noir en raffolent." } },
             { texte: "Gouter une poudre inconnue", effet: { pv: -15, pm: 30, msg: "Un stimulant puissant mais agressif pour l'estomac." } }
         ]
     },
@@ -400,11 +400,11 @@ const donjonEvenementsData = [
     },
     {
         id: "d_44_tas_d_os_suspect",
-        texte: "Un immense tas d'ossements humains et animaux s'eleve au centre de la piece.",
+        texte: "Un immense tas d'ossements humains et animaux s'élevé au centre de la piece.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Fouiller le tas", typeAction: "combat", monstre_id: "limon_acide" },
-            { texte: "Contourner prudemment", effet: { msg: "Vous evitez un piege ou un reveil macabre." } }
+            { texte: "Contourner prudemment", effet: { msg: "Vous évitez un piege ou un réveil macabre." } }
         ]
     },
     {
@@ -413,7 +413,7 @@ const donjonEvenementsData = [
         rangMin: "B", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Purifier la source avec du Mana (-40 PM)", condition: { stat: "intelligence", min: 12 }, effet: { pm: -40, karma: 10, xp: 60, msg: "Vous neutralisez la source corrompue du donjon." } },
-            { texte: "Ignorer et fuir l'odeur", effet: { msg: "Une abomination pareille ne presage rien de bon." } }
+            { texte: "Ignorer et fuir l'odeur", effet: { msg: "Une abomination pareille ne présage rien de bon." } }
         ]
     },
     {
@@ -421,7 +421,7 @@ const donjonEvenementsData = [
         texte: "Un coffre de fer scelle par de lourdes chaines magiques repose sur un piedestal.",
         rangMin: "A", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Briser les chaines (Force min: 18)", condition: { stat: "force", min: 18 }, effet: { item_gagne: "pierre_essence", or: 500, msg: "Vous obtenez un tresor d'une valeur inestimable." } },
+            { texte: "Briser les chaines (Force min: 18)", condition: { stat: "force", min: 18 }, effet: { item_gagne: "pierre_essence", or: 500, msg: "Vous obtenez un trésor d'une valeur inestimable." } },
             { texte: "Renoncer face a la robustesse du sceau", effet: { msg: "Impossible a ouvrir sans une force surhumaine." } }
         ]
     },
@@ -431,7 +431,7 @@ const donjonEvenementsData = [
         rangMin: "C", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Avancer sereinement", effet: { perception: 1, msg: "Votre vision nocturne s'adapte a l'obscurite." } },
-            { texte: "Allumer une torche de secours", effet: { fatigue: 5, msg: "Vous conservez une visibilite claire." } }
+            { texte: "Allumer une torche de secours", effet: { fatigue: 5, msg: "Vous conservez une visibilité claire." } }
         ]
     },
     {
@@ -454,7 +454,7 @@ const donjonEvenementsData = [
     },
     {
         id: "d_50_salle_des_miroirs",
-        texte: "Une piece entierement tapissee de miroirs anciens qui refletent des versions etranges de vous-meme.",
+        texte: "Une piece entierement tapissee de miroirs anciens qui refletent des versions etranges de vous-même.",
         rangMin: "C", theme: "temple", type: "interaction",
         choix: [
             { texte: "Briser le miroir central", typeAction: "combat", monstre_id: "assassin_ombre" },
@@ -466,7 +466,7 @@ const donjonEvenementsData = [
         texte: "Quelques cailloux degringolent du plafond, annoncant l'instabilite de la zone.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
-            { texte: "S'abriter sous une arche solide", effet: { msg: "Vous evitez les petits debris." } },
+            { texte: "S'abriter sous une arche solide", effet: { msg: "Vous évitez les petits debris." } },
             { texte: "Courir sans regarder", effet: { pv: -10, msg: "Un caillou vous erafle l'epaule." } }
         ]
     },
@@ -475,7 +475,7 @@ const donjonEvenementsData = [
         texte: "Un coffre grand ouvert, apparemment pille, cache un mecanisme de flechettes empoisonnees.",
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Inspecter le fond du coffre (Perception min: 9)", condition: { stat: "perception", min: 9 }, effet: { item_gagne: "cristal_mana_d", xp: 15, msg: "Vous reperez le double fond cache." } },
+            { texte: "Inspecter le fond du coffre (Perception min: 9)", condition: { stat: "perception", min: 9 }, effet: { item_gagne: "cristal_mana_d", xp: 15, msg: "Vous repérez le double fond cache." } },
             { texte: "Mettre la main directement dedans", effet: { pv: -25, statut: "poison", msg: "Une flechette vous lacere la paume." } }
         ]
     },
@@ -484,8 +484,8 @@ const donjonEvenementsData = [
         texte: "Des bruits de lourdes chaines trainees sur le sol se rapprochent dans le noir.",
         rangMin: "C", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Se cacher derriere un pilier", effet: { perception: 1, msg: "Vous observez passer une patrouille sans etre vu." } },
-            { texte: "Preparer son arme", typeAction: "combat", monstre_id: "assassin_ombre" }
+            { texte: "Se cacher derrière un pilier", effet: { perception: 1, msg: "Vous observez passer une patrouille sans être vu." } },
+            { texte: "Préparer son arme", typeAction: "combat", monstre_id: "assassin_ombre" }
         ]
     },
     {
@@ -502,7 +502,7 @@ const donjonEvenementsData = [
         texte: "Des symboles magiques absorbent tous les bruits de pas dans cette zone.",
         rangMin: "C", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Profiter du silence pour souffler", effet: { pm: 40, fatigue: -10, msg: "Le calme absolu ressource votre systeme nerveux." } },
+            { texte: "Profiter du silence pour souffler", effet: { pm: 40, fatigue: -10, msg: "Le calme absolu ressource votre système nerveux." } },
             { texte: "Tenter de perturber les runes", effet: { intelligence: 1, msg: "Vous apprenez comment fonctionne l'absorption magique." } }
         ]
     },
@@ -511,7 +511,7 @@ const donjonEvenementsData = [
         texte: "Une ancienne fresque murale a ete vandalisee et grattee methodiquement.",
         rangMin: "D", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Analyser les traces de grattage (Perception min: 10)", condition: { stat: "perception", min: 10 }, effet: { perception: 1, msg: "Quelqu'un a voulu cacher l'histoire d'un monstre precis." } },
+            { texte: "Analyser les traces de grattage (Perception min: 10)", condition: { stat: "perception", min: 10 }, effet: { perception: 1, msg: "Quelqu'un a voulu cacher l'histoire d'un monstre précis." } },
             { texte: "Passer son chemin", effet: { msg: "Rien d'utile ici." } }
         ]
     },
@@ -526,19 +526,19 @@ const donjonEvenementsData = [
     },
     {
         id: "d_58_fragment_cristal_geant",
-        texte: "Un eclat de cristal monumental est plante profondement dans le sol rocheux.",
+        texte: "Un éclat de cristal monumental est plante profondement dans le sol rocheux.",
         rangMin: "B", theme: "grotte", type: "interaction",
         choix: [
-            { texte: "Extraire le fragment (Force min: 15)", condition: { stat: "force", min: 15 }, effet: { item_gagne: "pierre_essence", xp: 40, msg: "Vous reussissez a detacher un morceau de haute purete." } },
+            { texte: "Extraire le fragment (Force min: 15)", condition: { stat: "force", min: 15 }, effet: { item_gagne: "pierre_essence", xp: 40, msg: "Vous réussissez a detacher un morceau de haute purete." } },
             { texte: "Le frapper en vain", effet: { pv: -15, msg: "Le cristal est trop dur, vous vous blessez les mains." } }
         ]
     },
     {
         id: "d_59_chambre_des_soupirs",
-        texte: "Des murmures inintelligibles semblent provenir des murs eux-memes.",
+        texte: "Des murmures inintelligibles semblent provenir des murs eux-mêmes.",
         rangMin: "C", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Ecouter les voix (Intelligence min: 11)", condition: { stat: "intelligence", min: 11 }, effet: { intelligence: 1, pm: 30, msg: "Les murmures vous revelent l'emplacement d'un piege plus loin." } },
+            { texte: "Ecouter les voix (Intelligence min: 11)", condition: { stat: "intelligence", min: 11 }, effet: { intelligence: 1, pm: 30, msg: "Les murmures vous révèlent l'emplacement d'un piege plus loin." } },
             { texte: "Se boucher les oreilles", effet: { fatigue: 10, msg: "Une irritation mentale desagreable." } }
         ]
     },
@@ -548,7 +548,7 @@ const donjonEvenementsData = [
         rangMin: "D", theme: "donjon", type: "interaction",
         choix: [
             { texte: "Enjamber avec agilite", effet: { msg: "Vous esquivez le declencheur sans encombre." } },
-            { texte: "Le couper pour recuperer le fil d'acier", effet: { item_gagne: "cristal_mana_e", msg: "Un cable magique reutilisable recupere." } }
+            { texte: "Le couper pour récupérer le fil d'acier", effet: { item_gagne: "cristal_mana_e", msg: "Un cable magique reutilisable récupère." } }
         ]
     },
     {
@@ -574,7 +574,7 @@ const donjonEvenementsData = [
         texte: "Un autel grave d'eclairs stylises crepite d'electricite statique.",
         rangMin: "B", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Canaliser l'energie statique", effet: { agilite: 2, pm: 50, msg: "Vos influx nerveux sont survoltes. Votre agilite augmente." } },
+            { texte: "Canaliser l'énergie statique", effet: { agilite: 2, pm: 50, msg: "Vos influx nerveux sont survoltes. Votre agilite augmente." } },
             { texte: "Toucher imprudemment", effet: { pv: -45, statut: "etourdissement", msg: "Une decharge fulgurante vous traverse de part en part." } }
         ]
     },
@@ -583,13 +583,13 @@ const donjonEvenementsData = [
         texte: "Le corps d'un aventurier tout juste abattu git au milieu du chemin.",
         rangMin: "C", theme: "donjon", type: "interaction",
         choix: [
-            { texte: "Fouiller rapidement le corps", effet: { or: 150, item_gagne: "potion_soin_d", karma: -2, msg: "Vous empochez son butin avant l'arrivee du monstre l'ayant tue." } },
+            { texte: "Fouiller rapidement le corps", effet: { or: 150, item_gagne: "potion_soin_d", karma: -2, msg: "Vous empochez son butin avant l'arrivée du monstre l'ayant tue." } },
             { texte: "Prendre la fuite de peur", effet: { msg: "Le danger est manifestement tout proche." } }
         ]
     },
     {
         id: "d_65_fissure_lumiere_solaire",
-        texte: "Une minuscule faille dans la roche laisse filtrer un authentique rayon de soleil exterieur.",
+        texte: "Une minuscule faille dans la roche laisse filtrer un authentique rayon de soleil extérieur.",
         rangMin: "E", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Regarder un instant la lumiere", effet: { fatigue: -15, pv: 15, msg: "Un rappel bienvenu du monde de la surface qui vous redonne du courage." } },
@@ -601,13 +601,13 @@ const donjonEvenementsData = [
         texte: "Un panneau mural comportant des glyphes rotatifs s'offre a votre curiosite.",
         rangMin: "D", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Resoudre l'enigme (Intelligence min: 10)", condition: { stat: "intelligence", min: 10 }, effet: { or: 120, xp: 30, msg: "Un compartiment secret s'ouvre, revelant des pieces." } },
+            { texte: "Résoudre l'enigme (Intelligence min: 10)", condition: { stat: "intelligence", min: 10 }, effet: { or: 120, xp: 30, msg: "Un compartiment secret s'ouvre, revelant des pieces." } },
             { texte: "Tourner les symboles au hasard", effet: { pv: -15, msg: "Le mecanisme declenche un petit piege a aiguilles." } }
         ]
     },
     {
         id: "d_67_chambre_froide",
-        texte: "La temperature chute brutalement sous zero. Le givre tapisse le sol et les murs.",
+        texte: "La température chute brutalement sous zero. Le givre tapisse le sol et les murs.",
         rangMin: "C", theme: "grotte", type: "interaction",
         choix: [
             { texte: "Activer sa circulation de Mana pour se rechauffer (-15 PM)", effet: { pm: -15, msg: "Votre chaleur interne repousse le givre." } },
@@ -616,11 +616,11 @@ const donjonEvenementsData = [
     },
     {
         id: "d_68_monolithe_brise",
-        texte: "Les fragments d'un monolithe magique jonchent le sol, degageant une faible resonance.",
+        texte: "Les fragments d'un monolithe magique jonchent le sol, degageant une faible résonance.",
         rangMin: "B", theme: "temple", type: "interaction",
         choix: [
-            { texte: "Absorber les fragments brises", effet: { pmMax: 25, item_gagne: "cristal_mana_d", msg: "Votre capacite maximale de Mana s'accroit." } },
-            { texte: "Laisser les pierres inertes", effet: { msg: "Vous preferez ne pas perturber les energies residuelles." } }
+            { texte: "Absorber les fragments brises", effet: { pmMax: 25, item_gagne: "cristal_mana_d", msg: "Votre capacité maximale de Mana s'accroit." } },
+            { texte: "Laisser les pierres inertes", effet: { msg: "Vous préférez ne pas perturber les energies residuelles." } }
         ]
     },
     {
@@ -634,7 +634,7 @@ const donjonEvenementsData = [
     },
     {
         id: "d_70_seuil_du_boss",
-        texte: "Une immense porte massive gravee de cranes et de symboles runiques barre le fond du couloir. C'est l'ultime epreuve.",
+        texte: "Une immense porte massive gravee de cranes et de symboles runiques barre le fond du couloir. C'est l'ultime épreuve.",
         rangMin: "E", theme: "tous", type: "interaction",
         choix: [
             { texte: "Franchir les portes et affronter le Boss", typeAction: "combat", monstre_id: "chef_gobelin" }
