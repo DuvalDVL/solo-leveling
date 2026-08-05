@@ -33,6 +33,10 @@ function calculerStockAssociation() {
 }
 
 function ouvrirBoutiqueAssociation() {
+    if (player.statutCriminel) {
+        logMessage("Statut Criminel : l'acces a la Boutique de l'Association vous est refuse. Le Marche Noir reste ouvert.");
+        return;
+    }
     switchView("view-boutique-association");
     renderBoutique("association-liste", calculerStockAssociation(), "or");
 }
@@ -108,6 +112,7 @@ function fonderGuildePersonnelle() {
 
     player.or -= qgGuildeJoueurData.permis.cout;
     player.guildePersonnelle = { fondee: true, niveau: 1 };
+    if (typeof declencherJalonArc === "function") declencherJalonArc("guilde_fondee");
     ajouterMarqueur("guilde_fondee");
     logMessage("Votre guilde est officiellement enregistree aupres de l'Association.");
     sauvegarderPartie();
