@@ -164,14 +164,14 @@ function obtenirStatsArmeEquipee() {
 function appliquerDegatsAuMonstre(degats, critique) {
     etatCombat.monstre.stats.pv -= degats;
     logCombat(
-        critique ? `Coup critique ! Vous infligez ${degats} degats.` : `Vous infligez ${degats} degats.`,
+        critique ? `Coup critique ! Vous infligez ${degats} dégâts.` : `Vous infligez ${degats} dégâts.`,
         critique ? "critique" : "degats"
     );
 }
 
 function resoudreDefense() {
     appliquerStatut(etatCombat.statutsJoueur, "defense", 1);
-    logCombat("Vous vous mettez en garde, reduisant les degats du prochain tour.", "info");
+    logCombat("Vous vous mettez en garde, reduisant les dégâts du prochain tour.", "info");
     finTourJoueur();
 }
 
@@ -183,7 +183,7 @@ function resoudreAnalyse() {
     const jet = Math.random() * 20 + player.stats.perception;
 
     if (jet > 30) {
-        logCombat("Vous reperez une faille structurelle. Le decor s'effondre sur le monstre !", "critique");
+        logCombat("Vous repérez une faille structurelle. Le decor s'effondre sur le monstre !", "critique");
         etatCombat.monstre.stats.pv = 0;
         player.xp += 50;
         player.stats.perception += 1;
@@ -225,14 +225,14 @@ function resoudreCompetenceApprise(pierre) {
         const degats = Math.floor(player.stats.force * 3);
         etatCombat.monstre.stats.pv -= degats;
         etatCombat.monstre.stats.defense = Math.max(0, etatCombat.monstre.stats.defense - 10);
-        logCombat(`Coup Lourd ! ${degats} degats et armure de l'ennemi endommagee.`, "critique");
+        logCombat(`Coup Lourd ! ${degats} dégâts et armure de l'ennemi endommagee.`, "critique");
     } else if (id === "soin_groupe") {
         player.pm -= pierre.competence.cout.pm || 40;
         player.pv = Math.min(player.pvMax, player.pv + Math.floor(player.pvMax * 0.3));
         etatCombat.allies.forEach(allie => { allie.pv = Math.min(allie.pvMax, allie.pv + Math.floor(allie.pvMax * 0.3)); });
         logCombat("Une vague de soin restaure votre groupe.", "soin");
     } else if (id === "extraction_ombre") {
-        logCombat("Reservee a l'Ascension du Monarque des Ombres, non disponible avant l'Endgame.", "info");
+        logCombat("Réservée a l'Ascension du Monarque des Ombres, non disponible avant l'Endgame.", "info");
         return;
     }
 
@@ -267,8 +267,8 @@ function donnerOrdreTactique(type) {
     }
     etatCombat.ordreTactique = type;
     logCombat(type === "defense_absolue"
-        ? "Ordre donne : Defense Absolue. Vos allies encaissent, degats de zone reduits."
-        : "Ordre donne : Assaut Suicidaire. Vos allies doublent leurs degats mais perdent toute esquive.", "info");
+        ? "Ordre donne : Défense Absolue. Vos allies encaissent, dégâts de zone reduits."
+        : "Ordre donne : Assaut Suicidaire. Vos allies doublent leurs dégâts mais perdent toute esquive.", "info");
 }
 
 // ------------------------------------------
@@ -284,7 +284,7 @@ function resoudrePhaseAllies() {
 
     if (degatsTotal > 0) {
         etatCombat.monstre.stats.pv -= degatsTotal;
-        logCombat(`Votre escouade lance un assaut coordonne et inflige ${degatsTotal} degats.`, "degats");
+        logCombat(`Votre escouade lance un assaut coordonne et inflige ${degatsTotal} dégâts.`, "degats");
     }
 }
 
@@ -330,7 +330,7 @@ function resoudreRiposteEnnemie() {
 
     if (etatCombat.position === "arriere_garde" && etatCombat.allies.some(a => a.vivant)) {
         degats = Math.floor(degats * 0.2);
-        logCombat("Vos allies en premiere ligne absorbent l'essentiel du choc.", "info");
+        logCombat("Vos allies en première ligne absorbent l'essentiel du choc.", "info");
     } else if (etatCombat.position === "avant_garde") {
         degats = Math.floor(degats * (etatCombat.allies.some(a => a.vivant) ? 0.8 : 1));
     }
@@ -338,7 +338,7 @@ function resoudreRiposteEnnemie() {
     if (statutPresent(etatCombat.statutsJoueur, "defense")) degats = Math.floor(degats * 0.5);
 
     player.pv = Math.max(0, player.pv - degats);
-    logCombat(`${etatCombat.monstre.nom} contre-attaque et inflige ${degats} degats.`, "degats");
+    logCombat(`${etatCombat.monstre.nom} contre-attaque et inflige ${degats} dégâts.`, "degats");
 
     // Statut applique par le monstre si defini
     if (etatCombat.monstre.statutInflige && Math.random() < etatCombat.monstre.statutInflige.chance) {
@@ -372,12 +372,12 @@ function appliquerStatutsDeDegats(liste, cible, nomAffiche) {
         if (statut.type === "brulure" || statut.type === "poison" || statut.type === "saignement" || statut.type === "saignement_mortel") {
             const degatsStatut = statut.type === "saignement_mortel" ? 40 : 15;
             cible.stats ? (cible.stats.pv -= degatsStatut) : (cible.pv = Math.max(0, cible.pv - degatsStatut));
-            logCombat(`${nomAffiche} subit ${degatsStatut} degats de ${statut.type}.`, "statut");
+            logCombat(`${nomAffiche} subit ${degatsStatut} dégâts de ${statut.type}.`, "statut");
         }
         if (statut.type === "confusion" && Math.random() < 0.5) {
             const autoDegats = Math.floor((cible.stats ? cible.stats.attaque : 20) * 0.5);
             cible.stats ? (cible.stats.pv -= autoDegats) : (cible.pv = Math.max(0, cible.pv - autoDegats));
-            logCombat(`${nomAffiche}, confus, s'attaque soi-meme pour ${autoDegats} degats.`, "statut");
+            logCombat(`${nomAffiche}, confus, s'attaque soi-même pour ${autoDegats} dégâts.`, "statut");
         }
     });
 }
@@ -413,7 +413,7 @@ function gererMortPotentielle() {
 }
 
 function declencherDoubleEveil() {
-    logCombat("ANOMALIE DETECTEE : Double Eveil en cours...", "critique");
+    logCombat("ANOMALIE DETECTEE : Double Éveil en cours...", "critique");
 
     player.pv = player.pvMax;
     player.pm = player.pmMax;
@@ -529,5 +529,5 @@ function choisirPositionnement(position) {
     etatCombat.position = position;
     logCombat(position === "avant_garde"
         ? "Vous prenez la ligne de front."
-        : "Vous restez en retrait, protege par vos allies.", "info");
+        : "Vous restez en retrait, protège par vos allies.", "info");
 }
