@@ -76,7 +76,7 @@ function collecterSalaireGuilde() {
 
     const salaireNet = Math.floor(guilde.salaireBase * (1 - guilde.commission));
     player.or += salaireNet;
-    logMessage(`Votre guilde vous verse ${salaireNet} Or (commission de ${Math.round(guilde.commission * 100)} pourcent deja retenue).`);
+    logMessage(`Votre guilde vous verse ${salaireNet} Or (commission de ${Math.round(guilde.commission * 100)} pourcent déjà retenue).`);
 }
 
 function recruterAllie(nom, puissance, pvMax) {
@@ -94,7 +94,7 @@ function recruterAllie(nom, puissance, pvMax) {
 // ------------------------------------------
 function fonderGuildePersonnelle() {
     if (player.guildePersonnelle.fondee) {
-        logMessage("Votre guilde existe deja.");
+        logMessage("Votre guilde existe déjà.");
         return;
     }
     if (ORDRE_RANGS.indexOf(player.rang) < ORDRE_RANGS.indexOf(qgGuildeJoueurData.permis.rangRequis)) {
@@ -122,7 +122,7 @@ function ameliorerQGGuildePersonnelle() {
     const niveauActuel = player.guildePersonnelle.niveau;
     const prochainPalier = qgGuildeJoueurData.paliers.find(p => p.niveau === niveauActuel + 1);
     if (!prochainPalier) {
-        logMessage("Votre QG est deja au niveau maximum.");
+        logMessage("Votre QG est déjà au niveau maximum.");
         return;
     }
     if (player.or < prochainPalier.cout) {
@@ -182,7 +182,7 @@ function calculerRotationSysteme() {
 
 function ouvrirBoutiqueSysteme() {
     if (!player.eveilSysteme) {
-        logMessage("Seul le Joueur du Systeme peut acceder a cette boutique.");
+        logMessage("Seul le Joueur du Système peut accéder a cette boutique.");
         return;
     }
 
