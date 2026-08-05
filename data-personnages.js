@@ -21,9 +21,9 @@ const personnagesData = [
         titre: "Chef de la Division de Surveillance",
         conditionApparition: { type: "gain_niveau_massif", declencheur: "rng_apres_montee_niveau" },
         contexte: "hub",
-        description: "L'Inspecteur par excellence. Exige un scan de puissance : presenter le Dissimulateur de Mana ou subir le test.",
+        description: "L'Inspecteur par excellence. Exige un scan de puissance : présenter le Dissimulateur de Mana ou subir le test.",
         choix: [
-            { texte: "Presenter le Dissimulateur de Mana", condition: { objetRequis: "dissimulateur_mana" }, effet: { msg: "Le controle se passe sans encombre." } },
+            { texte: "Présenter le Dissimulateur de Mana", condition: { objetRequis: "dissimulateur_mana" }, effet: { msg: "Le contrôle se passe sans encombre." } },
             { texte: "Subir le test", effet: { risque: "expose_puissance_reelle", consequence: "convocation_reevaluation_forcee" } }
         ]
     },
@@ -33,7 +33,7 @@ const personnagesData = [
         titre: "Maitre des Chasseurs, l'Arme Ultime",
         conditionApparition: { type: "classe_et_stat", classe: ["mage", "ranger"], statMin: { intelligence: 40 } },
         contexte: "evenement_civil",
-        description: "Evenement de recrutement civil si le joueur est Mage ou Ranger avec une tres haute Intelligence.",
+        description: "Événement de recrutement civil si le joueur est Mage ou Ranger avec une très haute Intelligence.",
         effet: { type: "propose_recrutement_guilde_hunters" }
     },
     {
@@ -42,7 +42,7 @@ const personnagesData = [
         titre: "Maitre du Tigre Blanc",
         conditionApparition: { type: "classe_et_stat_ou_portail_rouge", classe: ["guerrier"], statMin: { force: 40 } },
         contexte: "evenement_civil_ou_portail_rouge",
-        description: "Evenement de recrutement civil (focus Force) ou rencontre de sauvetage dans un Portail Rouge.",
+        description: "Événement de recrutement civil (focus Force) ou rencontre de sauvetage dans un Portail Rouge.",
         effet: { type: "propose_recrutement_guilde_tigre_blanc" }
     },
     {
@@ -51,22 +51,22 @@ const personnagesData = [
         titre: "Vice-Maitre des Chasseurs",
         conditionApparition: { type: "reputation_moyenne", seuil: 300 },
         contexte: "hub",
-        description: "Propose un entrainement exceptionnel. Accepter son defi (combat non-mortel) coute enormement de Fatigue mais octroie un buff d'Agilite permanent en cas de survie.",
+        description: "Propose un entraînement exceptionnel. Accepter son defi (combat non-mortel) coute enormement de Fatigue mais octroie un buff d'Agilite permanent en cas de survie.",
         choix: [
             { texte: "Accepter le defi", effet: { fatigue: 60, risqueEchec: 0.2, recompense: { agilitePermanente: 5 } } },
-            { texte: "Decliner poliment", effet: { msg: "Vous preferez ne pas prendre de risque aujourd'hui." } }
+            { texte: "Decliner poliment", effet: { msg: "Vous préférez ne pas prendre de risque aujourd'hui." } }
         ]
     },
     {
         id: "yoo_jinho",
         nom: "Yoo Jinho",
-        titre: "L'heritier riche",
+        titre: "L'héritier riche",
         conditionApparition: { type: "guilde_joueur_creee", palierMin: 1 },
         contexte: "evenement_civil",
         description: "Propose d'injecter 50 000 Or dans la guilde du joueur en echange du poste de Vice-Maitre et d'escouades gratuites.",
         choix: [
             { texte: "Accepter l'investissement", effet: { or: 50000, allieGratuit: true, posteViceMaitre: "yoo_jinho" } },
-            { texte: "Refuser, garder le controle total", effet: { msg: "Vous preferez batir votre guilde seul." } }
+            { texte: "Refuser, garder le contrôle total", effet: { msg: "Vous préférez bâtir votre guilde seul." } }
         ]
     },
     {
