@@ -513,6 +513,65 @@ header#hud {
 ::-webkit-scrollbar-thumb:hover { background: var(--border-glow-intense); }
 
 /* ==========================================
+   15. CARTES DE GUILDES ET ELEMENTS DU PLAYTEST #1
+   ========================================== */
+.cartes-guildes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.carte-guilde {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glow);
+    padding: 15px;
+    text-align: center;
+}
+
+.logo-guilde-placeholder {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 10px auto;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid var(--border-glow-intense);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--border-glow-intense);
+}
+
+.profil-guilde {
+    font-size: 0.8em;
+    color: var(--text-highlight);
+    font-style: italic;
+    margin-bottom: 8px;
+}
+
+.bouton-statut {
+    width: auto;
+    margin-left: auto;
+    padding: 8px 14px;
+    font-size: 0.8em;
+}
+
+.hud-top {
+    display: flex;
+    align-items: center;
+}
+
+.bouton-inventaire-donjon {
+    width: auto;
+    float: right;
+    font-size: 0.8em;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+}
+
+/* ==========================================
    14. RESPONSIVE MOBILE
    ========================================== */
 @media (max-width: 600px) {
