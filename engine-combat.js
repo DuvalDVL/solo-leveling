@@ -8,6 +8,9 @@
 // ------------------------------------------
 // 1. ETAT DE COMBAT
 // ------------------------------------------
+// Callback optionnel fixe par engine-donjon.js avant demarrerCombat, appele a l'issue du combat (victoire uniquement)
+let combatTermineCallback = null;
+
 let etatCombat = {
     actif: false,
     monstre: null,
@@ -459,7 +462,9 @@ function remporterCombat() {
     sauvegarderPartie();
 
     if (typeof combatTermineCallback === "function") {
-        combatTermineCallback(true);
+        const callback = combatTermineCallback;
+        combatTermineCallback = null;
+        callback(true);
     } else {
         switchView("view-hub");
     }
