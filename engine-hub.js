@@ -81,11 +81,12 @@ function verifierConditionStat(condition) {
 }
 
 function resoudreChoixCivil(indexChoix) {
+    if (!player._pileEvenementsCivils || player._pileEvenementsCivils.length === 0) return;
     const evenement = player._pileEvenementsCivils[0];
     const choix = evenement.choix[indexChoix];
     if (!choix) return;
 
-    appliquerEffetCivil(choix.effet, evenement.id);
+    const texteResultat = appliquerEffetCivil(choix.effet, evenement.id);
 
     // Verification de mort pendant la phase civile (permadeath des la premiere phase)
     if (player.pv <= 0) {
@@ -95,11 +96,14 @@ function resoudreChoixCivil(indexChoix) {
 
     player._pileEvenementsCivils.shift();
     sauvegarderPartie();
-    afficherProchainEvenementCivil();
+
+    afficherEcranResultat(texteResultat || "Vous continuez votre chemin.", () => {
+        afficherProchainEvenementCivil();
+    });
 }
 
 function appliquerEffetCivil(effet, idEvenement) {
-    if (!effet) return;
+    if (!effet) return "";
 
     if (effet.or) player.or += effet.or;
     if (effet.pv) player.pv = Math.max(0, player.pv + effet.pv);
@@ -118,7 +122,8 @@ function appliquerEffetCivil(effet, idEvenement) {
     });
 
     if (effet.item_gagne) ajouterAInventaire(effet.item_gagne, 1);
-    if (effet.msg) logMessage(effet.msg);
+
+    return effet.msg || "";
 }
 
 // Chaque stat gagnee pendant la phase civile alimente l'affinite de la ou des classes qui en dependent
@@ -141,9 +146,9 @@ function finDePartieMortPrecoce() {
     player.rang = null;
     player.classe = "Civil";
     logMessage("Votre existence s'arrete avant meme d'avoir decouvert votre pouvoir.");
-    const resultat = terminerPartie("mort");
+    const résultat = terminerPartie("mort");
     switchView("view-fin-partie");
-    return resultat;
+    return résultat;
 }
 
 // ------------------------------------------
@@ -151,7 +156,7 @@ function finDePartieMortPrecoce() {
 // ------------------------------------------
 const SEQUENCE_EVEIL = [
     "Une douleur fulgurante vous traverse le crane. Le monde vacille.",
-    "Des lignes de texte bleutees apparaissent devant vos yeux, defiant toute logique.",
+    "Une chaleur etrange parcourt tout votre corps, comme si quelque chose venait de se reveiller en vous.",
     "Une recherche fievreuse sur internet vous apprend que vous n'etes pas seul. D'autres ont vecu cela.",
     "Convoque par l'Association des Chasseurs, vous subissez votre premiere evaluation officielle."
 ];
@@ -189,6 +194,11 @@ const ARME_DEPART_PAR_CLASSE = {
     ranger: "arc_chasse"
 };
 
+function capitaliser(mot) {
+    if (!mot) return mot;
+    return mot.charAt(0).toUpperCase() + mot.slice(1);
+}
+
 function finaliserEveil() {
     // Attribution de la classe selon l'affinite la plus haute accumulee en phase civile
     let classeChoisie = "guerrier";
@@ -214,13 +224,33 @@ function finaliserEveil() {
 
     ajouterAInventaire(ARME_DEPART_PAR_CLASSE[classeChoisie], 1);
 
-    logMessage(`Vous vous eveillez en tant que ${classeChoisie}. Rang E attribue par l'Association.`);
+    logMessage(`Vous vous eveillez en tant que ${capitaliser(classeChoisie)}. Rang E attribue par l'Association.`);
     sauvegarderPartie();
-    switchView("view-hub");
-    updateUI();
+
+    afficherEcranBienvenueHub(classeChoisie);
 }
 
-// PV max / PM max derives de la Vitalite et de l'Intelligence, plus un bonus plat eventuel accorde par certains evenements
+function afficherEcranBienvenueHub(classeChoisie) {
+    const texte = `Vous etes desormais un Chasseur enregistre aupres de l'Association, sous la classe ${capitaliser(classeChoisie)}, Rang E.\n\n`
+        + `Depuis le Hub, vous pourrez explorer des donjons, vous entrainer, gerer votre inventaire et faire vos affaires en boutique. `
+        + `Chaque jour compte : votre loyer de ${player.loyerCout} Or doit etre paye tous les ${player.loyerJoursRestants} jours, sous peine d'expulsion. `
+        + `Survivez, progressez, et faites vos preuves.`;
+
+    const zoneTexte = document.getElementById("eveil-texte");
+    if (zoneTexte) zoneTexte.textContent = texte;
+
+    const boutonSuivant = document.getElementById("eveil-suivant");
+    if (boutonSuivant) {
+        boutonSuivant.textContent = "Entrer dans le Hub";
+        boutonSuivant.onclick = () => {
+            boutonSuivant.textContent = "Continuer";
+            switchView("view-hub");
+            updateUI();
+        };
+    }
+}
+
+// PV max / PM max derives de la Vitalite et de l'Intelligence, plus un bonus plat éventuel accorde par certains événements
 function recalculerStatsDerivees() {
     player.pvMax = 100 + player.stats.vitalite * 10 + (player.bonusPvMax || 0);
     player.pmMax = 50 + player.stats.intelligence * 10 + (player.bonusPmMax || 0);
@@ -263,10 +293,14 @@ function actionDormir() {
     player.fatigue = 0;
     player.queteQuotidienneEffectuee = false;
 
-    if (player.compteurQuetes >= 3) {
-        resoudreQueteAutomatique();
+    if (player.eveilSysteme) {
+        if (player.queteAutomatisee) {
+            resoudreQueteAutomatique();
+        } else {
+            logMessage("Une nouvelle journee commence. N'oubliez pas votre quete quotidienne.");
+        }
     } else {
-        logMessage("Une nouvelle journee commence. N'oubliez pas votre quete quotidienne.");
+        logMessage("Une nouvelle journee commence.");
     }
 
     if (player.guildeActuelle && typeof collecterSalaireGuilde === "function") {
@@ -278,18 +312,21 @@ function actionDormir() {
 }
 
 function resoudreQueteAutomatique() {
-    const chanceDoublage = 0.2;
-    if (Math.random() < chanceDoublage) {
-        appliquerGainQueteQuotidienne(true);
-        logMessage("Le Systeme a automatise votre entrainement et l'a double cette nuit.");
-    } else {
+    // La probabilite de gain diminue avec le niveau (le Systeme en attend davantage d'un Chasseur experimente)
+    const chanceGainStat = Math.max(0.1, 0.6 - player.niveau * 0.02);
+    const chanceObjet = Math.min(0.4, 0.05 + player.niveau * 0.01);
+
+    if (Math.random() < chanceGainStat) {
         appliquerGainQueteQuotidienne(false);
+    }
+    if (Math.random() < chanceObjet) {
+        attribuerCoffreMaudit();
     }
     player.queteQuotidienneEffectuee = true;
 }
 
 // ------------------------------------------
-// 7. HUB QUOTIDIEN - ENTRAINEMENT
+// 7. HUB QUOTIDIEN - ENTRAÎNEMENT
 // ------------------------------------------
 function actionEntrainer(stat) {
     if (!["force", "agilite", "intelligence", "perception", "vitalite"].includes(stat)) {
@@ -306,15 +343,18 @@ function actionEntrainer(stat) {
     player.entrainements[stat] += 1;
     recalculerStatsDerivees();
 
-    logMessage(`Une journee d'entrainement intense porte ses fruits : +1 ${stat}.`);
+    logMessage(`Une journee d'entraînement intense porte ses fruits : +1 ${stat}.`);
     sauvegarderPartie();
     updateUI();
 }
 
 // ------------------------------------------
-// 8. QUETE QUOTIDIENNE (phase d'apprentissage manuelle, jours 1 a 3)
+// 8. QUETE QUOTIDIENNE
+// Mecanique entierement liee au Systeme : n'existe qu'a partir de la Phase 3 (decision actee suite au playtest)
 // ------------------------------------------
 function actionQueteQuotidienne(choix) {
+    if (!player.eveilSysteme || player.queteAutomatisee) return;
+
     if (player.queteQuotidienneEffectuee) {
         logMessage("Vous avez deja rempli votre quete quotidienne aujourd'hui.");
         return;
@@ -336,6 +376,11 @@ function actionQueteQuotidienne(choix) {
     } else if (choix === "ignorer") {
         entreeZonePenalite();
         return;
+    }
+
+    if (player.compteurQuetes >= 3 && !player.queteAutomatisee) {
+        player.queteAutomatisee = true;
+        logMessage("Vous commencez a prendre de bonnes habitudes. Desormais, vous n'oublierez plus jamais de remplir votre quete quotidienne.");
     }
 
     sauvegarderPartie();
@@ -380,7 +425,7 @@ let etatZonePenalite = {
 };
 
 function entreeZonePenalite() {
-    logMessage("Vous ignorez votre quete. Le Systeme vous transfere de force vers la Zone de Penalite.");
+    logMessage("Vous ignorez votre quete. Le Système vous transfere de force vers la Zone de Penalite.");
 
     etatZonePenalite = {
         active: true,
@@ -392,9 +437,9 @@ function entreeZonePenalite() {
     switchView("view-zone-penalite");
 }
 
-// Point d'entree utilise par le futur engine-combat.js lors du Cheat Death (mort en donjon)
+// Point d'entrée utilise par le futur engine-combat.js lors du Cheat Death (mort en donjon)
 function declencherCheatDeath(pvRestants) {
-    logMessage("Le Systeme intervient in extremis. Vous echappez a la mort et etes transfere en Zone de Penalite.");
+    logMessage("Le Système intervient in extremis. Vous echappez a la mort et etes transfere en Zone de Penalite.");
     etatZonePenalite = {
         active: true,
         tourActuel: 0,
@@ -415,8 +460,8 @@ function actionZonePenalite(choix) {
         if (jetEsquive > 15) {
             logMessage("Vous esquivez de justesse une attaque devastatrice.");
         } else {
-            const degats = Math.floor(monstre.stats.attaque * 0.3);
-            player.pv = Math.max(0, player.pv - degats);
+            const dégâts = Math.floor(monstre.stats.attaque * 0.3);
+            player.pv = Math.max(0, player.pv - dégâts);
             logMessage(`Le Mille-pattes vous touche. Vous perdez ${degats} PV.`);
         }
     } else if (choix === "soigner") {
@@ -449,7 +494,7 @@ function sortieZonePenalite(succes) {
     etatZonePenalite.active = false;
 
     if (!succes) {
-        logMessage("Vous succombez dans la Zone de Penalite. Votre carriere de chasseur s'acheve ici.");
+        logMessage("Vous succombez dans la Zone de Penalite. Votre carriere de chasseur s'achève ici.");
         terminerPartie("mort");
         switchView("view-fin-partie");
         return;
@@ -458,7 +503,7 @@ function sortieZonePenalite(succes) {
     ajouterMarqueur("zone_penalite_survecue");
     player.fatigue = Math.min(100, player.fatigue + 40);
     player.pv = Math.max(1, Math.floor(player.pv));
-    logMessage("Vous survivez a la Zone de Penalite, epuise mais vivant.");
+    logMessage("Vous survivez a la Zone de Penalite, épuisé mais vivant.");
 
     sauvegarderPartie();
     switchView("view-hub");
@@ -475,7 +520,7 @@ function actionPrendreRetraite() {
         logMessage(`La retraite n'est possible qu'a partir du niveau ${NIVEAU_MIN_RETRAITE}.`);
         return;
     }
-    logMessage("Vous raccrochez definitivement. Une carriere de chasseur s'acheve sur vos propres termes.");
+    logMessage("Vous raccrochez definitivement. Une carriere de chasseur s'achève sur vos propres termes.");
     terminerPartie("retraite");
     switchView("view-fin-partie");
 }
@@ -531,7 +576,7 @@ function utiliserObjet(idItem) {
 }
 
 // ------------------------------------------
-// 12. EQUIPEMENT
+// 12. ÉQUIPEMENT
 // ------------------------------------------
 function equiperObjet(idItem) {
     const donneesItem = itemsData.find(i => i.id === idItem);
@@ -585,7 +630,7 @@ function renderInventaire() {
                 <img class="item-img" src="${itemData.image}" alt="${itemData.nom}">
                 <span class="item-name rang-${itemData.rang.toLowerCase()}">(${itemData.rang}) ${itemData.nom}</span>
                 ${itemData.stackable && invItem.quantite > 1 ? `<span class="item-stack">x${invItem.quantite}</span>` : ""}
-                ${equipe ? `<span class="item-equipe">Equipe</span>` : ""}
+                ${equipe ? `<span class="item-equipe">Équipé</span>` : ""}
             `;
         } else {
             slotHtml.className = "item-slot empty";
@@ -601,11 +646,15 @@ function afficherDetailObjet(itemData) {
 
     const estEquipable = ["arme_principale", "armure", "accessoire"].includes(itemData.type);
     const estUtilisable = itemData.type === "consommable";
+    const estVendable = itemData.type !== "special" || !(itemData.effet && (itemData.effet.type === "ouvre_donjon_instancie" || itemData.effet.type === "ouvre_donjon"));
+    const estCleDonjon = itemData.effet && (itemData.effet.type === "ouvre_donjon_instancie" || itemData.effet.type === "ouvre_donjon");
 
     zoneDetail.innerHTML = `
         <h4 class="rang-${itemData.rang.toLowerCase()}">(${itemData.rang}) ${itemData.nom}</h4>
         <p>${itemData.description}</p>
         ${estEquipable ? `<button onclick="equiperObjet('${itemData.id}')">Equiper</button>` : ""}
         ${estUtilisable ? `<button onclick="utiliserObjet('${itemData.id}')">Utiliser</button>` : ""}
+        ${estCleDonjon ? `<button onclick="fermerInventaire(); demarrerDonjonInstancie('${itemData.id}')">Entrer dans le donjon</button>` : ""}
+        ${estVendable ? `<button onclick="vendreObjet('${itemData.id}'); renderInventaire();">Vendre</button>` : ""}
     `;
 }
