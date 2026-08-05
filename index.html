@@ -20,8 +20,19 @@
             <button id="btn-continuer" onclick="actionContinuerPartie()" disabled>Continuer la partie</button>
             <button onclick="lancerNouvellePartie()">Nouvelle partie</button>
             <button onclick="actionVoirRegles()">Règles</button>
-            <button onclick="actionVoirPantheon()">Panthéon</button>
+            <button onclick="actionVoirPantheon()">Pantheon</button>
         </div>
+    </section>
+
+    <!-- ============================== -->
+    <!-- ECRAN DE RESULTAT INTERMEDIAIRE (apres un choix d'evenement) -->
+    <!-- ============================== -->
+    <section id="view-resultat" class="view">
+        <h2>Resultat</h2>
+        <div class="narrative-box">
+            <p id="resultat-texte"></p>
+        </div>
+        <button id="resultat-continuer">Continuer</button>
     </section>
 
     <!-- ============================== -->
@@ -30,10 +41,10 @@
     <section id="view-regles" class="view">
         <h2>Règles</h2>
         <div class="narrative-box">
-            <p>Vous incarnez un Chasseur eveillé dans un monde envahi par des portails menant à des donjons remplis de monstres.</p>
-            <p>La partie se déroule en trois phases : votre passé de civil qui détermine votre classe, votre vie de chasseur qui gère votre survie économique et vos donjons, et enfin l'éveil du Joueur du Système qui transforme votre progression.</p>
-            <p>La mort est définitive (permadeath). Chaque partie se termine par une mort ou une retraite volontaire, et rejoint le Panthéon avec un score final.</p>
-            <p>Gérez votre loyer, votre fatigue, votre Karma et vos relations avec les guildes pour survivre le plus longtemps possible et batir la carrière la plus marquante.</p>
+            <p>Vous incarnez un Chasseur éveillé dans un monde envahi par des portails menant a des donjons remplis de monstres.</p>
+            <p>La partie se deroule en trois phases : votre passe de civil qui determine votre classe, votre vie de chasseur qui gère votre survie économique et vos donjons, et enfin l'éveil du Joueur du Système qui transforme votre progression.</p>
+            <p>La mort est definitive (permadeath). Chaque partie se termine par une mort ou une retraite volontaire, et rejoint le Pantheon avec un score final.</p>
+            <p>Gérez votre loyer, votre fatigue, votre Karma et vos relations avec les guildes pour survivre le plus longtemps possible et bâtir la carriere la plus marquante.</p>
         </div>
         <button onclick="switchView('view-titre')">Retour</button>
     </section>
@@ -42,7 +53,7 @@
     <!-- PANTHEON -->
     <!-- ============================== -->
     <section id="view-pantheon" class="view">
-        <h2>Panthéon</h2>
+        <h2>Pantheon</h2>
         <div id="pantheon-liste"></div>
         <button onclick="switchView('view-titre')">Retour</button>
     </section>
@@ -51,14 +62,14 @@
     <!-- CREATION DE PERSONNAGE -->
     <!-- ============================== -->
     <section id="view-creation-personnage" class="view">
-        <h2>Création du personnage</h2>
+        <h2>Creation du personnage</h2>
         <p>Nom du chasseur :</p>
         <input type="text" id="input-nom-joueur" placeholder="Votre nom" maxlength="20">
-        <p>Choisissez votre métier de depart :</p>
+        <p>Choisissez votre metier de depart :</p>
         <div class="choices-container">
-            <button onclick="lancerPhaseCivile('ouvrier')">Ouvrier (Force, Vitalité)</button>
-            <button onclick="lancerPhaseCivile('employe')">Employé (Intelligence, Perception)</button>
-            <button onclick="lancerPhaseCivile('livreur')">Livreur (Agilité, Perception)</button>
+            <button onclick="lancerPhaseCivile('ouvrier')">Ouvrier (Force, Vitalite)</button>
+            <button onclick="lancerPhaseCivile('employe')">Employe (Intelligence, Perception)</button>
+            <button onclick="lancerPhaseCivile('livreur')">Livreur (Agilite, Perception)</button>
             <button onclick="lancerPhaseCivile('etudiant')">Etudiant (Intelligence, Perception)</button>
         </div>
     </section>
@@ -78,7 +89,7 @@
     <!-- PROTOCOLE D'EVEIL -->
     <!-- ============================== -->
     <section id="view-eveil" class="view">
-        <h2>Protocole d'Eveil</h2>
+        <h2>Protocole d'Éveil</h2>
         <div class="narrative-box">
             <p id="eveil-texte"></p>
         </div>
@@ -93,60 +104,36 @@
             <div class="hud-top">
                 <span>Rang : <span id="ui-rang">-</span></span>
                 <span>Classe : <span id="ui-classe">-</span></span>
-                <span>Niveau : <span id="ui-niveau">-</span></span>
-                <span>XP : <span id="ui-xp">-</span></span>
-            </div>
-            <div class="hud-stats">
-                <div>PV : <span id="ui-pv">-</span></div>
-                <div>PM : <span id="ui-pm">-</span></div>
-                <div>Or : <span id="ui-or">-</span></div>
-                <div>Pierres d'Essence : <span id="ui-pierres-essence">-</span></div>
-            </div>
-            <div id="hud-system">
-                <span>Loyer : <span id="ui-loyer">-</span></span>
-                <span>Fatigue : <span id="ui-fatigue">-</span></span>
-                <span>Jour : <span id="ui-jour">-</span></span>
-                <span>Karma : <span id="ui-karma">-</span></span>
-                <span>Réputation : <span id="ui-reputation">-</span></span>
-            </div>
-            <div class="hud-attributes">
-                <span>Force : <span id="stat-force">-</span></span>
-                <span>Agilité : <span id="stat-agilite">-</span></span>
-                <span>Intelligence : <span id="stat-intelligence">-</span></span>
-                <span>Perception : <span id="stat-perception">-</span></span>
-                <span>Vitalité : <span id="stat-vitalite">-</span></span>
-                <span>Points libres : <span id="stat-points-libres">-</span></span>
+                <span>PV : <span id="ui-pv">-</span></span>
+                <span>PM : <span id="ui-pm">-</span></span>
+                <span>Or : <span id="ui-or">-</span></span>
+                <button class="bouton-statut" onclick="ouvrirStatut()">Statut</button>
             </div>
         </header>
 
         <nav class="hub-nav">
             <button onclick="ouvrirInventaire()">Inventaire</button>
             <button onclick="afficherMenuPortails()">Portails</button>
-            <button onclick="ouvrirPanneauDonjonsInstancies()">Donjons Instanciés</button>
-            <button onclick="ouvrirBoutiqueAssociation()">Boutique Association</button>
-            <button onclick="ouvrirMarcheNoir()">Marche Noir</button>
-            <button id="btn-boutique-systeme" onclick="ouvrirBoutiqueSysteme()" style="display:none;">Boutique du Système</button>
+            <button onclick="ouvrirPanneauBoutiques()">Boutiques</button>
             <button onclick="ouvrirPanneauGuildes()">Guildes</button>
+            <button id="btn-gerer-guilde" onclick="ouvrirGestionGuilde()" style="display:none;">Ma Guilde</button>
+            <button id="btn-boutique-systeme" onclick="ouvrirBoutiqueSysteme()" style="display:none;">Boutique du Système</button>
         </nav>
 
-        <section class="narrative-box">
-            <h3>Actions du jour</h3>
-            <div class="choices-container">
-                <button onclick="actionDormir()">Dormir (jour suivant)</button>
-                <button onclick="actionEntrainer('force')">S'entrainer : Force</button>
-                <button onclick="actionEntrainer('agilite')">S'entrainer : Agilité</button>
-                <button onclick="actionEntrainer('intelligence')">S'entrainer : Intelligence</button>
-                <button onclick="actionEntrainer('perception')">S'entrainer : Perception</button>
-                <button onclick="actionEntrainer('vitalite')">S'entrainer : Vitalité</button>
-            </div>
-        </section>
-
-        <section class="narrative-box">
+        <section class="narrative-box" id="bloc-quete-quotidienne" style="display:none;">
             <h3>Quête quotidienne</h3>
             <div class="choices-container">
                 <button onclick="actionQueteQuotidienne('faire')">Faire le quota</button>
                 <button onclick="actionQueteQuotidienne('doubler')">Doubler le quota</button>
                 <button onclick="actionQueteQuotidienne('ignorer')">Ignorer</button>
+            </div>
+        </section>
+
+        <section class="narrative-box">
+            <h3>Actions du jour</h3>
+            <div class="choices-container">
+                <button onclick="actionDormir()">Dormir (jour suivant)</button>
+                <button onclick="ouvrirPanneauEntrainement()">S'entraîner</button>
             </div>
         </section>
 
@@ -159,32 +146,102 @@
     </section>
 
     <!-- ============================== -->
+    <!-- MODALE STATUT -->
+    <!-- ============================== -->
+    <div id="modal-statut" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fermerStatut()">&times;</span>
+            <h3>Statut du Chasseur</h3>
+            <div id="bloc-niveau-xp" style="display:none;">
+                <p>Niveau : <span id="ui-niveau">-</span> &nbsp; XP : <span id="ui-xp">-</span></p>
+            </div>
+            <div class="hud-stats">
+                <div>Pierres d'Essence : <span id="ui-pierres-essence">-</span></div>
+                <div>Loyer : <span id="ui-loyer">-</span></div>
+                <div>Fatigue : <span id="ui-fatigue">-</span></div>
+                <div>Jour : <span id="ui-jour">-</span></div>
+                <div>Karma : <span id="ui-karma">-</span></div>
+                <div>Réputation : <span id="ui-reputation">-</span></div>
+            </div>
+            <div class="hud-attributes">
+                <span>Force : <span id="stat-force">-</span></span>
+                <span>Agilité : <span id="stat-agilite">-</span></span>
+                <span>Intelligence : <span id="stat-intelligence">-</span></span>
+                <span>Perception : <span id="stat-perception">-</span></span>
+                <span>Vitalité : <span id="stat-vitalite">-</span></span>
+                <span>Points libres : <span id="stat-points-libres">-</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================== -->
+    <!-- SOUS-MENU ENTRAINEMENT -->
+    <!-- ============================== -->
+    <div id="modal-entrainement" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fermerEntrainement()">&times;</span>
+            <h3>S'entraîner</h3>
+            <div class="choices-container">
+                <button onclick="actionEntrainer('force'); fermerEntrainement();">Force</button>
+                <button onclick="actionEntrainer('agilite'); fermerEntrainement();">Agilité</button>
+                <button onclick="actionEntrainer('intelligence'); fermerEntrainement();">Intelligence</button>
+                <button onclick="actionEntrainer('perception'); fermerEntrainement();">Perception</button>
+                <button onclick="actionEntrainer('vitalite'); fermerEntrainement();">Vitalité</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================== -->
+    <!-- SOUS-MENU BOUTIQUES -->
+    <!-- ============================== -->
+    <div id="modal-boutiques" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="fermerPanneauBoutiques()">&times;</span>
+            <h3>Boutiques</h3>
+            <div class="choices-container">
+                <button onclick="fermerPanneauBoutiques(); ouvrirBoutiqueAssociation();">Association</button>
+                <button onclick="fermerPanneauBoutiques(); ouvrirMarcheNoir();">Marché Noir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================== -->
     <!-- PANNEAU GUILDES (sous-vue du hub) -->
     <!-- ============================== -->
     <section id="view-guildes" class="view">
         <h2>Guildes</h2>
         <p>Guilde actuelle : <span id="guilde-actuelle-nom">Aucune</span></p>
-        <div id="guildes-liste" class="choices-container"></div>
+        <div id="guildes-liste" class="cartes-guildes"></div>
 
         <h3>Votre propre guilde</h3>
-        <p>Statut : <span id="qg-statut">Non fondée</span></p>
+        <p id="fonder-guilde-info">Statut : <span id="qg-statut">Non fondée</span></p>
         <div class="choices-container">
-            <button onclick="fonderGuildePersonnelle(); actualiserPanneauGuildes();">Fonder ma guilde</button>
-            <button onclick="ameliorerQGGuildePersonnelle(); actualiserPanneauGuildes();">Améliorer le QG</button>
+            <button id="btn-fonder-guilde" onclick="fonderGuildePersonnelle(); actualiserPanneauGuildes();">Fonder ma guilde</button>
         </div>
 
         <button onclick="switchView('view-hub')">Retour au Hub</button>
     </section>
 
     <!-- ============================== -->
-    <!-- DONJONS INSTANCIES (sous-vue du hub) -->
+    <!-- GESTION DE MA GUILDE (accessible depuis le Hub une fois fondee) -->
     <!-- ============================== -->
-    <section id="view-donjons-instancies" class="view">
-        <h2>Donjons Instanciés</h2>
-        <p>Utilisez une clé pour ouvrir un donjon solo.</p>
-        <div id="cles-liste" class="choices-container"></div>
+    <section id="view-gestion-guilde" class="view">
+        <h2>Ma Guilde</h2>
+        <p>Niveau du QG : <span id="gestion-qg-niveau">-</span></p>
+        <div class="choices-container">
+            <button onclick="ameliorerQGGuildePersonnelle(); actualiserGestionGuilde();">Améliorer le QG (taille d'effectif et défense)</button>
+        </div>
+        <h3>Escouade</h3>
+        <div id="escouade-liste"></div>
+        <div class="choices-container">
+            <button onclick="recruterAllieDepuisHub()">Recruter un allié</button>
+        </div>
         <button onclick="switchView('view-hub')">Retour au Hub</button>
     </section>
+
+    <!-- ============================== -->
+    <!-- DONJONS INSTANCIES : plus de vue dediee, utilisation directe depuis l'inventaire -->
+    <!-- ============================== -->
 
     <!-- ============================== -->
     <!-- SELECTION DES PORTAILS -->
@@ -193,7 +250,7 @@
         <h2>Portails disponibles</h2>
         <div class="choices-container">
             <button id="btn-position-avant" class="actif" onclick="choisirPositionAvantEntree('avant_garde')">Avant-Garde</button>
-            <button id="btn-position-arriere" onclick="choisirPositionAvantEntree('arriere_garde')">Arrière-Garde</button>
+            <button id="btn-position-arriere" onclick="choisirPositionAvantEntree('arriere_garde')">Arriere-Garde</button>
         </div>
         <div id="portails-liste"></div>
         <button onclick="switchView('view-hub')">Retour au Hub</button>
@@ -204,11 +261,11 @@
     <!-- ============================== -->
     <section id="view-donjon" class="view">
         <h2>Exploration</h2>
+        <button class="bouton-inventaire-donjon" onclick="ouvrirInventaire()">Inventaire</button>
         <div class="narrative-box">
             <p id="donjon-texte"></p>
         </div>
         <div id="donjon-choix" class="choices-container"></div>
-        <button id="donjon-suivant-etape" style="display:none;">Continuer</button>
     </section>
 
     <!-- ============================== -->
@@ -233,9 +290,9 @@
     <!-- ZONE DE PENALITE -->
     <!-- ============================== -->
     <section id="view-zone-penalite" class="view">
-        <h2>Zone de Pénalité</h2>
+        <h2>Zone de Penalite</h2>
         <div class="narrative-box">
-            <p>Un désert infini. Une créature monstrueuse et invincible rode. Survivez.</p>
+            <p>Un desert infini. Une creature monstrueuse et invincible rode. Survivez.</p>
         </div>
         <div class="choices-container">
             <button onclick="actionZonePenalite('esquiver')">Esquiver</button>
@@ -256,7 +313,7 @@
     <!-- MARCHE NOIR -->
     <!-- ============================== -->
     <section id="view-marche-noir" class="view">
-        <h2>Marché Noir</h2>
+        <h2>Marche Noir</h2>
         <div id="marche-noir-liste" class="inventory-grid"></div>
         <button onclick="switchView('view-hub')">Retour au Hub</button>
     </section>
@@ -279,7 +336,7 @@
     <section id="view-fin-partie" class="view">
         <h2>Fin de partie</h2>
         <div id="fin-partie-resume" class="narrative-box"></div>
-        <button onclick="switchView('view-titre'); initEcranTitre();">Retour à l'écran titre</button>
+        <button onclick="switchView('view-titre'); initEcranTitre();">Retour a l'ecran titre</button>
     </section>
 
     <!-- ============================== -->
@@ -299,30 +356,30 @@
 <!-- ============================== -->
 <!-- CHARGEMENT DES DONNEES -->
 <!-- ============================== -->
-<script src="data-items.js"></script>
-<script src="data-monstres.js"></script>
-<script src="data-guildes.js"></script>
-<script src="data-personnages.js"></script>
-<script src="data-evenements-phase1.js"></script>
-<script src="data-evenements-donjon.js"></script>
+<script src="data-items.js" charset="UTF-8"></script>
+<script src="data-monstres.js" charset="UTF-8"></script>
+<script src="data-guildes.js" charset="UTF-8"></script>
+<script src="data-personnages.js" charset="UTF-8"></script>
+<script src="data-evenements-phase1.js" charset="UTF-8"></script>
+<script src="data-evenements-donjon.js" charset="UTF-8"></script>
 
 <!-- ============================== -->
 <!-- CHARGEMENT DU MOTEUR -->
 <!-- ============================== -->
-<script src="engine-core.js"></script>
-<script src="engine-hub.js"></script>
-<script src="engine-combat.js"></script>
-<script src="engine-donjon.js"></script>
-<script src="engine-boutiques.js"></script>
+<script src="engine-core.js" charset="UTF-8"></script>
+<script src="engine-hub.js" charset="UTF-8"></script>
+<script src="engine-combat.js" charset="UTF-8"></script>
+<script src="engine-donjon.js" charset="UTF-8"></script>
+<script src="engine-boutiques.js" charset="UTF-8"></script>
 
 <!-- ============================== -->
 <!-- GLUE D'INTERFACE (rendu de listes dynamiques propres au HTML, pas de logique de jeu) -->
 <!-- ============================== -->
 <script>
     function lancerNouvellePartie() {
-        const resultat = actionNouvellePartie(false);
-        if (resultat === "confirmation_requise") {
-            const confirme = window.confirm("Une partie est deja en cours. La demarrer a nouveau l'effacera definitivement (elle ne sera pas comptee au Pantheon). Continuer ?");
+        const résultat = actionNouvellePartie(false);
+        if (résultat === "confirmation_requise") {
+            const confirme = window.confirm("Une partie est déjà en cours. La demarrer a nouveau l'effacera definitivement (elle ne sera pas comptee au Pantheon). Continuer ?");
             if (confirme) actionNouvellePartie(true);
         }
     }
@@ -332,6 +389,37 @@
         demarrerPhaseCivile(nom, idMetier);
     }
 
+    // ---- Statut (modale) ----
+    function ouvrirStatut() {
+        const modale = document.getElementById("modal-statut");
+        if (modale) modale.classList.add("actif");
+    }
+    function fermerStatut() {
+        const modale = document.getElementById("modal-statut");
+        if (modale) modale.classList.remove("actif");
+    }
+
+    // ---- Entrainement (sous-menu) ----
+    function ouvrirPanneauEntrainement() {
+        const modale = document.getElementById("modal-entrainement");
+        if (modale) modale.classList.add("actif");
+    }
+    function fermerEntrainement() {
+        const modale = document.getElementById("modal-entrainement");
+        if (modale) modale.classList.remove("actif");
+    }
+
+    // ---- Boutiques (sous-menu) ----
+    function ouvrirPanneauBoutiques() {
+        const modale = document.getElementById("modal-boutiques");
+        if (modale) modale.classList.add("actif");
+    }
+    function fermerPanneauBoutiques() {
+        const modale = document.getElementById("modal-boutiques");
+        if (modale) modale.classList.remove("actif");
+    }
+
+    // ---- Guildes ----
     function ouvrirPanneauGuildes() {
         switchView("view-guildes");
         actualiserPanneauGuildes();
@@ -346,48 +434,90 @@
         if (liste) {
             liste.innerHTML = "";
             guildesData.forEach(guilde => {
+                const carte = document.createElement("div");
+                carte.className = "carte-guilde";
+                carte.innerHTML = `
+                    <div class="logo-guilde-placeholder">${guilde.nom.charAt(0)}</div>
+                    <h4>${guilde.nom}</h4>
+                    <p class="profil-guilde">${guilde.profil || ""}</p>
+                    <p>${guilde.description}</p>
+                `;
                 const bouton = document.createElement("button");
-                bouton.textContent = `Rejoindre ${guilde.nom}`;
+                bouton.textContent = player.guildeActuelle === guilde.id ? "Guilde actuelle" : "Rejoindre";
+                bouton.disabled = player.guildeActuelle === guilde.id;
                 bouton.onclick = () => { rejoindreGuilde(guilde.id); actualiserPanneauGuildes(); };
-                liste.appendChild(bouton);
+                carte.appendChild(bouton);
+                liste.appendChild(carte);
             });
         }
 
-        const statutQG = document.getElementById("qg-statut");
-        if (statutQG) {
-            statutQG.textContent = player.guildePersonnelle.fondee
-                ? `Niveau ${player.guildePersonnelle.niveau}`
-                : "Non fondee";
+        const infoFonder = document.getElementById("fonder-guilde-info");
+        const boutonFonder = document.getElementById("btn-fonder-guilde");
+        const boutonGererHub = document.getElementById("btn-gerer-guilde");
+
+        if (player.guildePersonnelle.fondee) {
+            if (infoFonder) infoFonder.textContent = `Votre guilde est fondee (Niveau ${player.guildePersonnelle.niveau}). Gerez-la depuis le bouton "Ma Guilde" au Hub.`;
+            if (boutonFonder) boutonFonder.style.display = "none";
+            if (boutonGererHub) boutonGererHub.style.display = "inline-block";
+        } else {
+            const cout = qgGuildeJoueurData.permis.cout;
+            const rangRequis = qgGuildeJoueurData.permis.rangRequis;
+            if (infoFonder) infoFonder.textContent = `Non fondée. Requiert ${cout} Or et le Rang ${rangRequis} minimum.`;
+            if (boutonFonder) boutonFonder.style.display = "inline-block";
+            if (boutonGererHub) boutonGererHub.style.display = "none";
         }
     }
 
-    function ouvrirPanneauDonjonsInstancies() {
-        switchView("view-donjons-instancies");
-        const liste = document.getElementById("cles-liste");
-        if (!liste) return;
-        liste.innerHTML = "";
-
-        const clesPossedees = player.inventaire.filter(i => i.id.startsWith("cle_donjon_"));
-        if (clesPossedees.length === 0) {
-            liste.innerHTML = "<p>Aucune cle en votre possession.</p>";
-            return;
-        }
-
-        clesPossedees.forEach(slot => {
-            const itemData = itemsData.find(i => i.id === slot.id);
-            const bouton = document.createElement("button");
-            bouton.textContent = `${itemData.nom} (x${slot.quantite})`;
-            bouton.onclick = () => demarrerDonjonInstancie(slot.id);
-            liste.appendChild(bouton);
-        });
+    function ouvrirGestionGuilde() {
+        switchView("view-gestion-guilde");
+        actualiserGestionGuilde();
     }
 
-    // Affiche automatiquement le bouton de la Boutique du Systeme une fois le joueur eveille
+    function actualiserGestionGuilde() {
+        const champNiveau = document.getElementById("gestion-qg-niveau");
+        if (champNiveau) {
+            const palier = qgGuildeJoueurData.paliers.find(p => p.niveau === player.guildePersonnelle.niveau);
+            champNiveau.textContent = palier ? `${palier.niveau} - ${palier.nom}` : player.guildePersonnelle.niveau;
+        }
+
+        const listeEscouade = document.getElementById("escouade-liste");
+        if (listeEscouade) {
+            listeEscouade.innerHTML = player.escouade.length === 0
+                ? "<p>Aucun allie recrute pour l'instant.</p>"
+                : player.escouade.map(a => `<p>${a.nom} - ${a.vivant ? a.pv + "/" + a.pvMax + " PV" : "Hors combat"}</p>`).join("");
+        }
+    }
+
+    function recruterAllieDepuisHub() {
+        const noms = ["Kim Sae-Byeok", "Park Min-Jun", "Lee Ji-Ho", "Choi Da-Eun", "Jung Ha-Neul"];
+        const nom = noms[Math.floor(Math.random() * noms.length)];
+        const puissance = 10 + player.niveau * 2;
+        const pvMax = 80 + player.niveau * 10;
+        recruterAllie(nom, puissance, pvMax);
+        actualiserGestionGuilde();
+    }
+
+    // ---- Inventaire : mise a jour de la Boutique du Systeme, corrige un bug ou l'id du bouton ne correspondait pas ----
     const _updateUIOriginal = updateUI;
     updateUI = function () {
         _updateUIOriginal();
+
         const boutonSysteme = document.getElementById("btn-boutique-systeme");
         if (boutonSysteme) boutonSysteme.style.display = player.eveilSysteme ? "inline-block" : "none";
+
+        const boutonGererGuildeHub = document.getElementById("btn-gerer-guilde");
+        if (boutonGererGuildeHub) boutonGererGuildeHub.style.display = player.guildePersonnelle.fondee ? "inline-block" : "none";
+
+        const blocNiveauXp = document.getElementById("bloc-niveau-xp");
+        if (blocNiveauXp) blocNiveauXp.style.display = player.phase === 3 ? "block" : "none";
+
+        const blocQuete = document.getElementById("bloc-quete-quotidienne");
+        if (blocQuete) blocQuete.style.display = (player.eveilSysteme && !player.queteAutomatisee) ? "block" : "none";
+
+        const champClasse = document.getElementById("ui-classe");
+        if (champClasse && player.classe && !player.voieMonarque) {
+            champClasse.textContent = capitaliser(player.classe);
+        }
 
         const pvCombat = document.getElementById("ui-pv-combat");
         if (pvCombat) pvCombat.textContent = `${player.pv}/${player.pvMax}`;
@@ -398,17 +528,17 @@
     // Resume affiche a la fin d'une partie (dernier element ajoute au Pantheon)
     const _terminerPartieOriginal = terminerPartie;
     terminerPartie = function (cause) {
-        const entree = _terminerPartieOriginal(cause);
+        const entrée = _terminerPartieOriginal(cause);
         const zoneResume = document.getElementById("fin-partie-resume");
-        if (zoneResume && entree) {
+        if (zoneResume && entrée) {
             zoneResume.innerHTML = `
-                <p><strong>${entree.nom}</strong> - ${entree.classeFinale || "Sans classe"}</p>
-                <p>Rang ${entree.rangFinal || "E"} - Niveau ${entree.niveauFinal}</p>
-                <p>${entree.cause === "retraite" ? "Retraite volontaire" : "Mort au combat"}</p>
-                <p>Score final : ${entree.score}</p>
+                <p><strong>${entrée.nom}</strong> - ${entrée.classeFinale || "Sans classe"}</p>
+                <p>Rang ${entrée.rangFinal || "E"} - Niveau ${entrée.niveauFinal}</p>
+                <p>${entrée.cause === "retraite" ? "Retraite volontaire" : "Mort au combat"}</p>
+                <p>Score final : ${entrée.score}</p>
             `;
         }
-        return entree;
+        return entrée;
     };
 </script>
 
