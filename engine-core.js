@@ -35,6 +35,12 @@ function creerNouveauJoueur() {
         loyerJoursRestants: 7,
         loyerCout: 250,
         karma: 0,
+        suspicionAssociation: 0,   // s'incremente a chaque temoin echappe, alimentera le futur arc "l'Association enquete"
+        statutCriminel: false,
+        derniereVisiteAssociationJour: 0,
+        voieMonarqueProposees: [],
+        arcsEnCours: [],           // [{ id, etape, jourProchaineEtape }]
+        arcsTermines: [],
         reputation: 0,
         jourActuel: 1,
         donjonsNettoyes: 0,
@@ -53,6 +59,7 @@ function creerNouveauJoueur() {
         rotationSysteme: { jour: 0, items: [] },         // rotation quotidienne de la Boutique du Système
         qgGuildeNiveau: 0,
         voieMonarque: null,
+        queteMonarqueDeclenchee: false,
         dissimulateurActif: false,
         marqueurs: [],       // événements rares obtenus, pour le score et le Pantheon
         dateDebutPartie: Date.now(),
