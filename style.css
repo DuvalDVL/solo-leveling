@@ -1,22 +1,37 @@
-/* Importation d'une police futuriste et condensée rappelant le Système */
+/* Importation d'une police futuriste et condensee rappelant le Systeme */
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap');
 
 /* ==========================================
-   1. VARIABLES GLOBALES (Thème du Système)
+   1. VARIABLES GLOBALES (Theme du Systeme)
    ========================================== */
 :root {
-    --bg-main: #030712; /* Noir très profond */
-    --bg-panel: rgba(15, 23, 42, 0.85); /* Fond semi-transparent des fenêtres */
-    --border-glow: #3b82f6; /* Bleu néon de base */
-    --border-glow-intense: #60a5fa; /* Bleu plus clair pour les survols */
-    --text-main: #e2f1ff; /* Blanc bleuté pour le texte standard */
-    --text-highlight: #93c5fd; /* Bleu clair pour mettre en valeur */
-    --alert-color: #ef4444; /* Rouge pour les PV bas ou ennemis dangereux */
+    --bg-main: #030712;
+    --bg-panel: rgba(15, 23, 42, 0.85);
+    --border-glow: #3b82f6;
+    --border-glow-intense: #60a5fa;
+    --text-main: #e2f1ff;
+    --text-highlight: #93c5fd;
+    --alert-color: #ef4444;
     --font-system: 'Exo 2', sans-serif;
+
+    /* Couleurs de rang, utilisees par le systeme de liseret CSS des objets et monstres */
+    --rang-e: #9ca3af;   /* Gris commun */
+    --rang-d: #4ade80;   /* Vert */
+    --rang-c: #38bdf8;   /* Bleu */
+    --rang-b: #a78bfa;   /* Violet */
+    --rang-a: #fbbf24;   /* Dore */
+    --rang-s: #f43f5e;   /* Neon / Rouge */
+
+    /* Couleurs du journal de combat */
+    --log-degats: #f87171;
+    --log-soin: #4ade80;
+    --log-statut: #fbbf24;
+    --log-critique: #c084fc;
+    --log-info: #60a5fa;
 }
 
 /* ==========================================
-   2. RÉINITIALISATION ET CORPS DE PAGE
+   2. REINITIALISATION ET CORPS DE PAGE
    ========================================== */
 * {
     box-sizing: border-box;
@@ -31,7 +46,7 @@ body {
     font-size: 16px;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
     padding: 20px;
     background-image: radial-gradient(circle at center, #0a1128 0%, #030712 100%);
@@ -52,7 +67,6 @@ body {
     overflow: hidden;
 }
 
-/* Bordures décoratives façon "Interface Holographique" */
 #game-container::before, #game-container::after {
     content: '';
     position: absolute;
@@ -66,9 +80,20 @@ body {
 #game-container::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
 
 /* ==========================================
-   4. TYPOGRAPHIE
+   4. GESTION DES VUES (ecrans du jeu)
    ========================================== */
-h1, h2, h3 {
+.view { display: none; }
+.view.active { display: block; animation: fondu-entree 0.3s ease-in; }
+
+@keyframes fondu-entree {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ==========================================
+   5. TYPOGRAPHIE
+   ========================================== */
+h1, h2, h3, h4 {
     color: var(--border-glow-intense);
     text-align: center;
     text-transform: uppercase;
@@ -89,7 +114,7 @@ strong {
 }
 
 /* ==========================================
-   5. BOUTONS (Les choix d'action)
+   6. BOUTONS
    ========================================== */
 button {
     background: rgba(15, 23, 42, 0.6);
@@ -107,6 +132,7 @@ button {
     width: calc(100% - 8px);
     max-width: 400px;
     display: inline-block;
+    min-height: 44px;
 }
 
 button:hover {
@@ -118,6 +144,40 @@ button:hover {
     transform: translateY(-2px);
 }
 
+button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+button.actif {
+    background: rgba(59, 130, 246, 0.35);
+    border-color: var(--border-glow-intense);
+    box-shadow: 0 0 12px rgba(96, 165, 250, 0.5);
+    color: #ffffff;
+}
+
+input[type="text"] {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glow);
+    color: var(--text-main);
+    font-family: var(--font-system);
+    border-radius: 2px;
+    text-align: center;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--border-glow-intense);
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+}
+
 .choices-container, .actions-grid {
     display: flex;
     flex-direction: column;
@@ -126,7 +186,7 @@ button:hover {
 }
 
 /* ==========================================
-   6. HUD & INTERFACE HAUTE
+   7. HUD & INTERFACE HAUTE
    ========================================== */
 header#hud {
     border-bottom: 1px solid var(--border-glow);
@@ -145,12 +205,12 @@ header#hud {
     font-size: 0.9em;
 }
 
-.hud-top span, .hud-stats div, .hud-attributes span {
+.hud-top span, .hud-stats div, .hud-attributes span, #hud-system span {
     margin: 5px 10px;
 }
 
 /* ==========================================
-   7. ZONES NARRATIVES & COMBAT
+   8. ZONES NARRATIVES & COMBAT
    ========================================== */
 .narrative-box {
     background: rgba(0, 0, 0, 0.4);
@@ -215,8 +275,15 @@ header#hud {
     padding-bottom: 5px;
 }
 
+/* Journal de combat colore par type de message */
+.log-text.log-degats { color: var(--log-degats); }
+.log-text.log-soin { color: var(--log-soin); }
+.log-text.log-statut { color: var(--log-statut); }
+.log-text.log-critique { color: var(--log-critique); text-shadow: 0 0 6px rgba(192, 132, 252, 0.6); }
+.log-text.log-info { color: var(--log-info); }
+
 /* ==========================================
-   8. HUB & INVENTAIRE (MODAL)
+   9. HUB & INVENTAIRE (MODAL)
    ========================================== */
 .hub-nav {
     display: flex;
@@ -232,21 +299,26 @@ header#hud {
 }
 
 .modal {
-    position: absolute;
+    display: none;
+    position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(3, 7, 18, 0.9);
-    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 100;
+}
+
+.modal.actif {
+    display: flex;
 }
 
 .modal-content {
     background: var(--bg-panel);
     border: 2px solid var(--border-glow-intense);
     padding: 20px;
-    width: 80%;
-    max-height: 80%;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
     position: relative;
@@ -264,12 +336,68 @@ header#hud {
 
 .inventory-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 15px;
     margin-top: 20px;
 }
 
-.inventory-item {
+.item-slot {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glow);
+    padding: 10px;
+    text-align: center;
+    font-size: 0.85em;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.item-slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+}
+
+.item-slot.empty {
+    cursor: default;
+    opacity: 0.3;
+    border-style: dashed;
+}
+
+.item-slot.empty:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.item-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 8px auto;
+}
+
+.item-stack {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1px 5px;
+    font-size: 0.8em;
+    border-radius: 2px;
+    color: var(--text-highlight);
+}
+
+.item-equipe {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75em;
+    color: var(--log-soin);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Boutiques : meme grille que l'inventaire, avec prix affiche */
+.boutique-item {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border-glow);
     padding: 10px;
@@ -277,123 +405,189 @@ header#hud {
     font-size: 0.85em;
 }
 
-/* Personnalisation de la scrollbar pour correspondre au thème */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.5); 
-}
-::-webkit-scrollbar-thumb {
-    background: var(--border-glow); 
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--border-glow-intense); 
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700&display=swap');
-
-.title-font {
-    font-family: 'Oswald', sans-serif;
-    font-size: 4em;
-    color: var(--border-glow-intense);
-    text-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
-    margin-bottom: 40px;
-}
-
-.menu-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-/* Corrections des champs de saisie (Fini le fond blanc) */
-.dark-input {
-    background-color: rgba(15, 23, 42, 0.9);
-    color: var(--text-highlight);
-    border: 1px solid var(--border-glow);
-    padding: 10px;
-    font-family: var(--font-system);
-    width: 100%;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-.dark-input:focus { outline: none; border-color: var(--border-glow-intense); }
-select.dark-input option { background-color: #0f172a; color: white; }
-
-/* Centrage global des boutons */
-.btn-center {
-    margin: 20px auto;
+.boutique-item .item-prix {
     display: block;
+    margin: 8px 0;
+    color: var(--text-highlight);
+    font-weight: 600;
 }
 
-/* Affichage conditionnel du HUD */
-.hidden { display: none !important; }
-.phase-2-only { display: none; } /* Rendu visible via JS après le diplôme */
-
-/* Design du Diplôme d'Éveil */
-.diploma-box {
-    border: 2px solid #ffd700;
-    background: rgba(255, 215, 0, 0.05);
-    padding: 30px;
-    margin: 20px auto;
-    max-width: 400px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+/* ==========================================
+   10. SYSTEME DE LISERET PAR RANG
+   Un seul jeu de regles pilote la couleur de bordure et de texte de tout objet ou monstre,
+   quelle que soit l'image utilisee (generique ou legendaire)
+   ========================================== */
+.border-rang-e, .value.rang-e { border-color: var(--rang-e) !important; }
+.border-rang-d, .value.rang-d { border-color: var(--rang-d) !important; }
+.border-rang-c, .value.rang-c { border-color: var(--rang-c) !important; }
+.border-rang-b, .value.rang-b { border-color: var(--rang-b) !important; }
+.border-rang-a, .value.rang-a { border-color: var(--rang-a) !important; }
+.border-rang-s, .value.rang-s {
+    border-color: var(--rang-s) !important;
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
 }
-.diploma-box h2 { color: #ffd700; text-shadow: none; }
-.diploma-box hr { border-color: rgba(255, 215, 0, 0.3); margin: 15px 0; }
 
-/* Grille d'inventaire 12 cases + Équipement */
-.inventory-split { display: flex; gap: 20px; margin-top: 20px; }
-.inventory-grid {
+.item-name.rang-e, .item-detail-name.rang-e { color: var(--rang-e); }
+.item-name.rang-d, .item-detail-name.rang-d { color: var(--rang-d); }
+.item-name.rang-c, .item-detail-name.rang-c { color: var(--rang-c); }
+.item-name.rang-b, .item-detail-name.rang-b { color: var(--rang-b); }
+.item-name.rang-a, .item-detail-name.rang-a { color: var(--rang-a); }
+.item-name.rang-s, .item-detail-name.rang-s {
+    color: var(--rang-s);
+    text-shadow: 0 0 6px rgba(244, 63, 94, 0.7);
+}
+
+.item-name {
+    display: block;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+#ui-rang.rang-e { color: var(--rang-e); }
+#ui-rang.rang-d { color: var(--rang-d); }
+#ui-rang.rang-c { color: var(--rang-c); }
+#ui-rang.rang-b { color: var(--rang-b); }
+#ui-rang.rang-a { color: var(--rang-a); }
+#ui-rang.rang-s { color: var(--rang-s); text-shadow: 0 0 8px rgba(244, 63, 94, 0.7); }
+
+/* ==========================================
+   11. PORTAILS ET DONJONS
+   ========================================== */
+#portails-liste {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 80px);
-    gap: 10px;
-    flex: 2;
-}
-.inv-slot {
-    background: rgba(0,0,0,0.6);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.8em;
-    cursor: pointer;
-    text-align: center;
-    padding: 5px;
-}
-.inv-slot:hover { border-color: var(--border-glow); }
-.equipment-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    flex: 1;
-}
-.equip-slot {
-    background: rgba(15, 23, 42, 0.9);
-    border: 1px dashed var(--border-glow-intense);
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8em;
-    color: rgba(255,255,255,0.5);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
 }
 
-/* Pop-up In-Game */
-#game-notification {
-    position: absolute;
-    top: 20px; left: 50%; transform: translateX(-50%);
-    background: rgba(3, 7, 18, 0.95);
-    border: 1px solid var(--border-glow-intense);
-    padding: 20px;
-    z-index: 1000;
-    box-shadow: 0 0 20px var(--border-glow);
+.portail-carte {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glow);
+    padding: 15px;
     text-align: center;
-    min-width: 300px;
+}
+
+.portail-carte.portail-rouge {
+    border-color: var(--alert-color);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+.portail-carte.portail-rouge h4 {
+    color: var(--alert-color);
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+/* ==========================================
+   12. PANTHEON
+   ========================================== */
+.pantheon-entree {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glow);
+    padding: 15px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.pantheon-entree h4 {
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.pantheon-entree p {
+    text-align: left;
+    margin-bottom: 6px;
+}
+
+.pantheon-marqueurs {
+    font-style: italic;
+    color: var(--text-highlight);
+    font-size: 0.85em;
+}
+
+/* ==========================================
+   13. SCROLLBAR
+   ========================================== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); }
+::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-glow-intense); }
+
+/* ==========================================
+   14. RESPONSIVE MOBILE
+   ========================================== */
+@media (max-width: 600px) {
+    body {
+        padding: 8px;
+        align-items: stretch;
+    }
+
+    #game-container {
+        padding: 16px 12px;
+        border-radius: 0;
+    }
+
+    h1 { font-size: 1.4em; }
+    h2 { font-size: 1.2em; }
+    h3, h4 { font-size: 1.05em; }
+
+    button {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 0.9em;
+    }
+
+    .hub-nav button {
+        width: calc(50% - 8px);
+        font-size: 0.75em;
+        padding: 10px 8px;
+    }
+
+    .hud-top, .hud-stats, .hud-attributes, #hud-system {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hud-top span, .hud-stats div, .hud-attributes span, #hud-system span {
+        margin: 3px 0;
+    }
+
+    #combat-arena {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .player-card, .enemy-card {
+        width: 100%;
+    }
+
+    .vs-badge {
+        transform: rotate(90deg);
+        margin: 4px 0;
+    }
+
+    .inventory-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 10px;
+    }
+
+    .item-img {
+        width: 36px;
+        height: 36px;
+    }
+
+    #portails-liste {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 96%;
+        padding: 15px;
+        max-height: 90vh;
+    }
+}
+
+@media (max-width: 380px) {
+    .hub-nav button {
+        width: 100%;
+    }
 }
