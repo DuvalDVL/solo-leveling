@@ -104,6 +104,8 @@ function appliquerEffetCivil(effet, idEvenement) {
     if (effet.or) player.or += effet.or;
     if (effet.pv) player.pv = Math.max(0, player.pv + effet.pv);
     if (effet.pm) player.pm = Math.max(0, player.pm + effet.pm);
+    if (effet.pvMax) { player.bonusPvMax = (player.bonusPvMax || 0) + effet.pvMax; recalculerStatsDerivees(); }
+    if (effet.pmMax) { player.bonusPmMax = (player.bonusPmMax || 0) + effet.pmMax; recalculerStatsDerivees(); }
     if (effet.fatigue) player.fatigue = Math.max(0, Math.min(100, player.fatigue + effet.fatigue));
     if (effet.karma) player.karma += effet.karma;
 
@@ -218,10 +220,10 @@ function finaliserEveil() {
     updateUI();
 }
 
-// PV max / PM max derives de la Vitalite et de l'Intelligence (regle actee : entrainement Vitalite/Intelligence impacte immediatement le max)
+// PV max / PM max derives de la Vitalite et de l'Intelligence, plus un bonus plat eventuel accorde par certains evenements
 function recalculerStatsDerivees() {
-    player.pvMax = 100 + player.stats.vitalite * 10;
-    player.pmMax = 50 + player.stats.intelligence * 10;
+    player.pvMax = 100 + player.stats.vitalite * 10 + (player.bonusPvMax || 0);
+    player.pmMax = 50 + player.stats.intelligence * 10 + (player.bonusPmMax || 0);
 }
 
 // ------------------------------------------
@@ -525,4 +527,85 @@ function utiliserObjet(idItem) {
 
     sauvegarderPartie();
     updateUI();
+    renderInventaire();
+}
+
+// ------------------------------------------
+// 12. EQUIPEMENT
+// ------------------------------------------
+function equiperObjet(idItem) {
+    const donneesItem = itemsData.find(i => i.id === idItem);
+    if (!donneesItem) return;
+
+    if (donneesItem.type === "arme_principale") player.equipement.arme = idItem;
+    else if (donneesItem.type === "armure") player.equipement.armure = idItem;
+    else if (donneesItem.type === "accessoire") player.equipement.accessoire = idItem;
+    else return;
+
+    logMessage(`${donneesItem.nom} equipe.`);
+    sauvegarderPartie();
+    updateUI();
+    renderInventaire();
+}
+
+// ------------------------------------------
+// 13. AFFICHAGE DE L'INVENTAIRE (modale)
+// ------------------------------------------
+function ouvrirInventaire() {
+    const modale = document.getElementById("modal-inventaire");
+    if (modale) modale.classList.add("actif");
+    renderInventaire();
+}
+
+function fermerInventaire() {
+    const modale = document.getElementById("modal-inventaire");
+    if (modale) modale.classList.remove("actif");
+}
+
+function renderInventaire() {
+    const grille = document.getElementById("bag-grid");
+    if (!grille) return;
+    grille.innerHTML = "";
+
+    const tailleSac = 16;
+    for (let i = 0; i < tailleSac; i++) {
+        const slotHtml = document.createElement("div");
+
+        if (i < player.inventaire.length) {
+            const invItem = player.inventaire[i];
+            const itemData = itemsData.find(d => d.id === invItem.id);
+            if (!itemData) continue;
+
+            slotHtml.className = `item-slot border-rang-${itemData.rang.toLowerCase()}`;
+            slotHtml.onclick = () => afficherDetailObjet(itemData);
+
+            const equipe = [player.equipement.arme, player.equipement.armure, player.equipement.accessoire].includes(itemData.id);
+
+            slotHtml.innerHTML = `
+                <img class="item-img" src="${itemData.image}" alt="${itemData.nom}">
+                <span class="item-name rang-${itemData.rang.toLowerCase()}">(${itemData.rang}) ${itemData.nom}</span>
+                ${itemData.stackable && invItem.quantite > 1 ? `<span class="item-stack">x${invItem.quantite}</span>` : ""}
+                ${equipe ? `<span class="item-equipe">Equipe</span>` : ""}
+            `;
+        } else {
+            slotHtml.className = "item-slot empty";
+        }
+
+        grille.appendChild(slotHtml);
+    }
+}
+
+function afficherDetailObjet(itemData) {
+    const zoneDetail = document.getElementById("item-details");
+    if (!zoneDetail) return;
+
+    const estEquipable = ["arme_principale", "armure", "accessoire"].includes(itemData.type);
+    const estUtilisable = itemData.type === "consommable";
+
+    zoneDetail.innerHTML = `
+        <h4 class="rang-${itemData.rang.toLowerCase()}">(${itemData.rang}) ${itemData.nom}</h4>
+        <p>${itemData.description}</p>
+        ${estEquipable ? `<button onclick="equiperObjet('${itemData.id}')">Equiper</button>` : ""}
+        ${estUtilisable ? `<button onclick="utiliserObjet('${itemData.id}')">Utiliser</button>` : ""}
+    `;
 }
